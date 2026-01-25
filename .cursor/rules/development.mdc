@@ -1,0 +1,48 @@
+# Cursor Project Rules - Little-by-Little
+
+## Project Identity & Tech Stack
+- **Frontend**: Next.js 15.x (Stable App Router) / React 19.x
+- **Styling**: Tailwind CSS 4 (CSS-First approach)
+- **Backend**: Node.js Express server (located in `/server`)
+- **UI Components**: shadcn/ui with RWD isolation layer
+- **Constraint**: Avoid Experimental Next.js 16 features to ensure stability.
+
+## Response & Communication Style
+- **Mode: Snippet/Diff Only.** Never rewrite the entire file unless it's a new file or specifically requested.
+- **Explain "Why", Not Just "What"**: For every significant code change, provide a concise 1-2 sentence explanation of the **purpose and benefit**.
+- **Tooling Silence**: Do NOT explain or remind about `npm run format`, `eslint`, or `prettier`.
+- **Architectural Rationale**: Explain how changes align with React 19 (e.g., async params) or memory optimization (reducing unnecessary `useMemo`).
+
+## Coding Standards (Strict Mode)
+- **TypeScript**: Strict mode only. **No `any`**, no `as` casting (unless strictly required by libs).
+- **Component Pattern**: Use `React.FC<PropsType>` and destructure props in the function body.
+- **Performance**: Minimize `useMemo/useCallback` overhead; use stable constant references outside components where possible.
+- **Dependencies**: Prefer native ES6+ over `lodash`.
+
+## Component Architecture (RWD Isolation)
+- **Clean Layer**: Business logic components must only pass a `className` to Base/Layout components. 
+- **Base Components**: Responsible for consuming the `className` and merging with internal shadcn styles for RWD.
+
+## Component State Isolation
+- **Internal State Management**: Components should manage their own UI state (e.g., `keyword`, `statusFilter`, `selectedId`) internally using `useState`.
+- **API Data Only in Page**: Only API-related data fetching (via hooks like `useQuery`, `useMutation`) should be handled at the page level.
+- **Callback Pattern**: Components notify parent components of state changes through callback props (e.g., `onFiltersChange`, `onOrderSelect`) rather than exposing internal state.
+- **Separation of Concerns**: Page components are responsible for API calls and data orchestration, while UI components handle their own interaction state.
+
+## Color System (Strict)
+- **Only Use Defined Colors**: The project must ONLY use the color palette defined in `globals.css` under `@theme` block.
+- **Color Palette**: 
+  - Primitive colors: `gray-*`, `green-*`, `blue-*`, `red-*`, `yellow-*` (100-800 shades)
+  - Semantic tokens: `success`, `error`, `warning`, `info`, `text-primary`, `text-secondary`, `text-teritary`, `text-white`, `btn-primary`, `btn-secondary`, `btn-teritary`, `btn-text`, `btn-white-text`
+- **No Tailwind Default Colors**: Do NOT use default Tailwind colors like `zinc-*`, `slate-*`, `amber-*`, `emerald-*`, etc.
+- **Consistent Color Usage**: All components must use the defined color system to ensure visual consistency across the application.
+
+## Workflow & Context
+- **Independent Context**: Front-end (`/src`) and Back-end (`/server`) are decoupled. Do not suggest server changes when working on frontend unless asked.
+- **Verification**: If information is missing, ASK the user before generating code.
+
+## Type Management & Reusability
+- **No Exported Types in Components**: Do NOT export `interface` or `type` directly from component files.
+- **Dedicated Type Files**: If a type needs to be shared or exported, create a `types.ts` (or `types/index.ts`) in the component's root directory.
+- **Type Reusability**: Prioritize using `React.ComponentType<P>` or `React.ComponentProps<typeof Component>` to reuse existing component type definitions instead of re-defining them.
+- **Explain Choice**: Briefly explain how you are reusing types to minimize redundancy and maintain a single source of truth.
