@@ -10,11 +10,12 @@ interface OrderIdProps {
  * OrderId - 訂單編號原子組件
  */
 export const OrderId: React.FC<OrderIdProps> = (props) => {
-  const { id, className } = props;
-
+  
   return (
-    <span className={cn("font-mono text-[11px] text-gray-700", className)}>
-      {id}
+    <span
+      className={cn("font-mono text-[11px] text-gray-700", props.className)}
+    >
+      {props.id}
     </span>
   );
 };

@@ -1,4 +1,4 @@
-import type { Order, OrderStatus, StatusFilterValue } from "@/types/order";
+import type { Order, OrderStatus, StatusFilterValue } from "./order-types";
 
 /**
  * API Response 型別

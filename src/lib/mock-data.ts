@@ -1,4 +1,4 @@
-import type { Order } from "@/types/order";
+import type { Order } from "@/features/order/order-types";
 
 export const mockOrders: Order[] = [
   {
@@ -39,5 +39,14 @@ export const mockOrders: Order[] = [
     total: 800,
     status: "cancelled",
     items: [{ name: "Add-on B", quantity: 2, price: 400 }],
+  },
+  {
+    id: "ORD-240101-005",
+    customerName: "PPPPPending",
+    email: "pending@example.com",
+    createdAt: "2026-01-07T17:40:00Z",
+    total: 800,
+    status: "pending",
+    items: [{ name: "Pending Plan", quantity: 2, price: 15000 }],
   },
 ];

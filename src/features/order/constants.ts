@@ -1,9 +1,9 @@
-import type { OrderStatus, StatusFilterOption } from "@/types/order";
+import type { OrderStatus, StatusFilterOption } from "./order-types";
 
 export const statusLabel: Record<OrderStatus, string> = {
   pending: "待付款",
   paid: "已付款",
-  shipped: "已出貨",
+  shipped: "運行中",
   cancelled: "已取消",
 };
 

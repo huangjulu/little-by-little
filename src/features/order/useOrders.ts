@@ -7,8 +7,8 @@ import {
   type GetOrdersParams,
   type CreateOrderParams,
   type UpdateOrderStatusParams,
-} from "@/lib/api/orders";
-import type { Order } from "@/types/order";
+} from "./orders-api";
+import type { Order } from "./order-types";
 
 /**
  * Query Keys

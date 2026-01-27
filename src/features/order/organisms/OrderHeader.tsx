@@ -2,7 +2,7 @@ import * as React from "react";
 import { StatCard } from "../molecules";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import type { Order } from "@/types/order";
+import type { Order } from "../order-types";
 
 interface OrderHeaderProps {
   orders: Order[];
@@ -16,10 +16,7 @@ interface OrderHeaderProps {
 export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
   const { orders, className } = props;
 
-  // 計算待處理訂單數量
-  const pendingCount = orders.filter((o) => o.status === "pending").length;
-
-  // 計算有效營收（已付款 + 已出貨）
+  // 計算有效營收
   const totalRevenue = orders
     .filter((o) => o.status === "paid" || o.status === "shipped")
     .reduce((sum, o) => sum + o.total, 0);
@@ -40,7 +37,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
         </p>
       </div>
       <StatCard
-        label="有效營收（已付款＋已出貨）"
+        label="有效營收（運行中＋已付款）"
         value={formattedRevenue}
         className="text-sm"
       />

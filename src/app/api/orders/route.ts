@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Order, OrderStatus } from "@/types/order";
+import type { Order, OrderStatus } from "@/features/order/order-types";
 import { mockOrders } from "@/lib/mock-data";
 
 /**

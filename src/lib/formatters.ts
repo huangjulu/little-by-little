@@ -2,6 +2,10 @@
  * 格式化日期時間為中文格式
  */
 export function formatDate(dateString: string): string {
+  if (dateString === "") {
+    return "Invalid string";
+  }
+
   return new Intl.DateTimeFormat("zh-TW", {
     year: "numeric",
     month: "2-digit",
@@ -15,6 +19,10 @@ export function formatDate(dateString: string): string {
  * 格式化金額為台幣格式
  */
 export function formatCurrency(value: number): string {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+
   return new Intl.NumberFormat("zh-TW", {
     style: "currency",
     currency: "TWD",

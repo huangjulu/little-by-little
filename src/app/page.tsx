@@ -8,11 +8,15 @@ import {
   OrderTable,
   OrderDetailPanel,
   SearchInput,
-} from "@/components/orders";
-import { useOrders, useSingleOrderById } from "@/hooks/useOrders";
-import type { StatusFilterValue } from "@/types/order";
+  useOrders,
+  useSingleOrderById,
+  type StatusFilterValue,
+} from "@/features/order";
 import { cn } from "@/lib/utils";
-import { OrderDetailPanelSkeleton } from "@/components/orders/organisms/skeleton/OrderDetailPanelSkeleton";
+import {
+  DataTableSkeleton,
+  PanelDetailSkeleton,
+} from "@/components/shared/skeletons";
 
 export default function OrdersPage() {
   const [filterParams, setFilterParams] = useState<{
@@ -98,26 +102,31 @@ export default function OrdersPage() {
 
           <div
             className={cn(
+              "grid gap-4",
               selectedOrderId
-                ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)]"
+                ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)] col-span-2"
                 : "col-span-2"
             )}
           >
-            <OrderTable
-              orders={filteredOrders}
-              selectedOrderId={selectedOrderId}
-              onOrderClick={handleOrderClick}
-              isLoading={isLoadingOrders}
-            />
+            {isLoadingOrders ? (
+              <DataTableSkeleton rows={5} columns={5} showSummary />
+            ) : (
+              <OrderTable
+                orders={filteredOrders}
+                selectedOrderId={selectedOrderId}
+                onOrderClick={handleOrderClick}
+                isLoading={false}
+              />
+            )}
+
+            {selectedOrderId && (!selectedOrder || isLoadingOrderDetail) && (
+              <PanelDetailSkeleton contentSections={3} />
+            )}
+
+            {selectedOrderId && selectedOrder && (
+              <OrderDetailPanel order={selectedOrder} error={ordersError} />
+            )}
           </div>
-
-          {selectedOrderId && (!selectedOrder || isLoadingOrderDetail) && (
-            <OrderDetailPanelSkeleton />
-          )}
-
-          {selectedOrderId && selectedOrder && (
-            <OrderDetailPanel order={selectedOrder} error={ordersError} />
-          )}
         </section>
       </main>
     </div>
