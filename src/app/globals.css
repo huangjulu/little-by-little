@@ -102,7 +102,7 @@
   --color-yellow-950: var(--color-yellow-800);
 
   /* Gray - 自定義色票 */
-  --color-gray-50: var(--color-gray-100);
+  --color-gray-50: #eceff4;
   --color-gray-100: #e0e3e8;
   --color-gray-200: #c1c3c8;
   --color-gray-300: #a3a5a8;

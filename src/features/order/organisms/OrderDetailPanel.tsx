@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { StatusBadge, OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
 import { OrderItemRow } from "../molecules";
-import type { Order } from "@/types/order";
+import type { Order } from "../order-types";
 import { cn } from "@/lib/utils";
 
 interface OrderDetailPanelProps {
@@ -35,7 +35,7 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-100/80 p-4",
+        "flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4",
         className
       )}
     >
@@ -54,7 +54,10 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
         <div className="space-y-1 rounded-lg border border-gray-200 bg-white px-3 py-3">
           <div className="flex items-center justify-between gap-2">
             <OrderId id={order.id} />
-            <DateDisplay dateString={order.createdAt} variant="muted" />
+            <DateDisplay
+              dateString={order.createdAt}
+              className="text-xs text-gray-400"
+            />
           </div>
           <div className="mt-2 flex justify-between gap-2">
             <div>
@@ -65,8 +68,7 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
               <div className="text-[11px] text-gray-500">訂單金額</div>
               <CurrencyDisplay
                 value={order.total}
-                variant="semibold"
-                className="text-sm"
+                className="text-sm font-semibold"
               />
             </div>
           </div>

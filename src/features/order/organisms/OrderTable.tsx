@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { OrderRow } from "../molecules";
-import type { Order } from "@/types/order";
+import type { Order } from "../order-types";
 import { cn } from "@/lib/utils";
 
 interface OrderTableProps {
@@ -41,7 +41,7 @@ export const OrderTable: React.FC<OrderTableProps> = (props) => {
           <TableHeader>
             <TableRow
               className={cn(
-                "bg-gray-100",
+                "bg-gray-50",
                 " *:px-3 *:py-2 *:text-left *:text-xs *:font-medium *:text-gray-500"
               )}
             >

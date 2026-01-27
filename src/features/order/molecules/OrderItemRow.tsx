@@ -28,7 +28,7 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = (props) => {
         <span className="font-medium text-gray-700">{name}</span>
         <span className="text-[10px] text-gray-400">數量 × {quantity}</span>
       </div>
-      <CurrencyDisplay value={subtotal} variant="mono" />
+      <CurrencyDisplay value={subtotal} className="font-mono text-xs" />
     </div>
   );
 };

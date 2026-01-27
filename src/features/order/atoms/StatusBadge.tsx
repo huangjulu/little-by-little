@@ -1,7 +1,7 @@
 import * as React from "react";
 import { BaseBadge } from "@/components/base";
-import { statusLabel, statusChipStyle } from "@/lib/constants";
-import type { OrderStatus } from "@/types/order";
+import { statusLabel, statusChipStyle } from "../constants";
+import type { OrderStatus } from "../order-types";
 import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {

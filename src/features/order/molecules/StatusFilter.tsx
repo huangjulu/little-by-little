@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useCallback } from "react";
-import { statusFilterOptions } from "@/lib/constants";
-import type { StatusFilterValue } from "@/types/order";
+import { statusFilterOptions } from "../constants";
+import type { StatusFilterValue } from "../order-types";
 import { cn } from "@/lib/utils";
 
 export type StatusCounts = Record<StatusFilterValue, number>;
