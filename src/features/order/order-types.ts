@@ -1,4 +1,4 @@
-export type OrderStatus = "pending" | "paid" | "shipped" | "cancelled";
+export type OrderStatus = "pending" | "paid" | "running" | "cancelled";
 export type StatusFilterValue = "all" | OrderStatus;
 
 export type OrderItem = {

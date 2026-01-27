@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Little by Little - 訂單管理系統
 
-## Getting Started
+這是一個使用 [Next.js](https://nextjs.org) 建立的訂單管理系統專案。
 
-First, run the development server:
+## 🚀 快速開始
+
+詳細的快速開始指南，請查看 [docs/getting-started/README.md](./docs/getting-started/README.md)
+
+### 快速指令
 
 ```bash
+# 安裝依賴
+npm install
+
+# 啟動開發伺服器
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+開發伺服器會在 [http://localhost:3000](http://localhost:3000) 啟動。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📚 文件
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+所有專案文件已整理在 `docs/` 目錄下：
 
-## Learn More
+- 📖 [文件索引](./docs/README.md) - 完整的文件目錄
+- 🚀 [快速開始](./docs/getting-started/README.md) - 新手上路指南
+- 🏗️ [架構設計](./docs/architecture/) - 專案架構說明
+- 🔌 [API 文件](./docs/api/) - API 端點文件
+- 💻 [開發指南](./docs/development/) - 開發相關文件
+- 🔧 [故障排除](./docs/troubleshooting/) - 問題解決指南
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ 技術棧
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **框架**: Next.js 15 (App Router)
+- **語言**: TypeScript
+- **樣式**: Tailwind CSS
+- **UI 組件**: shadcn/ui
+- **狀態管理**: TanStack React Query
+- **表單處理**: React Hook Form (如需要)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 專案結構
 
-## Deploy on Vercel
+```
+src/
+├── app/              # Next.js App Router
+├── components/       # 共享組件
+│   ├── ui/          # shadcn/ui 組件
+│   └── shared/      # 跨功能共享組件
+├── features/        # 功能模組
+│   └── order/       # 訂單功能
+├── lib/             # 工具函數
+└── providers/       # Context Providers
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+詳細的架構說明請查看 [Feature 結構規範](./docs/architecture/feature-structure.md)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 相關資源
+
+- [Next.js 官方文檔](https://nextjs.org/docs)
+- [React Query 官方文檔](https://tanstack.com/query/latest)
+- [Tailwind CSS 官方文檔](https://tailwindcss.com/docs)
+- [shadcn/ui 官方文檔](https://ui.shadcn.com/)
+
+## 📝 授權
+
+本專案為內部專案，僅供團隊使用。

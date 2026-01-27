@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
+import { IconOrder } from "@/icon/IconOrder";
+import { IconFinance } from "@/icon/IconFinance";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +32,30 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <div className="flex min-h-screen">
+            <nav className="flex w-24 flex-col items-center gap-4 border-r bg-white py-6">
+              <div className="mb-4 text-xs font-semibold text-gray-500">
+                NAV
+              </div>
+              <Link
+                href="/"
+                className="group flex h-12 w-24 flex-col items-center justify-center rounded-md text-xs text-black hover:bg-green-100 hover:text-primary transition-colors"
+              >
+                <IconOrder className="h-6 w-6 text-black group-hover:text-primary" />
+                <span className="mt-1">Orders</span>
+              </Link>
+              <Link
+                href="/finance"
+                className="group flex h-12 w-24 flex-col items-center justify-center rounded-md text-xs text-black hover:bg-green-100 hover:text-primary transition-colors"
+              >
+                <IconFinance className="h-6 w-6 text-black group-hover:text-primary" />
+                <span className="mt-1">Finance</span>
+              </Link>
+            </nav>
+            <main className="flex-1">{children}</main>
+          </div>
+        </QueryProvider>
         <Toaster
           position="top-right"
           toastOptions={{

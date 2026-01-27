@@ -1,10 +1,18 @@
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { StatusBadge, OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
 import { OrderItemRow } from "../molecules";
 import type { Order } from "../order-types";
 import { cn } from "@/lib/utils";
+import { StatusBadge } from "../atoms/StatusBadge";
 
 interface OrderDetailPanelProps {
   order: Order;
@@ -33,23 +41,18 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
   }, [error]);
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4",
-        className
-      )}
-    >
-      <div className="flex items-center justify-between gap-2">
+    <Card className={cn("flex flex-col gap-3 bg-gray-50 p-4", className)}>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 p-0">
         <div>
-          <h2 className="text-sm font-semibold">訂單明細</h2>
-          <p className="text-xs text-gray-500">
+          <CardTitle className="text-sm">訂單明細</CardTitle>
+          <CardDescription className="text-xs">
             點選左側列表中的任一筆訂單查看細節。
-          </p>
+          </CardDescription>
         </div>
         <StatusBadge status={order.status} />
-      </div>
+      </CardHeader>
 
-      <div className="space-y-4 text-xs">
+      <CardContent className="space-y-4 p-0 text-xs">
         {/* 基本資訊卡片 */}
         <div className="space-y-1 rounded-lg border border-gray-200 bg-white px-3 py-3">
           <div className="flex items-center justify-between gap-2">
@@ -104,8 +107,8 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
             </li>
           </ul>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

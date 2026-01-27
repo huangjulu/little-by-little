@@ -28,7 +28,7 @@ export const mockOrders: Order[] = [
     email: "chen@example.com",
     createdAt: "2026-01-08T09:05:00Z",
     total: 1290,
-    status: "shipped",
+    status: "running",
     items: [{ name: "Basic Plan", quantity: 1, price: 1290 }],
   },
   {

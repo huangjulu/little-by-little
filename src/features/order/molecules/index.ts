@@ -6,3 +6,4 @@ export * from "./SearchInput";
 export * from "./StatusFilter";
 export * from "./OrderRow";
 export * from "./OrderItemRow";
+export * from "./CreateOrderButton";

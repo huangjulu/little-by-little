@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -13,16 +14,18 @@ interface StatCardProps {
  */
 export const StatCard: React.FC<StatCardProps> = (props) => {
   return (
-    <div
+    <Card
       className={cn(
-        "rounded-xl border px-4 py-2 text-sm",
+        "px-4 py-2 text-sm",
         "border-gray-200 bg-gray-50",
         props.className
       )}
     >
-      <div className="text-xs text-gray-500">{props.label}</div>
-      <div className="mt-1 font-semibold">{props.value}</div>
-    </div>
+      <CardContent className="p-0">
+        <div className="text-xs text-gray-500">{props.label}</div>
+        <div className="mt-1 font-semibold">{props.value}</div>
+      </CardContent>
+    </Card>
   );
 };
 
