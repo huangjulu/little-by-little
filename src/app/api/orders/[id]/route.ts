@@ -71,7 +71,7 @@ export async function PATCH(
       const validStatuses: OrderStatus[] = [
         "pending",
         "paid",
-        "shipped",
+        "running",
         "cancelled",
       ];
       if (!validStatuses.includes(body.status)) {

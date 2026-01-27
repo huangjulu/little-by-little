@@ -1,8 +1,17 @@
 import * as React from "react";
-import { StatCard } from "../molecules";
+import { useState } from "react";
+import { StatCard, CreateOrderButton } from "../molecules";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { Order } from "../order-types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogProps } from "@radix-ui/react-dialog";
 
 interface OrderHeaderProps {
   orders: Order[];
@@ -16,33 +25,64 @@ interface OrderHeaderProps {
 export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
   const { orders, className } = props;
 
-  // 計算有效營收
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const month = new Date().getMonth() + 1;
+
+  // 計算當月有效營收，待透過 API 取得當月營收
   const totalRevenue = orders
-    .filter((o) => o.status === "paid" || o.status === "shipped")
+    .filter((o) => o.status === "paid" || o.status === "running")
     .reduce((sum, o) => sum + o.total, 0);
 
   const formattedRevenue = formatCurrency(totalRevenue);
 
   return (
-    <header
-      className={cn(
-        "flex flex-col justify-between gap-4 sm:flex-row sm:items-center",
-        className
+    <>
+      <header
+        className={cn(
+          "flex flex-col justify-between gap-4 sm:flex-row sm:items-center",
+          className
+        )}
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight">訂單管理</h1>
+            <CreateOrderButton onClick={() => setIsDialogOpen(true)} />
+          </div>
+          <p className="text-sm text-gray-500">
+            查看訂單狀態、基本明細與金額概況。後續可接上實際 API。
+          </p>
+        </div>
+        <StatCard
+          label={`${month}月有效營收（運行中＋已付款）`}
+          value={formattedRevenue}
+          className="text-sm"
+        />
+      </header>
+      {isDialogOpen && (
+        <DialogCreateOrder
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+        />
       )}
-    >
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">訂單管理</h1>
-        <p className="text-sm text-gray-500">
-          查看訂單狀態、基本明細與金額概況。後續可接上實際 API。
-        </p>
-      </div>
-      <StatCard
-        label="有效營收（運行中＋已付款）"
-        value={formattedRevenue}
-        className="text-sm"
-      />
-    </header>
+    </>
   );
 };
 
 OrderHeader.displayName = "OrderHeader";
+
+const DialogCreateOrder: React.FC<DialogProps> = (props) => {
+  return (
+    <Dialog {...props}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>建立新訂單</DialogTitle>
+          <DialogDescription>請填寫訂單資訊以建立新訂單。</DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-sm text-gray-500">訂單表單內容將在此處顯示。</p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

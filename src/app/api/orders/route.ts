@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       const validStatuses: OrderStatus[] = [
         "pending",
         "paid",
-        "shipped",
+        "running",
         "cancelled",
       ];
       if (validStatuses.includes(status as OrderStatus)) {

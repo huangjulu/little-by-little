@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useCallback } from "react";
-import { BaseInput } from "@/components/base";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface SearchInputProps {
@@ -32,7 +32,7 @@ export const SearchInput: React.FC<SearchInputProps> = (props) => {
       )}
     >
       <span className="text-gray-400">🔍</span>
-      <BaseInput
+      <Input
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
