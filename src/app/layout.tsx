@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
 import { IconOrder } from "@/icon/IconOrder";
 import { IconFinance } from "@/icon/IconFinance";
-import "./globals.css";
-import { cn } from "@/lib/utils";
 import { IconLogo } from "@/icon/IconLogo";
+import { NaviItemWithPopover } from "@/components/shared/NaviItemWithPopover";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "訂單管理系統",
+
   description: "訂單管理系統 - Order Management System",
 };
 
@@ -40,13 +40,13 @@ export default function RootLayout({
               <div className="mb-4 text-xs font-semibold text-gray-500">
                 <IconLogo />
               </div>
-              <NaviItem
+              <NaviItemWithPopover
                 href="/"
                 icon={<IconOrder />}
                 label="Orders"
                 className="w-full"
               />
-              <NaviItem
+              <NaviItemWithPopover
                 href="/finance"
                 icon={<IconFinance />}
                 label="Finance"
@@ -73,24 +73,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-interface NaviItemProps {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-  className?: string;
-}
-
-const NaviItem: React.FC<NaviItemProps> = (props) => {
-  return (
-    <Link
-      href={props.href}
-      className={cn(
-        "flex w-full items-center justify-center rounded-md hover:bg-green-100 transition-colors",
-        props.className
-      )}
-    >
-      {props.icon}
-    </Link>
-  );
-};
