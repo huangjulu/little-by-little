@@ -38,4 +38,3 @@ export const IconOrder: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
 };
 
 IconOrder.displayName = "IconOrder";
-

@@ -60,10 +60,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
         />
       </header>
       {isDialogOpen && (
-        <DialogCreateOrder
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-        />
+        <DialogCreateOrder open={isDialogOpen} onOpenChange={setIsDialogOpen} />
       )}
     </>
   );
