@@ -6,6 +6,8 @@ import { Toaster } from "sonner";
 import { IconOrder } from "@/icon/IconOrder";
 import { IconFinance } from "@/icon/IconFinance";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { IconLogo } from "@/icon/IconLogo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,22 +38,20 @@ export default function RootLayout({
           <div className="flex min-h-screen">
             <nav className="flex w-24 flex-col items-center gap-4 border-r bg-white py-6">
               <div className="mb-4 text-xs font-semibold text-gray-500">
-                NAV
+                <IconLogo />
               </div>
-              <Link
+              <NaviItem
                 href="/"
-                className="group flex h-12 w-24 flex-col items-center justify-center rounded-md text-xs text-black hover:bg-green-100 hover:text-primary transition-colors"
-              >
-                <IconOrder className="h-6 w-6 text-black group-hover:text-primary" />
-                <span className="mt-1">Orders</span>
-              </Link>
-              <Link
+                icon={<IconOrder />}
+                label="Orders"
+                className="w-full"
+              />
+              <NaviItem
                 href="/finance"
-                className="group flex h-12 w-24 flex-col items-center justify-center rounded-md text-xs text-black hover:bg-green-100 hover:text-primary transition-colors"
-              >
-                <IconFinance className="h-6 w-6 text-black group-hover:text-primary" />
-                <span className="mt-1">Finance</span>
-              </Link>
+                icon={<IconFinance />}
+                label="Finance"
+                className="w-full"
+              />
             </nav>
             <main className="flex-1">{children}</main>
           </div>
@@ -73,3 +73,24 @@ export default function RootLayout({
     </html>
   );
 }
+
+interface NaviItemProps {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  className?: string;
+}
+
+const NaviItem: React.FC<NaviItemProps> = (props) => {
+  return (
+    <Link
+      href={props.href}
+      className={cn(
+        "flex w-full items-center justify-center rounded-md hover:bg-green-100 transition-colors",
+        props.className
+      )}
+    >
+      {props.icon}
+    </Link>
+  );
+};

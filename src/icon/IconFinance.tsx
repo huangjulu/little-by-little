@@ -30,4 +30,3 @@ export const IconFinance: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
 };
 
 IconFinance.displayName = "IconFinance";
-
