@@ -22,7 +22,7 @@ export function NaviItemWithPopover(props: NaviItemWithPopoverProps) {
 
   return (
     <div
-      className={cn("flex w-full justify-center", props.className)}
+      className={props.className}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -31,7 +31,7 @@ export function NaviItemWithPopover(props: NaviItemWithPopoverProps) {
           <Link
             href={props.href}
             className={cn(
-              "flex h-12 w-full flex-col items-center justify-center rounded-md transition-colors hover:bg-green-100 hover:text-primary"
+              "flex p-3 items-center justify-center rounded-md transition-colors hover:bg-green-100 hover:text-primary"
             )}
           >
             {props.icon}

@@ -49,8 +49,18 @@
    - 確保值相同時引用也相同
 
 3. **父元件傳遞的函數穩定**
+
    - `page.tsx` 中使用 `setKeyword`、`setStatusFilter`、`setSelectedId`
    - 這些是 `useState` 的 setter，React 保證引用穩定
+
+4. # MVP Architecture Rules
+   1. Every component must split into:
+      - index.tsx (View: UI only, simple state like isOpen allowed)
+      - use[Name]Presenter.ts (Logic: logic > 5 lines, formatting)
+      - model.ts (Data: React-Query hooks)
+   2. DO NOT use spread operators for presenter props. Pass as a single object.
+   3. No useQuery/useMutation in View files. Move to model.ts.
+   4. Types must be explicitly defined to avoid undefined errors.
 
 ### ⚠️ 可以接受的 Inline 函數
 
