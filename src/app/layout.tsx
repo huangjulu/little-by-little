@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased md:overflow-hidden`}
       >
         <QueryProvider>
           <div className="flex min-h-screen">
