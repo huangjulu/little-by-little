@@ -1,4 +1,6 @@
-import * as React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -24,17 +26,15 @@ interface OrderTableProps {
  * 選中狀態由父組件管理
  */
 export const OrderTable: React.FC<OrderTableProps> = (props) => {
-  const { orders, selectedOrderId, onOrderClick, isLoading, className } = props;
-
   return (
     <div
       className={cn(
         "overflow-hidden rounded-xl border border-gray-200 bg-white",
-        className
+        props.className
       )}
     >
       <div className="border-b border-gray-100 px-4 py-2 text-xs text-gray-500">
-        共 {orders.length} 筆訂單
+        共 {props.orders.length} 筆訂單
       </div>
       <div className="max-h-[480px] overflow-auto text-sm">
         <Table>
@@ -53,16 +53,16 @@ export const OrderTable: React.FC<OrderTableProps> = (props) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && <TableLoading />}
-            {!isLoading && orders.length === 0 ? (
+            {props.isLoading && <TableLoading />}
+            {!props.isLoading && props.orders.length === 0 ? (
               <TableEmpty />
             ) : (
-              orders.map((order) => (
+              props.orders.map((order) => (
                 <OrderRow
                   key={order.id}
                   order={order}
-                  isSelected={selectedOrderId === order.id}
-                  onClick={() => onOrderClick?.(order.id)}
+                  isSelected={props.selectedOrderId === order.id}
+                  onClick={() => props.onOrderClick?.(order.id)}
                 />
               ))
             )}

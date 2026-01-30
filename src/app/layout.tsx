@@ -32,11 +32,11 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
       >
         <QueryProvider>
           <div className="flex min-h-screen">
-            <nav className="flex w-24 flex-col items-center gap-4 border-r bg-white py-6">
+            <nav className="flex flex-col items-center gap-2 px-3 py-4 bg-white shadow-sm sticky z-30 h-full no-scrollbar overflow-x-hidden">
               <div className="mb-4 text-xs font-semibold text-gray-500">
                 <IconLogo />
               </div>

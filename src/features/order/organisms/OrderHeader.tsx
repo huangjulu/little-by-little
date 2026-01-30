@@ -67,7 +67,6 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
 };
 
 OrderHeader.displayName = "OrderHeader";
-
 const DialogCreateOrder: React.FC<DialogProps> = (props) => {
   return (
     <Dialog {...props}>
