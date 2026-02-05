@@ -1,0 +1,35 @@
+---
+description: UI 組件可追朔性規則 - 確保 UI 呈現一致性
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# UI Design 可追朔性
+
+## 核心原則
+
+在 `src/ui/` 以外的任何位置新增組件時，必須先確認該組件在 `src/ui/xxx.stories.tsx` 中有對應的 Storybook 展示。
+
+## 規則
+
+### 1. Storybook 驗證優先
+- 新增任何使用 `src/ui/` 組件的 feature 組件前，先檢查 `src/ui/xxx.stories.tsx` 是否已涵蓋該使用情境
+- 確保呈現的一致性與設計系統的完整性
+
+### 2. 客製化行為需詢問
+- 若需要對 UI 組件進行客製化操作或樣式修改，**必須先詢問使用者**確認
+- 不可擅自修改基礎 UI 組件的預設行為
+
+### 3. Stories 檔案唯讀
+- **禁止**在新增 feature 元件時修改 `src/ui/xxx.stories.tsx` 檔案
+- Stories 檔案僅用於展示基礎 UI 組件的標準用法
+- 如需新增 story，需獨立討論並經使用者同意
+
+## 範例
+
+```typescript
+// ✅ 正確：先確認 Card stories 已有相關展示，再在 feature 中使用
+import { Card, CardContent } from "@/ui/card";
+
+// ❌ 錯誤：直接修改 ui/card.stories.tsx 來適配新需求
+```

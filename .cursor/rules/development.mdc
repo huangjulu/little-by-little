@@ -26,6 +26,7 @@
 ## Component State Isolation
 - **Internal State Management**: Components should manage their own UI state (e.g., `keyword`, `statusFilter`, `selectedId`) internally using `useState`.
 - **API Data Only in Page**: Only API-related data fetching (via hooks like `useQuery`, `useMutation`) should be handled at the page level.
+- **Cross-Component Shared State**: For state that needs to be shared across multiple unrelated components (e.g., user selections, cart items), use Redux. See `state-management.mdc` for details.
 - **Callback Pattern**: Components notify parent components of state changes through callback props (e.g., `onFiltersChange`, `onOrderSelect`) rather than exposing internal state.
 - **Separation of Concerns**: Page components are responsible for API calls and data orchestration, while UI components handle their own interaction state.
 

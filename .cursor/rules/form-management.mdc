@@ -1,0 +1,104 @@
+---
+description: 表單管理規則 - 使用 react-hook-form 統一管理表單
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# 表單管理規範 (react-hook-form)
+
+## 核心原則
+
+所有具有 submit 行為的表單元素，**必須且只能**使用 `react-hook-form` 進行管理。
+
+## 規則
+
+### 1. 統一使用 react-hook-form
+- 任何有 `<form>` 或 submit 行為的元件，都必須使用 `react-hook-form`
+- 不可混用原生 form state 或其他表單庫
+
+### 2. 避免多層傳遞
+- **禁止** `register` 和 `Controller` 作為 props 多層傳遞
+- 避免 prop drilling 造成的維護困難
+
+### 3. Provider 模式優先
+- 在父層（通常是 Page 或 Form Container）使用 `FormProvider`
+- 在子層組件使用 `useFormContext` 取得表單方法
+- 保持資料流由上至下的乾淨度
+
+## 範例
+
+```typescript
+// ✅ 正確：父層 Provider + 子層 useFormContext
+
+// Parent (Page or Form Container)
+import { FormProvider, useForm } from "react-hook-form";
+
+export const CreateOrderPage: React.FC = () => {
+  const methods = useForm<OrderFormData>();
+  
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <OrderFormFields />
+        <SubmitButton />
+      </form>
+    </FormProvider>
+  );
+};
+
+// Child Component
+import { useFormContext } from "react-hook-form";
+
+export const OrderFormFields: React.FC = () => {
+  const { register, formState: { errors } } = useFormContext<OrderFormData>();
+  
+  return (
+    <Input {...register("orderName")} />
+  );
+};
+```
+
+```typescript
+// ❌ 錯誤：多層傳遞 register
+export const OrderForm: React.FC<{ register: UseFormRegister<T>; errors: FieldErrors }> = ({ register, errors }) => {
+  return <NestedField register={register} errors={errors} />;
+};
+```
+
+## 驗證整合 (Zod)
+
+建議搭配 Zod 進行 schema 驗證：
+
+```typescript
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const formSchema = z.object({
+  orderName: z.string().min(1, "訂單名稱為必填"),
+  quantity: z.number().min(1, "數量至少為 1"),
+});
+
+const methods = useForm<z.infer<typeof formSchema>>({
+  resolver: zodResolver(formSchema),
+});
+```
+
+## 與 shadcn/ui 整合
+
+shadcn/ui 組件可直接搭配 react-hook-form：
+
+```typescript
+// Input 組件
+<Input {...register("fieldName")} />
+
+// Controlled 組件 (Select, Checkbox, Switch)
+<Controller
+  name="status"
+  control={control}
+  render={({ field }) => (
+    <Select value={field.value} onValueChange={field.onChange}>
+      {/* ... */}
+    </Select>
+  )}
+/>
+```
