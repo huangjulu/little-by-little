@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/ui/badge";
 import { statusLabel, statusChipStyle } from "../constants";
 import type { OrderStatus } from "../order-types";
 import { cn } from "@/lib/utils";

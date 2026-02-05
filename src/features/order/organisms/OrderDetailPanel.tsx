@@ -7,7 +7,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
+} from "@/ui/card";
 import { OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
 import { OrderItemRow } from "../molecules";
 import type { Order } from "../order-types";

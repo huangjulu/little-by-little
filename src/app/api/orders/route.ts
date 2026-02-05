@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import type { Order, OrderStatus } from "@/features/order/order-types";
 import { mockOrders } from "@/lib/mock-data";
+// import { PrismaClient } from "@/generated/prisma";
 
 /**
  * GET /api/orders
  * 取得訂單列表
  */
+// const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;

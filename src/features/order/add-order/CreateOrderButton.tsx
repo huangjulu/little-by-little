@@ -16,7 +16,7 @@ export const CreateOrderButton: React.FC<CreateOrderButtonProps> = (props) => {
       type="button"
       onClick={props.onClick}
       className={cn(
-        "inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors",
+        "flex items-center justify-center rounded-md p-1.5 font-medium transition-colors cursor-pointer border border-gray-200 shadow-sm",
         "hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400",
         "disabled:pointer-events-none disabled:opacity-50",
         props.className
