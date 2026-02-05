@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import { IconOrder } from "@/icon/IconOrder";
 import { IconFinance } from "@/icon/IconFinance";
 import { IconLogo } from "@/icon/IconLogo";
-import { NaviItemWithPopover } from "@/components/shared/NaviItemWithPopover";
+import { NaviItemWithPopover } from "@/ui/NaviItemWithPopover";
 import "./globals.css";
 
 const geistSans = Geist({

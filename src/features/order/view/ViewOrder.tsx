@@ -14,10 +14,8 @@ import {
   OrderHeader,
   OrderTable,
 } from "../organisms";
-import {
-  DataTableSkeleton,
-  PanelDetailSkeleton,
-} from "@/components/shared/skeletons";
+import { DataTableSkeleton } from "./DataTableSkeleton";
+import { PanelDetailSkeleton } from "./PanelDetailSkeleton";
 
 export const ViewOrder: React.FC<{ className?: string }> = (props) => {
   const [filterParams, setFilterParams] = useState<{

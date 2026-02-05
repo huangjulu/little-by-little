@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/ui/table";
 import { OrderRow } from "../molecules";
 import type { Order } from "../order-types";
 import { cn } from "@/lib/utils";

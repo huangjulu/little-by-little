@@ -4,14 +4,8 @@ import { StatCard, CreateOrderButton } from "../molecules";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { Order } from "../order-types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { DialogProps } from "@radix-ui/react-dialog";
+import { ViewCreateOrder } from "../add-order/view/ViewCreateOrder";
+// import { useMutation } from "@tanstack/react-query";
 
 interface OrderHeaderProps {
   orders: Order[];
@@ -34,6 +28,8 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
     .filter((o) => o.status === "paid" || o.status === "running")
     .reduce((sum, o) => sum + o.total, 0);
 
+  // const monthRevenue = orderApi.getMonthRevenue.useQuery({ month });
+
   const formattedRevenue = formatCurrency(totalRevenue);
 
   return (
@@ -44,8 +40,8 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
           className
         )}
       >
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold tracking-tight">訂單管理</h1>
             <CreateOrderButton onClick={() => setIsDialogOpen(true)} />
           </div>
@@ -60,25 +56,10 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
         />
       </header>
       {isDialogOpen && (
-        <DialogCreateOrder open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+        <ViewCreateOrder open={isDialogOpen} onOpenChange={setIsDialogOpen} />
       )}
     </>
   );
 };
 
 OrderHeader.displayName = "OrderHeader";
-const DialogCreateOrder: React.FC<DialogProps> = (props) => {
-  return (
-    <Dialog {...props}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>建立新訂單</DialogTitle>
-          <DialogDescription>請填寫訂單資訊以建立新訂單。</DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-sm text-gray-500">訂單表單內容將在此處顯示。</p>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
