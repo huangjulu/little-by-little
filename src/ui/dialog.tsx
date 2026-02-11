@@ -5,6 +5,9 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { IconCross } from "@/icon/IconCross";
 import { cn } from "@/lib/utils";
 
+// TODO: 需要處理 Dialog 在手機版 bottom sheet 模式下，
+// 透過 handle bar 的拖曳在「半高」與「全高」之間切換。
+
 export interface DialogProps {
   /** 是否顯示右上角的關閉 X 按鈕 */
   isClosable?: boolean;
@@ -37,8 +40,8 @@ export interface DialogProps {
   handleBar?: boolean;
   /**
    * 是否顯示 overlay 遮罩。
-   * - true：顯示背景遮罩（預設）
-   * - false：隱藏遮罩
+   * - true：顯示背景遮罩
+   * - false：隱藏遮罩（預設）
    */
   overlay?: boolean;
 }
@@ -46,15 +49,21 @@ export interface DialogProps {
 type DialogRootProps = React.ComponentPropsWithoutRef<typeof RadixDialog.Root> &
   Pick<DialogProps, "overlay">;
 
+type DialogOverlayForwardRefProps = React.ComponentPropsWithoutRef<
+  typeof RadixDialog.Overlay
+> & {
+  isShow: boolean;
+};
+
 const DialogOverlay = forwardRef<
   React.ElementRef<typeof RadixDialog.Overlay>,
-  React.ComponentPropsWithoutRef<typeof RadixDialog.Overlay>
->(({ className, ...props }, ref) => (
+  DialogOverlayForwardRefProps
+>(({ className, isShow, ...props }, ref) => (
   <RadixDialog.Overlay
     ref={ref}
     className={cn(
       "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80",
-      className
+      isShow ? "" : "hidden"
     )}
     {...props}
   />
@@ -92,22 +101,22 @@ const DialogContent = forwardRef<
   DialogContentProps & Pick<DialogProps, "overlay">
 >(({ className, children, size = "md", overlay, ...props }, ref) => {
   const ctxOverlay = useDialogConfig();
-  const shouldShowOverlay = overlay ?? ctxOverlay ?? true;
+  const shouldShowOverlay = overlay ?? ctxOverlay?.overlay;
 
   return (
     <RadixDialog.Portal>
-      {shouldShowOverlay && <DialogOverlay className="hidden sm:block" />}
+      <DialogOverlay isShow={shouldShowOverlay ?? false} />
       <RadixDialog.Content
         ref={ref}
         className={cn(
           // 動畫與位置
           getSizeClass(size),
           // 通用樣式定義
-          "fixed grid gap-4 z-50 origin-center sm:slide-in-from-top-50 sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:bottom-auto sm:rounded-lg p-6 shadow-lg border bg-background",
+          "fixed grid gap-4 z-50 origin-center max-h-[90vh] overflow-y-auto sm:slide-in-from-top-50 sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:bottom-auto sm:rounded-lg p-6 shadow-lg border bg-background",
           "data-[state=open]:animate-in data-[state=closed]:animate-out duration-200",
           // 桌面版
           "sm:data-[state=open]:fade-in-0 sm:data-[state=closed]:fade-out-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95",
-          // 手機版
+          // 手機版會類似像 Bottom Sheet
           "bottom-0 rounded-t-lg w-full",
           "data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
           className
@@ -149,14 +158,14 @@ const DialogHeader = ({
     {...props}
   >
     {isClosable && (
-      <RadixDialog.Close className="absolute right-0 top-0 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
+      <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
         <IconCross />
         <span className="sr-only">關閉</span>
       </RadixDialog.Close>
     )}
 
     {handleBar && (
-      <div className="mb-3 flex justify-center sm:hidden">
+      <div className="mb-3 flex cursor-pointer justify-center sm:hidden">
         <div className="h-1.5 w-12 rounded-full bg-muted" />
       </div>
     )}
