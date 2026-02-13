@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Dialog, type DialogProps } from "./dialog";
+import Dialog, { type DialogProps } from "./dialog";
 import { Skeleton } from "./skeleton";
 
 const DialogStoryShell: React.FC<DialogProps> = (props) => {
@@ -9,7 +9,11 @@ const DialogStoryShell: React.FC<DialogProps> = (props) => {
     title,
     description = "",
     haveCancel = false,
-    needLoadingState = false,
+    confirmText = "確認",
+    cancelText = "取消",
+    onConfirm,
+    isAutoClose = true,
+    loadingState = false,
     needReturnFocus = true,
     handleBar = true,
     overlay = true,
@@ -36,11 +40,9 @@ const DialogStoryShell: React.FC<DialogProps> = (props) => {
 
         {/* Content：可切換為 Skeleton 狀態 */}
         <div className="py-4">
-          {needLoadingState ? (
+          {loadingState ? (
             <div className="space-y-3">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
+              <Skeleton rows={3} rowClassName="h-4" />
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -49,23 +51,13 @@ const DialogStoryShell: React.FC<DialogProps> = (props) => {
           )}
         </div>
 
-        {/* Footer：最多兩個按鈕，必要時可完全隱藏（例如 Loading 狀態） */}
-        {!needLoadingState && (
-          <Dialog.Footer>
-            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:justify-end">
-              {haveCancel && (
-                <Dialog.Close asChild>
-                  <button className="inline-flex flex-1 justify-center rounded-md border px-4 py-2 text-sm">
-                    取消
-                  </button>
-                </Dialog.Close>
-              )}
-              <button className="inline-flex flex-1 justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                確認
-              </button>
-            </div>
-          </Dialog.Footer>
-        )}
+        <Dialog.Footer
+          isAutoClose={isAutoClose}
+          haveCancel={haveCancel}
+          confirmText={confirmText}
+          cancelText={cancelText}
+          onConfirm={onConfirm}
+        />
       </Dialog.Content>
     </Dialog.Root>
   );
@@ -90,7 +82,20 @@ const meta = {
       control: "boolean",
       description: "是否顯示『取消』按鈕，預設是 false",
     },
-    needLoadingState: {
+    isAutoClose: {
+      control: "boolean",
+      description: "確認按鈕點擊後是否自動關閉 Dialog，預設是 true",
+    },
+    confirmText: {
+      description: "確認按鈕的文字，預設是 '確認'",
+    },
+    cancelText: {
+      description: "取消按鈕的文字，預設是 '取消'",
+    },
+    onConfirm: {
+      description: "確認按鈕的點擊事件處理函式",
+    },
+    loadingState: {
       control: "boolean",
       description: "若對話框會打API，可選擇是否顯示 Loading Skeleton",
     },
@@ -125,7 +130,7 @@ export const Default: Story = {
     title: "基本對話框",
     description: "提供基本標題與描述的對話框範例。",
     haveCancel: true,
-    needLoadingState: false,
+    loadingState: false,
     needReturnFocus: true,
     handleBar: true,
     overlay: true,
@@ -150,7 +155,7 @@ export const LoadingState: Story = {
     title: "載入中",
     description: "正在載入對話框內容…",
     haveCancel: false,
-    needLoadingState: true,
+    loadingState: true,
     needReturnFocus: true,
     handleBar: true,
     overlay: true,

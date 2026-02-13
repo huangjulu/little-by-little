@@ -1,7 +1,22 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { ViewOrder } from "@/features/order/view/ViewOrder";
+// import TestSupabase from "./test_supabase";
+import { supabase } from "@/utils/supabase/client";
+import { useEffect } from "react";
+// import Dialog from "@/ui/dialog";
 
 export default function OrdersPage() {
+  const fetchOrders = async () => {
+    const { data, error } = await supabase.from("orders").select("*");
+    if (error) {
+      console.error(error);
+    }
+    return data;
+  };
+  useEffect(function authorizeUserViaDialog() {});
+
   return (
     <div
       className={cn("flex min-h-screen bg-gray-100 px-4 py-8 text-gray-800")}
@@ -12,7 +27,20 @@ export default function OrdersPage() {
         )}
       >
         <ViewOrder />
+        <button onClick={fetchOrders}>Fetch Orders</button>
       </main>
     </div>
   );
 }
+
+// const AuthorizeDialog: React.FC = () => {
+//   return (
+//     <Dialog.Root>
+//       <Dialog.Content>
+//         <Dialog.Header>"驗證使用者"</Dialog.Header>
+//         <input type="text" placeholder="請輸入您的驗證碼" />
+//         <Dialog.Footer></Dialog.Footer>
+//       </Dialog.Content>
+//     </Dialog.Root>
+//   );
+// };

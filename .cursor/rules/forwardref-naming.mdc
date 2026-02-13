@@ -1,0 +1,92 @@
+---
+description: forwardRef 命名函式規則 - 確保可讀性與除錯追蹤
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# forwardRef 命名函式規範
+
+## 核心原則
+
+所有使用 `forwardRef` 的組件，**必須**在內部使用命名函式（named function），而非箭頭函式（arrow function）。
+
+## 規則
+
+### 1. 使用命名函式
+- `forwardRef` 的第一個參數必須是具名函式
+- 命名格式：`{ComponentName}ForwardRef`
+
+### 2. 優點
+- **可讀性**：程式碼結構清晰，易於理解
+- **DevTools 識別**：React DevTools 可正確顯示組件名稱
+- **錯誤追蹤**：錯誤堆疊會顯示函式名稱，便於除錯
+
+## 範例
+
+```typescript
+// ✅ 正確：使用命名函式
+const DialogContent = forwardRef<
+  React.ElementRef<typeof RadixDialog.Content>,
+  DialogContentProps
+>(function DialogContentForwardRef(props, ref) {
+  const { size = "md", overlay, children, className } = props;
+  
+  return (
+    <RadixDialog.Content ref={ref} className={className}>
+      {children}
+    </RadixDialog.Content>
+  );
+});
+
+// ✅ 正確：另一個範例
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  function InputForwardRef(props, ref) {
+    const { className, type, ...restProps } = props;
+    
+    return (
+      <input
+        ref={ref}
+        type={type}
+        className={cn("base-input-styles", className)}
+        {...restProps}
+      />
+    );
+  }
+);
+```
+
+```typescript
+// ❌ 錯誤：使用箭頭函式
+const DialogOverlay = forwardRef<
+  React.ElementRef<typeof RadixDialog.Overlay>,
+  DialogOverlayProps
+>(({ className, isShow, ...props }, ref) => (
+  <RadixDialog.Overlay ref={ref} className={className} {...props} />
+));
+
+// ❌ 錯誤：匿名函式
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function(props, ref) {  // 缺少函式名稱
+    return <button ref={ref} {...props} />;
+  }
+);
+```
+
+## displayName 設定
+
+即使使用命名函式，仍建議設定 `displayName` 以確保 DevTools 顯示正確：
+
+```typescript
+DialogContent.displayName = "DialogContent";
+// 或使用 Radix 組件的 displayName
+DialogContent.displayName = RadixDialog.Content.displayName;
+```
+
+## 重構檢查清單
+
+當發現現有 `forwardRef` 使用箭頭函式時：
+
+1. 將箭頭函式改為命名函式
+2. 函式名稱使用 `{ComponentName}ForwardRef` 格式
+3. 確認 `displayName` 已設定
+4. 確認功能正常運作
