@@ -9,8 +9,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # 必須設定為 0 才能獲取完整的 Git History
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
       - name: Publish to Chromatic
         uses: chromaui/action@latest
         with:

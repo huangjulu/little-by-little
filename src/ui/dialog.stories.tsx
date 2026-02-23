@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Dialog, { type DialogProps } from "./dialog";
 import { Skeleton } from "./skeleton";
 
@@ -33,7 +33,6 @@ const DialogStoryShell: React.FC<DialogStoryShellProps> = (props) => {
         </button>
       </Dialog.Trigger>
 
-      {/* Dialog 主體：維持 Dialog → Header → Content → Footer 的閱讀順序 */}
       <Dialog.Content size={size}>
         {/* Header：標題、說明、右上角關閉按鈕 */}
         <Dialog.Header isClosable={isClosable} handleBar={handleBar}>
@@ -124,9 +123,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
-// 1. Default - 一般使用情境
-// ============================================
 export const Default: Story = {
   render: (args) => <DialogStoryShell {...args} />,
   args: {
@@ -149,9 +145,6 @@ export const Default: Story = {
   },
 };
 
-// ============================================
-// 2. LoadingState - 內容由 API 載入
-// ============================================
 export const LoadingState: Story = {
   render: (args) => <DialogStoryShell {...args} />,
   args: {
@@ -176,7 +169,6 @@ export const LoadingState: Story = {
 };
 
 export const SizeVariants: Story = {
-  // 這個 Story 主要用來展示不同尺寸的視覺差異，不透過 controls 操作。
   render: () => (
     <div className="flex flex-col gap-6">
       <DialogStoryShell
