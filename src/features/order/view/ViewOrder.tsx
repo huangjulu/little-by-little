@@ -71,7 +71,7 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
       <SearchInput
         value={filterParams.keyword}
         onChange={(v) => handleFiltersChange({ keyword: v })}
-        placeholder="以 訂單編號 / 客戶姓名 / Email 搜尋"
+        placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
 
       <div

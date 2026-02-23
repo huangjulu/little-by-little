@@ -1,20 +1,28 @@
-export type OrderStatus = "pending" | "paid" | "running" | "cancelled";
+export type OrderStatus = "active" | "inactive";
 export type StatusFilterValue = "all" | OrderStatus;
 
-export type OrderItem = {
-  name: string;
-  quantity: number;
-  price: number;
+export type CustomerInfoData = {
+  customer_name: string;
+  mobile_phone: string;
+  community_name: string;
+  house_unit: string;
 };
 
 export type Order = {
   id: string;
+  orderId: number;
   customerName: string;
-  email: string;
+  mobilePhone: string;
+  communityName: string;
+  houseUnit: string;
+  basePrice: number;
+  currentPrice: number;
+  contractStartDate: string;
+  contractEndDate: string;
+  paymentDeadline: string;
+  nextBillingDate: string;
   createdAt: string;
-  total: number;
   status: OrderStatus;
-  items: OrderItem[];
 };
 
 export type StatusFilterOption = {

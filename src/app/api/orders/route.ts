@@ -1,62 +1,101 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import type {
+  Order,
+  OrderStatus,
+  CustomerInfoData,
+} from "@/features/order/order-types";
 
-import type { Order, OrderStatus } from "@/features/order/order-types";
-import { mockOrders } from "@/lib/mock-data";
-// import { PrismaClient } from "@/generated/prisma";
+interface CustomerRow {
+  id: number;
+  customer_info: CustomerInfoData;
+  order_id: number;
+  order_status: string;
+  created_at: string;
+  orders: {
+    id: number;
+    base_price: number;
+    current_price: number;
+    contract_start_date: string;
+    contract_end_date: string;
+    payment_deadline: string;
+    next_billing_date: string;
+    created_at: string;
+  };
+}
+
+function mapToOrder(row: CustomerRow): Order {
+  const info = row.customer_info ?? {};
+  const order = row.orders;
+  return {
+    id: String(row.id),
+    orderId: row.order_id,
+    customerName: info.customer_name ?? "",
+    mobilePhone: info.mobile_phone ?? "",
+    communityName: info.community_name ?? "",
+    houseUnit: info.house_unit ?? "",
+    basePrice: Number(order?.base_price ?? 0),
+    currentPrice: Number(order?.current_price ?? 0),
+    contractStartDate: order?.contract_start_date ?? "",
+    contractEndDate: order?.contract_end_date ?? "",
+    paymentDeadline: order?.payment_deadline ?? "",
+    nextBillingDate: order?.next_billing_date ?? "",
+    createdAt: row.created_at ?? "",
+    status: (row.order_status as OrderStatus) ?? "inactive",
+  };
+}
 
 /**
  * GET /api/orders
- * 取得訂單列表
  */
-// const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
     const keyword = searchParams.get("keyword");
 
-    let filteredOrders = [...mockOrders];
+    let query = supabase
+      .from("customers")
+      .select("*, orders!inner(*)")
+      .order("created_at", { ascending: false });
 
-    // 狀態篩選
     if (status && status !== "all") {
-      const validStatuses: OrderStatus[] = [
-        "pending",
-        "paid",
-        "running",
-        "cancelled",
-      ];
-      if (validStatuses.includes(status as OrderStatus)) {
-        filteredOrders = filteredOrders.filter(
-          (order) => order.status === status
-        );
-      }
+      query = query.eq("order_status", status);
     }
 
-    // 關鍵字篩選
+    const { data, error } = await query;
+
+    if (error) {
+      return NextResponse.json(
+        { error: true, message: error.message },
+        { status: 500 }
+      );
+    }
+
+    let orders = (data as CustomerRow[]).map(mapToOrder);
+
     if (keyword) {
       const kw = keyword.toLowerCase().trim();
-      filteredOrders = filteredOrders.filter(
-        (order) =>
-          order.id.toLowerCase().includes(kw) ||
-          order.customerName.toLowerCase().includes(kw) ||
-          order.email.toLowerCase().includes(kw)
+      orders = orders.filter(
+        (o) =>
+          o.id.includes(kw) ||
+          o.customerName.toLowerCase().includes(kw) ||
+          o.mobilePhone.includes(kw) ||
+          o.communityName.toLowerCase().includes(kw)
       );
     }
 
     return NextResponse.json(
-      {
-        error: false,
-        data: filteredOrders,
-        total: filteredOrders.length,
-      },
+      { error: false, data: orders, total: orders.length },
       { status: 200 }
     );
   } catch {
     return NextResponse.json(
-      {
-        error: true,
-        message: "取得訂單列表失敗",
-      },
+      { error: true, message: "取得訂單列表失敗" },
       { status: 500 }
     );
   }
@@ -64,76 +103,72 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/orders
- * 建立新訂單
  */
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
     const body = await request.json();
 
-    // 驗證必要欄位
-    const requiredFields = ["customerName", "email", "items"];
-    const missingFields = requiredFields.filter((field) => !(field in body));
-
+    const requiredFields = ["customerName", "mobilePhone"];
+    const missingFields = requiredFields.filter((f) => !(f in body));
     if (missingFields.length > 0) {
       return NextResponse.json(
-        {
-          error: true,
-          message: `缺少必要欄位: ${missingFields.join(", ")}`,
-        },
+        { error: true, message: `缺少必要欄位: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    // 驗證 items
-    if (!Array.isArray(body.items) || body.items.length === 0) {
+    const { data: orderData, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        customer_name: body.customerName,
+        mobile_phone: body.mobilePhone,
+        community_name: body.communityName ?? "",
+        house_unit: body.houseUnit ?? "",
+        base_price: body.basePrice ?? 0,
+        current_price: body.currentPrice ?? 0,
+        contract_start_date: body.contractStartDate ?? null,
+        contract_end_date: body.contractEndDate ?? null,
+        payment_deadline: body.paymentDeadline ?? null,
+        next_billing_date: body.nextBillingDate ?? null,
+      })
+      .select()
+      .single();
+
+    if (orderError || !orderData) {
       return NextResponse.json(
-        {
-          error: true,
-          message: "items 必須是非空陣列",
-        },
-        { status: 400 }
+        { error: true, message: orderError?.message ?? "建立訂單失敗" },
+        { status: 500 }
       );
     }
 
-    // 計算總金額
-    const total = body.items.reduce(
-      (sum: number, item: { quantity: number; price: number }) =>
-        sum + item.quantity * item.price,
-      0
-    );
+    const { data: customerData, error: customerError } = await supabase
+      .from("customers")
+      .insert({
+        customer_info: {
+          customer_name: body.customerName,
+          mobile_phone: body.mobilePhone,
+          community_name: body.communityName ?? "",
+          house_unit: body.houseUnit ?? "",
+        },
+        order_id: orderData.id,
+        order_status: "active",
+      })
+      .select("*, orders!inner(*)")
+      .single();
 
-    // 產生訂單 ID
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
-    const orderId = `ORD-${dateStr}-${String(
-      Math.floor(Math.random() * 1000)
-    ).padStart(3, "0")}`;
-
-    // 建立新訂單
-    const newOrder: Order = {
-      id: orderId,
-      customerName: body.customerName,
-      email: body.email,
-      createdAt: now.toISOString(),
-      total,
-      status: "pending",
-      items: body.items.map(
-        (item: { name: string; quantity: number; price: number }) => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-        })
-      ),
-    };
-
-    // 在實際專案中，這裡應該要儲存到資料庫
-    // 目前只是模擬，將新訂單加入到 mockOrders
-    mockOrders.unshift(newOrder);
+    if (customerError || !customerData) {
+      return NextResponse.json(
+        { error: true, message: customerError?.message ?? "建立客戶記錄失敗" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       {
         error: false,
-        data: newOrder,
+        data: mapToOrder(customerData as CustomerRow),
         message: "訂單建立成功",
       },
       { status: 201 }
@@ -141,10 +176,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("建立訂單失敗:", error);
     return NextResponse.json(
-      {
-        error: true,
-        message: "建立訂單失敗",
-      },
+      { error: true, message: "建立訂單失敗" },
       { status: 500 }
     );
   }

@@ -36,7 +36,10 @@ export const OrderRow: React.FC<OrderRowProps> = (props) => {
         <OrderId id={order.id} />
       </td>
       <td>
-        <CustomerInfo name={order.customerName} email={order.email} />
+        <CustomerInfo
+          name={order.customerName}
+          mobilePhone={order.mobilePhone}
+        />
       </td>
       <td>
         <DateDisplay
@@ -45,7 +48,7 @@ export const OrderRow: React.FC<OrderRowProps> = (props) => {
         />
       </td>
       <td>
-        <CurrencyDisplay value={order.total} className="text-xs" />
+        <CurrencyDisplay value={order.currentPrice} className="text-xs" />
       </td>
       <td>
         <StatusBadge status={order.status} />
