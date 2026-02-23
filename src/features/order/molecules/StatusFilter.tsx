@@ -28,7 +28,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = (props) => {
 
   return (
     <div
-      className={cn("grid grid-cols-4 gap-3", className)}
+      className={cn("grid grid-cols-3 gap-3", className)}
       role="group"
       aria-label="訂單狀態篩選"
     >

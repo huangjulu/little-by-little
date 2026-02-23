@@ -20,9 +20,8 @@ export const OrderFilters: React.FC<OrderFiltersProps> = (props) => {
   const statusCounts = useMemo(
     () => ({
       all: allOrders.length,
-      running: allOrders.filter((o) => o.status === "running").length,
-      paid: allOrders.filter((o) => o.status === "paid").length,
-      pending: allOrders.filter((o) => o.status === "pending").length,
+      active: allOrders.filter((o) => o.status === "active").length,
+      inactive: allOrders.filter((o) => o.status === "inactive").length,
     }),
     [allOrders]
   );

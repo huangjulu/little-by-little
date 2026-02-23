@@ -3,18 +3,17 @@ import { cn } from "@/lib/utils";
 
 interface CustomerInfoProps {
   name: string;
-  email: string;
+  mobilePhone: string;
   className?: string;
 }
 
-/**
- * CustomerInfo - 客戶資訊原子組件
- */
 export const CustomerInfo: React.FC<CustomerInfoProps> = (props) => {
   return (
     <div className={cn("flex flex-col", props.className)}>
       <span className="text-xs font-medium">{props.name}</span>
-      <span className="truncate text-[11px] text-gray-400">{props.email}</span>
+      <span className="truncate text-[11px] text-gray-400">
+        {props.mobilePhone}
+      </span>
     </div>
   );
 };

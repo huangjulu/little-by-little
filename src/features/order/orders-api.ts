@@ -1,8 +1,5 @@
 import type { Order, OrderStatus, StatusFilterValue } from "./order-types";
 
-/**
- * API Response 型別
- */
 export interface ApiResponse<T> {
   error: boolean;
   data: T;
@@ -17,12 +14,15 @@ export interface GetOrdersParams {
 
 export interface CreateOrderParams {
   customerName: string;
-  email: string;
-  items: {
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
+  mobilePhone: string;
+  communityName?: string;
+  houseUnit?: string;
+  basePrice?: number;
+  currentPrice?: number;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  paymentDeadline?: string;
+  nextBillingDate?: string;
 }
 
 export interface UpdateOrderStatusParams {
