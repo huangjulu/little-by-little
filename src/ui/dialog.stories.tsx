@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import Dialog, { type DialogProps } from "./dialog";
 import { Skeleton } from "./skeleton";
 
-const DialogStoryShell: React.FC<DialogProps> = (props) => {
+interface DialogStoryShellProps extends DialogProps {
+  triggerText?: string;
+}
+
+const DialogStoryShell: React.FC<DialogStoryShellProps> = (props) => {
   const {
     isClosable = true,
     size = "md",
@@ -17,6 +21,7 @@ const DialogStoryShell: React.FC<DialogProps> = (props) => {
     needReturnFocus = true,
     handleBar = true,
     overlay = true,
+    triggerText = "開啟 Dialog",
   } = props;
 
   return (
@@ -24,7 +29,7 @@ const DialogStoryShell: React.FC<DialogProps> = (props) => {
       {/* 外層 Trigger：示意實際使用情境的開啟流程 */}
       <Dialog.Trigger asChild>
         <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90">
-          開啟 Dialog
+          {triggerText}
         </button>
       </Dialog.Trigger>
 
@@ -170,9 +175,6 @@ export const LoadingState: Story = {
   },
 };
 
-// ============================================
-// 3. SizeVariants - 不同尺寸示意
-// ============================================
 export const SizeVariants: Story = {
   // 這個 Story 主要用來展示不同尺寸的視覺差異，不透過 controls 操作。
   render: () => (
@@ -182,18 +184,21 @@ export const SizeVariants: Story = {
         description="適合放置簡單訊息或確認提示。"
         size="sm"
         haveCancel={false}
+        triggerText="開啟小 Dialog"
       />
       <DialogStoryShell
         title="Medium 對話框"
         description="預設尺寸，適合大部分情境。"
         size="md"
         haveCancel
+        triggerText="開啟中 Dialog"
       />
       <DialogStoryShell
         title="Large 對話框"
         description="內容較多、包含多段文字或表單時可使用。"
         size="lg"
         haveCancel
+        triggerText="開啟大 Dialog"
       />
     </div>
   ),
