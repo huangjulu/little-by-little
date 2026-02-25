@@ -3,7 +3,7 @@ import type {
   Order,
   OrderStatus,
   CustomerInfoData,
-} from "@/features/order/order-types";
+} from "@/features/order/types";
 
 /** JOIN 查詢結果：customers + orders（對應 Supabase .select("*, orders!inner(*)")） */
 export type CustomerRow = Tables<"customers"> & {

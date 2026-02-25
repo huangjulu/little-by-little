@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useMemo } from "react";
 import { StatusFilter } from "../molecules";
-import type { StatusFilterValue, Order } from "../order-types";
+import type { StatusFilterValue, Order } from "../types";
 import { cn } from "@/lib/utils";
 
 interface OrderFiltersProps {

@@ -6,7 +6,7 @@ import {
   CurrencyDisplay,
   CustomerInfo,
 } from "../atoms";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { cn } from "@/lib/utils";
 
 interface OrderRowProps {

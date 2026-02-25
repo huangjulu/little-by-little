@@ -1,0 +1,51 @@
+---
+description: Feature 內 API 呼叫架構 - 元件只能透過 feature 的 api namespace 取得資料
+globs: "**/features/**/*.tsx,**/features/**/*.ts"
+alwaysApply: false
+---
+
+# API Feature 架構
+
+## 核心原則
+
+每個 feature 的 UI 組件**不得直接 fetch**，必須透過該 feature 的 **api namespace** 取得資料。
+
+## 分層職責
+
+| 層級 | 職責 |
+|------|------|
+| API Route | 接 Supabase/後端，回傳 `{ error, data }` |
+| `*.api.ts` | 對外提供 `{feature}Api` namespace、`useQuery` / `useMutation`、`queryKeys`、`queryOptions` |
+| `types.ts` | `Order`、`ApiResponse<T>`、Params（前後端共用） |
+| View (Page) | 只使用 `{feature}Api.{endpoint}.useQuery`，不直接 fetch |
+| Organisms / Molecules | 只接收 props，不呼叫 API |
+
+## 規則
+
+### 1. 單一 API namespace
+- 每 feature 一個 `{feature}.api.ts`
+- 結構：`{feature}Api.{endpoint}.{useQuery | useMutation}`
+
+### 2. UI 一律透過 namespace 取資料
+```tsx
+// ✅ 正確
+const { data } = orderApi.getOrders.useQuery({ status, keyword });
+const { data } = orderApi.getOrder.useQuery(selectedId);
+
+// ❌ 錯誤
+const res = await fetch("/api/orders");
+```
+
+### 3. Query Keys 與 Options 可重用
+- `{feature}Keys` 用於 cache invalidation
+- `{feature}QueryOptions` 可供 Server Component prefetch
+
+### 4. 元件不直接 fetch
+- Organisms / Molecules 僅接收 props
+- 資料取得與 cache 由 Page / View 層負責
+
+## 範例（order feature）
+
+- `order.api.ts` 匯出：`orderApi`、`orderQueryOptions`、`orderKeys`
+- `ViewOrder.tsx` 使用：`orderApi.getOrders.useQuery()`、`orderApi.getOrder.useQuery()`
+- `OrderTable`、`OrderDetailPanel` 接收 `orders`、`order` 作為 props

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
-import type { CreateOrderParams } from "@/features/order/orders-api";
+import type { CreateOrderParams } from "@/features/order/types";
 
 /**
  * GET /api/orders
