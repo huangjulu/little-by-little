@@ -46,6 +46,8 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
   const { data: OrderData, isLoading: isLoadingOrderDetail } =
     useSingleOrderById(selectedId ?? null);
 
+  const safeError = ordersError instanceof Error ? ordersError : null;
+
   // 處理篩選條件變化（支援 partial 合併）
   const handleFiltersChange = useCallback(
     (patch: Partial<{ keyword: string; status: StatusFilterValue }>) => {
@@ -98,7 +100,7 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
         )}
 
         {selectedId && OrderData && (
-          <OrderDetailPanel order={OrderData} error={ordersError} />
+          <OrderDetailPanel order={OrderData} error={safeError} />
         )}
       </div>
     </div>

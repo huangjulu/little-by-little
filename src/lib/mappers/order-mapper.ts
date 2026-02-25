@@ -1,26 +1,14 @@
+import type { Tables } from "@/types/database";
 import type {
   Order,
   OrderStatus,
   CustomerInfoData,
 } from "@/features/order/order-types";
 
-export interface CustomerRow {
-  id: number;
-  customer_info: CustomerInfoData;
-  order_id: number;
-  order_status: string;
-  created_at: string;
-  orders: {
-    id: number;
-    base_price: number;
-    current_price: number;
-    contract_start_date: string;
-    contract_end_date: string;
-    payment_deadline: string;
-    next_billing_date: string;
-    created_at: string;
-  };
-}
+/** JOIN 查詢結果：customers + orders（對應 Supabase .select("*, orders!inner(*)")） */
+export type CustomerRow = Tables<"customers"> & {
+  orders: Tables<"orders">;
+};
 
 const emptyCustomerInfo: CustomerInfoData = {
   customer_name: "",
@@ -34,11 +22,11 @@ function isOrderStatus(value: string): value is OrderStatus {
 }
 
 export function mapToOrder(row: CustomerRow): Order {
-  const info = row.customer_info ?? emptyCustomerInfo;
+  const info = (row.customer_info ?? emptyCustomerInfo) as CustomerInfoData;
   const order = row.orders;
   return {
     id: String(row.id),
-    orderId: row.order_id,
+    orderId: row.order_id ?? 0,
     customerName: info.customer_name ?? "",
     mobilePhone: info.mobile_phone ?? "",
     communityName: info.community_name ?? "",
