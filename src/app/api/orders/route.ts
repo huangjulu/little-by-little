@@ -1,50 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import type {
-  Order,
-  OrderStatus,
-  CustomerInfoData,
-} from "@/features/order/order-types";
-
-interface CustomerRow {
-  id: number;
-  customer_info: CustomerInfoData;
-  order_id: number;
-  order_status: string;
-  created_at: string;
-  orders: {
-    id: number;
-    base_price: number;
-    current_price: number;
-    contract_start_date: string;
-    contract_end_date: string;
-    payment_deadline: string;
-    next_billing_date: string;
-    created_at: string;
-  };
-}
-
-function mapToOrder(row: CustomerRow): Order {
-  const info = row.customer_info ?? {};
-  const order = row.orders;
-  return {
-    id: String(row.id),
-    orderId: row.order_id,
-    customerName: info.customer_name ?? "",
-    mobilePhone: info.mobile_phone ?? "",
-    communityName: info.community_name ?? "",
-    houseUnit: info.house_unit ?? "",
-    basePrice: Number(order?.base_price ?? 0),
-    currentPrice: Number(order?.current_price ?? 0),
-    contractStartDate: order?.contract_start_date ?? "",
-    contractEndDate: order?.contract_end_date ?? "",
-    paymentDeadline: order?.payment_deadline ?? "",
-    nextBillingDate: order?.next_billing_date ?? "",
-    createdAt: row.created_at ?? "",
-    status: (row.order_status as OrderStatus) ?? "inactive",
-  };
-}
+import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
 
 /**
  * GET /api/orders
@@ -67,6 +24,17 @@ export async function GET(request: NextRequest) {
       query = query.eq("order_status", status);
     }
 
+    if (keyword) {
+      const kw = keyword.trim();
+      query = query.or(
+        [
+          `customer_info->>customer_name.ilike.%${kw}%`,
+          `customer_info->>mobile_phone.ilike.%${kw}%`,
+          `customer_info->>community_name.ilike.%${kw}%`,
+        ].join(",")
+      );
+    }
+
     const { data, error } = await query;
 
     if (error) {
@@ -76,18 +44,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let orders = (data as CustomerRow[]).map(mapToOrder);
-
-    if (keyword) {
-      const kw = keyword.toLowerCase().trim();
-      orders = orders.filter(
-        (o) =>
-          o.id.includes(kw) ||
-          o.customerName.toLowerCase().includes(kw) ||
-          o.mobilePhone.includes(kw) ||
-          o.communityName.toLowerCase().includes(kw)
-      );
-    }
+    const orders = (data as CustomerRow[]).map(mapToOrder);
 
     return NextResponse.json(
       { error: false, data: orders, total: orders.length },
@@ -122,10 +79,6 @@ export async function POST(request: NextRequest) {
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .insert({
-        customer_name: body.customerName,
-        mobile_phone: body.mobilePhone,
-        community_name: body.communityName ?? "",
-        house_unit: body.houseUnit ?? "",
         base_price: body.basePrice ?? 0,
         current_price: body.currentPrice ?? 0,
         contract_start_date: body.contractStartDate ?? null,
