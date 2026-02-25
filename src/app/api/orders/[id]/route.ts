@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
+import { mapToOrder } from "@/lib/mappers/order-mapper";
 import type { OrderStatus } from "@/features/order/order-types";
 
 /**
@@ -30,7 +30,7 @@ export async function GET(
     }
 
     return NextResponse.json(
-      { error: false, data: mapToOrder(data as CustomerRow) },
+      { error: false, data: mapToOrder(data) },
       { status: 200 }
     );
   } catch {
@@ -92,7 +92,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         error: false,
-        data: mapToOrder(data as CustomerRow),
+        data: mapToOrder(data),
         message: "訂單更新成功",
       },
       { status: 200 }

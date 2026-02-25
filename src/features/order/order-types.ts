@@ -29,3 +29,5 @@ export type StatusFilterOption = {
   value: StatusFilterValue;
   label: string;
 };
+
+export type StatusCounts = Record<StatusFilterValue, number>;

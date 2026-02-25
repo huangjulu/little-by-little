@@ -1,0 +1,103 @@
+---
+description: TypeScript 型別安全規範 - 禁止 as 斷言，強制型別守衛與泛型
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# TypeScript 型別安全規範
+
+## 核心原則
+
+禁止使用 `as` 進行型別斷言（Type Assertion）。以下六條規則為替代方案。
+
+## 規則
+
+### 1. 型別宣告優先
+
+變數宣告時必須使用型別註解（Type Annotation），禁止先宣告後用 `as` 強制轉換。
+
+```typescript
+// ✅ 正確：型別註解
+const status: OrderStatus = "active";
+const config: AppConfig = { theme: "dark", locale: "zh-TW" };
+
+// ❌ 錯誤：as 斷言
+const status = "active" as OrderStatus;
+const config = { theme: "dark", locale: "zh-TW" } as AppConfig;
+```
+
+### 2. 型別守衛處理未知型別
+
+來源不明、`any` 或 `unknown` 的資料，必須使用 Type Guard（`is` 關鍵字）配合邏輯判斷。
+
+```typescript
+// ✅ 正確：Type Guard
+function isOrder(data: unknown): data is Order {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "id" in data &&
+    "status" in data
+  );
+}
+
+if (isOrder(response)) {
+  console.log(response.customerName);
+}
+
+// ❌ 錯誤：直接斷言
+const order = response as Order;
+```
+
+### 3. 泛型參數顯式傳入
+
+呼叫泛型函式、API 請求或 React Hooks 時，在呼叫處顯式傳入型別參數，不對回傳值斷言。
+
+```typescript
+// ✅ 正確：泛型參數
+const inputRef = useRef<HTMLInputElement>(null);
+const { data } = useQuery<Order[]>({ queryKey: ["orders"], queryFn: fetchOrders });
+const [items, setItems] = useState<string[]>([]);
+
+// ❌ 錯誤：對回傳值斷言
+const inputRef = useRef(null) as React.MutableRefObject<HTMLInputElement>;
+const { data } = useQuery({ queryKey: ["orders"], queryFn: fetchOrders }) as { data: Order[] };
+```
+
+### 4. 使用 satisfies 驗證物件
+
+驗證物件是否符合特定接口但保留原始推導的精確度時，使用 `satisfies` 代替 `as`。
+
+```typescript
+// ✅ 正確：satisfies 保留精確型別
+const statusConfig = {
+  active: { label: "啟用中", color: "green-600" },
+  inactive: { label: "未啟用", color: "gray-400" },
+} satisfies Record<OrderStatus, { label: string; color: string }>;
+
+// ❌ 錯誤：as 會丟失推導的精確度
+const statusConfig = {
+  active: { label: "啟用中", color: "green-600" },
+  inactive: { label: "未啟用", color: "gray-400" },
+} as Record<OrderStatus, { label: string; color: string }>;
+```
+
+### 5. DOM 節點安全處理
+
+處理 HTML 元素時，使用 Optional Chaining 或 `instanceof` 檢查，禁止用 `as` 排除 null。
+
+```typescript
+// ✅ 正確：Optional Chaining
+const el = document.getElementById("app");
+el?.focus();
+
+// ✅ 正確：instanceof 檢查
+const el = document.querySelector(".input");
+if (el instanceof HTMLInputElement) {
+  el.value = "hello";
+}
+
+// ❌ 錯誤：斷言排除 null
+const el = document.getElementById("app") as HTMLElement;
+(document.querySelector(".input") as HTMLInputElement).value = "hello";
+```

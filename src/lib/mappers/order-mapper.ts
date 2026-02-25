@@ -22,8 +22,19 @@ export interface CustomerRow {
   };
 }
 
+const emptyCustomerInfo: CustomerInfoData = {
+  customer_name: "",
+  mobile_phone: "",
+  community_name: "",
+  house_unit: "",
+};
+
+function isOrderStatus(value: string): value is OrderStatus {
+  return value === "active" || value === "inactive";
+}
+
 export function mapToOrder(row: CustomerRow): Order {
-  const info = row.customer_info ?? ({} as CustomerInfoData);
+  const info = row.customer_info ?? emptyCustomerInfo;
   const order = row.orders;
   return {
     id: String(row.id),
@@ -39,6 +50,6 @@ export function mapToOrder(row: CustomerRow): Order {
     paymentDeadline: order?.payment_deadline ?? "",
     nextBillingDate: order?.next_billing_date ?? "",
     createdAt: row.created_at ?? "",
-    status: (row.order_status as OrderStatus) ?? "inactive",
+    status: isOrderStatus(row.order_status) ? row.order_status : "inactive",
   };
 }

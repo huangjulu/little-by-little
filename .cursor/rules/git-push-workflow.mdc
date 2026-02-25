@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Git 推版工作流程
 
+每次推版建立新 commit，不使用 amend。
+
 當用戶說「**確定，幫我推版**」時，表示用戶已經瀏覽過修改範圍，請執行以下步驟：
 
 ## 執行步驟
@@ -14,26 +16,25 @@ alwaysApply: true
    git add .
    ```
 
-2. **Amend 到上一個 commit**
+2. **建立新 commit**
    ```bash
-   git commit --amend --no-edit
+   git commit -m "描述本次變更的訊息"
    ```
    - 這會觸發 pre-commit hook（format、prettier、lint）
    - 等待 hook 完成
 
-3. **Push 到遠端**
-   ```bash
-   git push
-   ```
+3. **如果 pre-commit hook 失敗**
+   - 停止流程，回報錯誤給用戶
+   - 不要嘗試自動修復或跳過 hook
 
-4. **如果 push 失敗（分支落後）**
+4. **Push 到遠端**
    ```bash
-   git pull --rebase
    git push
    ```
+   - 如果 push 失敗（分支落後或衝突），停止流程並告知用戶需要手動處理
 
 ## 注意事項
 
-- 如果 pre-commit hook 失敗，停止流程並回報錯誤給用戶
-- 如果 rebase 有衝突，停止流程並告知用戶需要手動處理
+- **禁止** `git commit --amend`：避免已推到遠端的 commit 被修改，導致需要 force push
+- **禁止** `git push --force`：除非用戶明確要求
 - 每個步驟完成後，確認指令成功再繼續下一步

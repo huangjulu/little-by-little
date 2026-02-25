@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { IconCross } from "@/icon/IconCross";
 import { cn } from "@/lib/utils";
@@ -93,12 +93,15 @@ type DialogOverlayProps = Pick<
   "className"
 > & {
   isShow: boolean;
+  ref?: React.Ref<React.ElementRef<typeof RadixDialog.Overlay>>;
 };
 
 type DialogContentProps = Pick<
   DialogProps,
   "className" | "children" | "size" | "overlay" | "loadingState"
->;
+> & {
+  ref?: React.Ref<React.ElementRef<typeof RadixDialog.Content>>;
+};
 
 type DialogHeaderProps = Pick<
   DialogProps,
@@ -117,10 +120,12 @@ type DialogFooterProps = Pick<
   | "isAutoClose"
 >;
 
-const DialogOverlay = forwardRef<
-  React.ElementRef<typeof RadixDialog.Overlay>,
-  DialogOverlayProps
->(function DialogOverlayForwardRef({ className, isShow, ...props }, ref) {
+function DialogOverlay({
+  className,
+  isShow,
+  ref,
+  ...props
+}: DialogOverlayProps) {
   return (
     <RadixDialog.Overlay
       ref={ref}
@@ -132,7 +137,7 @@ const DialogOverlay = forwardRef<
       {...props}
     />
   );
-});
+}
 
 const DialogConfigContext = createContext<{ overlay: boolean } | undefined>(
   undefined
@@ -150,11 +155,15 @@ const DialogRoot: React.FC<DialogRootProps> = (props) => {
   );
 };
 
-const DialogContent = forwardRef<
-  React.ElementRef<typeof RadixDialog.Content>,
-  DialogContentProps
->(function DialogContentForwardRef(props, ref) {
-  const { size = "md", overlay, loadingState, children, className } = props;
+function DialogContent(props: DialogContentProps) {
+  const {
+    size = "md",
+    overlay,
+    loadingState,
+    children,
+    className,
+    ref,
+  } = props;
 
   const ctxOverlay = useDialogConfig();
   const shouldShowOverlay = overlay ?? ctxOverlay?.overlay;
@@ -179,13 +188,12 @@ const DialogContent = forwardRef<
           "data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
           className
         )}
-        {...props}
       >
         {loadingState ? skeletonContent : children}
       </RadixDialog.Content>
     </RadixDialog.Portal>
   );
-});
+}
 
 const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
   return (
@@ -214,10 +222,11 @@ const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
   );
 };
 
-const DialogTitle = forwardRef<
-  React.ElementRef<typeof RadixDialog.Title>,
-  React.ComponentPropsWithoutRef<typeof RadixDialog.Title>
->(function DialogTitleForwardRef({ className, ...props }, ref) {
+function DialogTitle({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof RadixDialog.Title>) {
   return (
     <RadixDialog.Title
       ref={ref}
@@ -228,12 +237,13 @@ const DialogTitle = forwardRef<
       {...props}
     />
   );
-});
+}
 
-const DialogDescription = forwardRef<
-  React.ElementRef<typeof RadixDialog.Description>,
-  React.ComponentPropsWithoutRef<typeof RadixDialog.Description>
->(function DialogDescriptionForwardRef({ className, ...props }, ref) {
+function DialogDescription({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof RadixDialog.Description>) {
   return (
     <RadixDialog.Description
       ref={ref}
@@ -241,7 +251,7 @@ const DialogDescription = forwardRef<
       {...props}
     />
   );
-});
+}
 
 const DialogFooter: React.FC<DialogFooterProps> = (props) => {
   if (props.children) {
@@ -301,12 +311,8 @@ const DialogFooter: React.FC<DialogFooterProps> = (props) => {
   );
 };
 
-DialogOverlay.displayName = RadixDialog.Overlay.displayName;
-DialogContent.displayName = RadixDialog.Content.displayName;
 DialogHeader.displayName = "DialogHeader";
 DialogFooter.displayName = "DialogFooter";
-DialogTitle.displayName = RadixDialog.Title.displayName;
-DialogDescription.displayName = RadixDialog.Description.displayName;
 
 const Dialog = {
   ...RadixDialog,
