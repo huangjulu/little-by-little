@@ -23,17 +23,20 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
   const { order, error, className } = props;
   const prevErrorRef = useRef<Error | null>(null);
 
-  useEffect(() => {
-    if (!error) {
-      toast.dismiss("order-detail-error");
-      prevErrorRef.current = null;
-    } else if (error !== prevErrorRef.current) {
-      toast.error(`載入失敗：${error.message}`, {
-        id: "order-detail-error",
-      });
-      prevErrorRef.current = error;
-    }
-  }, [error]);
+  useEffect(
+    function syncErrorToast() {
+      if (!error) {
+        toast.dismiss("order-detail-error");
+        prevErrorRef.current = null;
+      } else if (error !== prevErrorRef.current) {
+        toast.error(`載入失敗：${error.message}`, {
+          id: "order-detail-error",
+        });
+        prevErrorRef.current = error;
+      }
+    },
+    [error]
+  );
 
   return (
     <Card className={cn("flex flex-col gap-3 bg-gray-50 p-4", className)}>

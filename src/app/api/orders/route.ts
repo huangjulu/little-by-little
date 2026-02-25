@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const orders = (data as CustomerRow[]).map(mapToOrder);
+    const rows: CustomerRow[] = data ?? [];
+    const orders = rows.map(mapToOrder);
 
     return NextResponse.json(
       { error: false, data: orders, total: orders.length },
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: false,
-        data: mapToOrder(customerData as CustomerRow),
+        data: mapToOrder(customerData),
         message: "訂單建立成功",
       },
       { status: 201 }
