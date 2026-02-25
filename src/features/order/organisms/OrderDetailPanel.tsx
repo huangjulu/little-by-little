@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@/ui/card";
 import { OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "../atoms/StatusBadge";
 

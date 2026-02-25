@@ -2,12 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  SearchInput,
-  StatusFilterValue,
-  useOrders,
-  useSingleOrderById,
-} from "..";
+import { SearchInput, StatusFilterValue, orderApi } from "..";
 import {
   OrderDetailPanel,
   OrderFilters,
@@ -29,22 +24,22 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
   // 在 page 層管理選中的訂單 ID
   const [selectedId, setSelectedId] = useState<string | null>();
 
-  // 使用 React Query 取得全部訂單（供狀態方塊數量使用）
-  const { data: allOrders = [] } = useOrders({});
+  // 取得全部訂單（供狀態方塊數量使用）
+  const { data: allOrders = [] } = orderApi.getOrders.useQuery({});
 
-  // 使用 React Query 取得訂單列表（API 已處理篩選）
+  // 取得訂單列表（API 已處理篩選）
   const {
     data: filteredOrders = [],
     isLoading: isLoadingOrders,
     error: ordersError,
-  } = useOrders({
+  } = orderApi.getOrders.useQuery({
     status: filterParams.status !== "all" ? filterParams.status : undefined,
     keyword: filterParams.keyword.trim() || undefined,
   });
 
-  // 使用 React Query 取得選中的訂單（僅在點選時才查詢與顯示）
+  // 取得選中的訂單（僅在點選時才查詢與顯示）
   const { data: OrderData, isLoading: isLoadingOrderDetail } =
-    useSingleOrderById(selectedId ?? null);
+    orderApi.getOrder.useQuery(selectedId ?? null);
 
   const safeError = ordersError instanceof Error ? ordersError : null;
 

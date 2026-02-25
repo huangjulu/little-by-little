@@ -3,7 +3,7 @@ import { useState } from "react";
 import { StatCard, CreateOrderButton } from "../molecules";
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { ViewCreateOrder } from "../add-order/view/ViewCreateOrder";
 
 interface OrderHeaderProps {

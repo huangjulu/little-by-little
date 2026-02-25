@@ -34,6 +34,23 @@ const eslintConfig = defineConfig([{
       { argsIgnorePattern: "^_" },
     ],
   },
+}, {
+  // 架構邊界：components 不可直接引用 React Query，只能透過 orderApi
+  files: ["src/features/**/*.tsx", "src/app/**/*.tsx"],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["@tanstack/react-query"],
+            message:
+              "Components 不能直接使用 React Query。請透過 orderApi（或對應的 feature api）存取資料。",
+          },
+        ],
+      },
+    ],
+  },
 }, ...storybook.configs["flat/recommended"]]);
 
 export default eslintConfig;

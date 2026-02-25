@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/ui/table";
 import { OrderRow } from "../molecules";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { cn } from "@/lib/utils";
 
 interface OrderTableProps {
