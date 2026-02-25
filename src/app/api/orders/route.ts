@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
+import type { CreateOrderParams } from "@/features/order/orders-api";
 
 /**
  * GET /api/orders
@@ -51,7 +52,9 @@ export async function GET(request: NextRequest) {
       { error: false, data: orders, total: orders.length },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("取得訂單列表失敗:", msg);
     return NextResponse.json(
       { error: true, message: "取得訂單列表失敗" },
       { status: 500 }
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
-    const body = await request.json();
+    const body: CreateOrderParams = await request.json();
 
     const requiredFields = ["customerName", "mobilePhone"];
     const missingFields = requiredFields.filter((f) => !(f in body));
@@ -128,7 +131,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("建立訂單失敗:", error);
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("建立訂單失敗:", msg);
     return NextResponse.json(
       { error: true, message: "建立訂單失敗" },
       { status: 500 }

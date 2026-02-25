@@ -104,6 +104,15 @@ function TableCaption({
   );
 }
 
+Table.displayName = "Table";
+TableHeader.displayName = "TableHeader";
+TableBody.displayName = "TableBody";
+TableFooter.displayName = "TableFooter";
+TableRow.displayName = "TableRow";
+TableHead.displayName = "TableHead";
+TableCell.displayName = "TableCell";
+TableCaption.displayName = "TableCaption";
+
 export {
   Table,
   TableHeader,

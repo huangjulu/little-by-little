@@ -38,4 +38,6 @@ function PopoverContent({
   );
 }
 
+PopoverContent.displayName = "PopoverContent";
+
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };

@@ -1,9 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryResult,
+  type UseMutationResult,
+} from "@tanstack/react-query";
 import {
   getOrders,
   getOrder,
   createOrder,
   updateOrderStatus,
+  type ApiResponse,
   type GetOrdersParams,
   type CreateOrderParams,
   type UpdateOrderStatusParams,
@@ -24,8 +31,10 @@ export const orderKeys = {
 /**
  * 取得訂單列表
  */
-export function useOrders(params?: GetOrdersParams) {
-  return useQuery({
+export function useOrders(
+  params?: GetOrdersParams
+): UseQueryResult<Order[], Error> {
+  return useQuery<ApiResponse<Order[]>, Error, Order[]>({
     queryKey: orderKeys.list(params),
     queryFn: () => getOrders(params),
     staleTime: 1000 * 60 * 5, // 5 分鐘
@@ -36,8 +45,10 @@ export function useOrders(params?: GetOrdersParams) {
 /**
  * 取得單筆訂單
  */
-export function useSingleOrderById(id: string | null) {
-  return useQuery({
+export function useSingleOrderById(
+  id: string | null
+): UseQueryResult<Order | undefined, Error> {
+  return useQuery<ApiResponse<Order>, Error, Order | undefined>({
     queryKey: orderKeys.detail(id!),
     queryFn: () => getOrder(id!),
     enabled: !!id,
@@ -49,13 +60,16 @@ export function useSingleOrderById(id: string | null) {
 /**
  * 建立新訂單
  */
-export function useCreateOrder() {
+export function useCreateOrder(): UseMutationResult<
+  ApiResponse<Order>,
+  Error,
+  CreateOrderParams
+> {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (params: CreateOrderParams) => createOrder(params),
+  return useMutation<ApiResponse<Order>, Error, CreateOrderParams>({
+    mutationFn: (params) => createOrder(params),
     onSuccess: () => {
-      // 使訂單列表快取失效，重新取得
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },
   });
@@ -64,19 +78,20 @@ export function useCreateOrder() {
 /**
  * 更新訂單狀態
  */
-export function useUpdateOrderStatus() {
+export function useUpdateOrderStatus(): UseMutationResult<
+  ApiResponse<Order>,
+  Error,
+  { id: string; params: UpdateOrderStatusParams }
+> {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({
-      id,
-      params,
-    }: {
-      id: string;
-      params: UpdateOrderStatusParams;
-    }) => updateOrderStatus(id, params),
+  return useMutation<
+    ApiResponse<Order>,
+    Error,
+    { id: string; params: UpdateOrderStatusParams }
+  >({
+    mutationFn: ({ id, params }) => updateOrderStatus(id, params),
     onSuccess: (response, variables) => {
-      // 更新單筆訂單快取
       queryClient.setQueryData(
         orderKeys.detail(variables.id),
         (old: Order | undefined) => {
@@ -85,7 +100,6 @@ export function useUpdateOrderStatus() {
         }
       );
 
-      // 使訂單列表快取失效
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },
   });

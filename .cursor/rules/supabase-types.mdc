@@ -1,0 +1,23 @@
+---
+description: 當用戶說「幫我對齊 supabase type」時，執行型別重新產生
+alwaysApply: true
+---
+
+# Supabase Type 對齊
+
+當用戶說「**幫我對齊 supabase type**」或類似指令時，執行以下步驟：
+
+## 執行步驟
+
+1. **重新產生 Supabase 型別**
+   ```bash
+   pnpm gen:supabase-types
+   ```
+   等同於：`supabase gen types typescript --linked > src/types/database.ts`
+
+2. **前置條件**
+   - 專案需已執行 `supabase link --project-ref <ref>` 連結遠端專案
+
+3. **完成後**
+   - `src/types/database.ts` 會依目前 DB schema 更新
+   - 若專案中有使用 `Tables<>`、`CustomerRow` 等衍生型別，會自動對齊

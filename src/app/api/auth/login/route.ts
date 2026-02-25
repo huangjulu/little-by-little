@@ -8,7 +8,7 @@ const AUTH_PASSWORD = "lbl-admin-1234";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body: { passcode: string } = await request.json();
     const { passcode } = body;
 
     if (passcode !== GATE_PASSCODE) {
@@ -38,8 +38,9 @@ export async function POST(request: NextRequest) {
       { error: false, message: "驗證成功" },
       { status: 200 }
     );
-  } catch (err) {
-    console.error("Auth login error:", err);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("Auth login error:", msg);
     return NextResponse.json(
       { error: true, message: "伺服器錯誤" },
       { status: 500 }

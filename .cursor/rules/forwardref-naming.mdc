@@ -96,8 +96,8 @@ function DialogContent({ ref, size = "md", children, className }: DialogContentP
 
 | 組件 | 檔案 | 狀態 |
 |------|------|------|
-| `DialogOverlay` | `src/ui/dialog.tsx` | 待遷移 |
-| `DialogContent` | `src/ui/dialog.tsx` | 待遷移 |
-| `DialogTitle` | `src/ui/dialog.tsx` | 待遷移 |
-| `DialogDescription` | `src/ui/dialog.tsx` | 待遷移 |
-| `PopoverContent` | `src/ui/popover.tsx` | 待遷移 |
+| `DialogOverlay` | `src/ui/dialog.tsx` | ✅ 已完成 |
+| `DialogContent` | `src/ui/dialog.tsx` | ✅ 已完成 |
+| `DialogTitle` | `src/ui/dialog.tsx` | ✅ 已完成 |
+| `DialogDescription` | `src/ui/dialog.tsx` | ✅ 已完成 |
+| `PopoverContent` | `src/ui/popover.tsx` | ✅ 已完成 |

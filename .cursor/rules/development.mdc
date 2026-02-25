@@ -20,7 +20,9 @@ alwaysApply: true
 
 ## Coding Standards (Strict Mode)
 - **TypeScript**: Strict mode only. **No `any`**, no `as` casting. See `type-safety.mdc` for detailed alternatives and enforcement rules.
-- **Component Pattern**: Use `React.FC<PropsType>` and destructure props in the function body.
+- **Component Pattern**:
+  - Features 層（`src/features/`）：使用 `React.FC<PropsType>`，在 function body 內解構 props
+  - UI 層（`src/ui/`）：使用 `function` 宣告，與 shadcn/ui 保持一致
 - **Performance**: 在頻繁 re-render 的元件中使用 `useMemo/useCallback` 保護穩定引用；純展示元件搭配 `React.memo`。
 - **Dependencies**: Prefer native ES6+ over `lodash`.
 

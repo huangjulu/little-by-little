@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { mapToOrder } from "@/lib/mappers/order-mapper";
 import type { OrderStatus } from "@/features/order/order-types";
+import type { UpdateOrderStatusParams } from "@/features/order/orders-api";
 
 /**
  * GET /api/orders/[id]
@@ -13,13 +14,21 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const customerId = parseInt(id, 10);
+    if (Number.isNaN(customerId)) {
+      return NextResponse.json(
+        { error: true, message: "訂單不存在" },
+        { status: 404 }
+      );
+    }
+
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
     const { data, error } = await supabase
       .from("customers")
       .select("*, orders!inner(*)")
-      .eq("id", id)
+      .eq("id", customerId)
       .single();
 
     if (error || !data) {
@@ -33,7 +42,9 @@ export async function GET(
       { error: false, data: mapToOrder(data) },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("取得訂單失敗:", msg);
     return NextResponse.json(
       { error: true, message: "取得訂單失敗" },
       { status: 500 }
@@ -50,9 +61,17 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const customerId = parseInt(id, 10);
+    if (Number.isNaN(customerId)) {
+      return NextResponse.json(
+        { error: true, message: "訂單不存在" },
+        { status: 404 }
+      );
+    }
+
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
-    const body = await request.json();
+    const body: UpdateOrderStatusParams = await request.json();
 
     if (body.status) {
       const validStatuses: OrderStatus[] = ["active", "inactive"];
@@ -66,7 +85,7 @@ export async function PATCH(
       const { error } = await supabase
         .from("customers")
         .update({ order_status: body.status })
-        .eq("id", id);
+        .eq("id", customerId);
 
       if (error) {
         return NextResponse.json(
@@ -79,7 +98,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from("customers")
       .select("*, orders!inner(*)")
-      .eq("id", id)
+      .eq("id", customerId)
       .single();
 
     if (error || !data) {
@@ -97,7 +116,9 @@ export async function PATCH(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("更新訂單失敗:", msg);
     return NextResponse.json(
       { error: true, message: "更新訂單失敗" },
       { status: 500 }
