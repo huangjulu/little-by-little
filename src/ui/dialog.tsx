@@ -86,7 +86,16 @@ export interface DialogProps
 }
 
 type DialogRootProps = React.ComponentPropsWithoutRef<typeof RadixDialog.Root> &
-  Pick<DialogProps, "overlay">;
+  Pick<DialogProps, "overlay"> & {
+    /**
+     * 控制 Dialog 的開關狀態（受控模式）
+     */
+    open?: boolean;
+    /**
+     * Dialog 開關狀態改變時的回調函數
+     */
+    onOpenChange?: (open: boolean) => void;
+  };
 
 type DialogOverlayProps = Pick<
   React.ComponentPropsWithoutRef<typeof RadixDialog.Overlay>,
@@ -141,11 +150,13 @@ const DialogConfigContext = createContext<{ overlay: boolean } | undefined>(
 const useDialogConfig = () => useContext(DialogConfigContext);
 
 const DialogRoot: React.FC<DialogRootProps> = (props) => {
-  const { overlay = true, children, ...restProps } = props;
+  const { overlay = true, children, open, onOpenChange, ...restProps } = props;
 
   return (
     <DialogConfigContext.Provider value={{ overlay }}>
-      <RadixDialog.Root {...restProps}>{children}</RadixDialog.Root>
+      <RadixDialog.Root open={open} onOpenChange={onOpenChange} {...restProps}>
+        {children}
+      </RadixDialog.Root>
     </DialogConfigContext.Provider>
   );
 };
@@ -319,6 +330,7 @@ const Dialog = {
   Root: DialogRoot,
 } as const;
 
+export { Dialog };
 export default Dialog;
 
 function getSizeClass(size: DialogSize): string {
