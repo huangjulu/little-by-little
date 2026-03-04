@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Badge } from "@/ui/badge";
 import { statusLabel, statusChipStyle } from "../constants";
-import type { OrderStatus } from "../order-types";
+import type { OrderStatus } from "../types";
 import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {
@@ -18,7 +18,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
   return (
     <Badge
       className={cn(
-        "inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[10px] font-medium ring-1",
+        "inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[0.625rem] font-medium ring-1",
         statusChipStyle[status],
         className
       )}

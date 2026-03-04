@@ -43,7 +43,7 @@ export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = (props) => {
           <Skeleton className="h-4 w-24" />
         </div>
       )}
-      <div className="max-h-[480px] overflow-auto text-sm">
+      <div className="max-h-120 overflow-auto text-sm">
         <Table>
           {showHeader && (
             <TableHeader>

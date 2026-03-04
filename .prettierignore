@@ -37,3 +37,11 @@ yarn.lock
 # Storybook
 storybook-static/**
 tmp/**
+
+# Supabase（SQL / TOML 不需 format）
+supabase/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/

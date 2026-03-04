@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
+import type { CreateOrderParams } from "@/features/order/types";
 
 /**
  * GET /api/orders
@@ -14,11 +15,21 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
     const keyword = searchParams.get("keyword");
+    const pageStr = searchParams.get("page");
+    const pageSizeStr = searchParams.get("pageSize");
+    const page = Math.max(1, parseInt(pageStr ?? "1") || 1);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(pageSizeStr ?? "20") || 20)
+    );
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
 
     let query = supabase
       .from("customers")
-      .select("*, orders!inner(*)")
-      .order("created_at", { ascending: false });
+      .select("*, orders!inner(*)", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
 
     if (status && status !== "all") {
       query = query.eq("order_status", status);
@@ -35,7 +46,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       return NextResponse.json(
@@ -44,13 +55,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const orders = (data as CustomerRow[]).map(mapToOrder);
+    const rows: CustomerRow[] = data ?? [];
+    const orders = rows.map(mapToOrder);
 
     return NextResponse.json(
-      { error: false, data: orders, total: orders.length },
+      { error: false, data: orders, total: count ?? orders.length },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("取得訂單列表失敗:", msg);
     return NextResponse.json(
       { error: true, message: "取得訂單列表失敗" },
       { status: 500 }
@@ -65,7 +79,7 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
-    const body = await request.json();
+    const body: CreateOrderParams = await request.json();
 
     const requiredFields = ["customerName", "mobilePhone"];
     const missingFields = requiredFields.filter((f) => !(f in body));
@@ -112,6 +126,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError || !customerData) {
+      await supabase.from("orders").delete().eq("id", orderData.id);
       return NextResponse.json(
         { error: true, message: customerError?.message ?? "建立客戶記錄失敗" },
         { status: 500 }
@@ -121,13 +136,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: false,
-        data: mapToOrder(customerData as CustomerRow),
+        data: mapToOrder(customerData),
         message: "訂單建立成功",
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("建立訂單失敗:", error);
+    const msg = error instanceof Error ? error.message : "未知錯誤";
+    console.error("建立訂單失敗:", msg);
     return NextResponse.json(
       { error: true, message: "建立訂單失敗" },
       { status: 500 }

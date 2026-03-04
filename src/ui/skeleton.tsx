@@ -36,4 +36,6 @@ function Skeleton({
   return <div className={cn(baseClassName, className)} {...props} />;
 }
 
+Skeleton.displayName = "Skeleton";
+
 export { Skeleton };

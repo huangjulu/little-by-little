@@ -34,6 +34,21 @@ export default defineConfig({
           setupFiles: [".storybook/vitest.setup.ts"],
         },
       },
+      {
+        resolve: {
+          alias: {
+            "@": path.join(dirname, "src"),
+          },
+        },
+        esbuild: {
+          jsx: "automatic",
+        },
+        test: {
+          name: "unit",
+          environment: "happy-dom",
+          include: ["src/**/__tests__/**/*.test.{ts,tsx}"],
+        },
+      },
     ],
   },
 });

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Dialog, { type DialogProps } from "./dialog";
-import { Skeleton } from "./skeleton";
 
 interface DialogStoryShellProps extends DialogProps {
   triggerText?: string;
@@ -35,25 +34,18 @@ const DialogStoryShell: React.FC<DialogStoryShellProps> = (props) => {
 
       <Dialog.Content size={size}>
         {/* Header：標題、說明、右上角關閉按鈕 */}
-        <Dialog.Header isClosable={isClosable} handleBar={handleBar}>
+        <Dialog.Header isClosable={isClosable} handleBar={handleBar} isSticky>
           <Dialog.Title>{title}</Dialog.Title>
           {description !== "" && (
             <Dialog.Description>{description}</Dialog.Description>
           )}
         </Dialog.Header>
 
-        {/* Content：可切換為 Skeleton 狀態 */}
-        <div className="py-4">
-          {loadingState ? (
-            <div className="space-y-3">
-              <Skeleton rows={3} rowClassName="h-4" />
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              這裡是對話框的主要內容區域，可以放入表單、說明文字或其他元件。
-            </p>
-          )}
-        </div>
+        <Dialog.Body loadingState={loadingState}>
+          <p className="py-4 text-sm text-muted-foreground">
+            這裡是對話框的主要內容區域，可以放入表單、說明文字或其他元件。
+          </p>
+        </Dialog.Body>
 
         <Dialog.Footer
           isAutoClose={isAutoClose}
