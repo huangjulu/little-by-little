@@ -197,7 +197,12 @@ const DialogBody: React.FC<DialogBodyProps> = (props) => {
 };
 
 const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
-  const { isSticky = false, ...rest } = props;
+  const {
+    isSticky = false,
+    isClosable = false,
+    handleBar = false,
+    ...rest
+  } = props;
   return (
     <div
       className={cn(
@@ -208,14 +213,14 @@ const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
       )}
       {...rest}
     >
-      {props.isClosable && (
+      {isClosable && (
         <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 -translate-2 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
           <IconCross />
           <span className="sr-only">關閉</span>
         </RadixDialog.Close>
       )}
 
-      {props.handleBar && (
+      {handleBar && (
         <div className="mb-3 flex cursor-pointer justify-center sm:hidden">
           <div className="h-1.5 w-12 rounded-full bg-muted" />
         </div>

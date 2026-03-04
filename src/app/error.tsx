@@ -1,12 +1,13 @@
 "use client";
 
-export default function Error({
-  error,
-  reset,
-}: {
+type ErrorProps = {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+};
+
+export default function Error(props: ErrorProps) {
+  const { error, reset } = props;
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 text-gray-800">
       <div className="rounded-2xl bg-white/80 p-8 shadow-sm ring-1 ring-gray-200 text-center max-w-md">
