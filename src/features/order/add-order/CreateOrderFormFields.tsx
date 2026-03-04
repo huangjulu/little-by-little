@@ -10,7 +10,6 @@ import { Input } from "@/ui/input";
 import { DatePicker } from "@/ui/date-picker";
 import { DateRangePicker } from "@/ui/date-range-picker";
 import type { CreateOrderFormValues } from "./create-order.schema";
-import React from "react";
 
 export const CreateOrderFormFields: React.FC = () => {
   const {

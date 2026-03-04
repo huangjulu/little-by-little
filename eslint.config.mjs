@@ -26,6 +26,9 @@ const eslintConfig = defineConfig([{
     "*.config.js",
     "*.config.mjs",
     "next-env.d.ts",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
   ],
 }, ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"), {
   rules: {

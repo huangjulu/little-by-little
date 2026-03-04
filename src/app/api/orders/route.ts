@@ -15,11 +15,21 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
     const keyword = searchParams.get("keyword");
+    const pageStr = searchParams.get("page");
+    const pageSizeStr = searchParams.get("pageSize");
+    const page = Math.max(1, parseInt(pageStr ?? "1") || 1);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(pageSizeStr ?? "20") || 20)
+    );
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
 
     let query = supabase
       .from("customers")
-      .select("*, orders!inner(*)")
-      .order("created_at", { ascending: false });
+      .select("*, orders!inner(*)", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
 
     if (status && status !== "all") {
       query = query.eq("order_status", status);
@@ -36,7 +46,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       return NextResponse.json(
@@ -49,7 +59,7 @@ export async function GET(request: NextRequest) {
     const orders = rows.map(mapToOrder);
 
     return NextResponse.json(
-      { error: false, data: orders, total: orders.length },
+      { error: false, data: orders, total: count ?? orders.length },
       { status: 200 }
     );
   } catch (error) {
@@ -116,6 +126,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError || !customerData) {
+      await supabase.from("orders").delete().eq("id", orderData.id);
       return NextResponse.json(
         { error: true, message: customerError?.message ?? "建立客戶記錄失敗" },
         { status: 500 }

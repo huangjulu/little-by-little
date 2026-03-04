@@ -1,5 +1,4 @@
 import {
-  useQuery,
   useMutation,
   useQueryClient,
   queryOptions,
@@ -11,6 +10,7 @@ import type {
   UpdateOrderStatusParams,
   ApiResponse,
 } from "./types";
+import { useFaultTolerantQuery } from "@/lib/hooks/useFaultTolerantQuery";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
@@ -44,18 +44,29 @@ export const orderQueryOptions = {
 export const orderApi = {
   getOrders: {
     useQuery: (params?: GetOrdersParams) =>
-      useQuery({
-        ...orderQueryOptions.list(params),
-        select: (r) => r.data,
+      useFaultTolerantQuery<
+        ApiResponse<Order[]>,
+        { orders: Order[]; total: number }
+      >({
+        queryKey: orderKeys.list(params),
+        queryFn: () => getOrders(params),
+        staleTime: 5 * 60 * 1000,
+        select: (r) => ({ orders: r.data, total: r.total ?? 0 }),
+        cacheKey: `orders-list-${JSON.stringify(params ?? {})}`,
+        cacheGuard: isOrdersQueryData,
       }),
   },
 
   getOrder: {
     useQuery: (id: string | null) =>
-      useQuery({
-        ...orderQueryOptions.detail(id ?? ""),
+      useFaultTolerantQuery<ApiResponse<Order>, Order>({
+        queryKey: orderKeys.detail(id ?? ""),
+        queryFn: () => getOrder(id ?? ""),
+        staleTime: 5 * 60 * 1000,
         enabled: !!id,
         select: (r) => r.data,
+        cacheKey: `orders-detail-${id ?? ""}`,
+        cacheGuard: isOrder,
       }),
   },
 
@@ -106,6 +117,9 @@ async function getOrders(
   if (params?.status && params.status !== "all")
     searchParams.append("status", params.status);
   if (params?.keyword) searchParams.append("keyword", params.keyword);
+  if (params?.page) searchParams.append("page", params.page.toString());
+  if (params?.pageSize)
+    searchParams.append("pageSize", params.pageSize.toString());
   const qs = searchParams.toString();
   const res = await fetch(qs ? `/api/orders?${qs}` : "/api/orders");
   if (!res.ok) throw new Error("取得訂單列表失敗");
@@ -147,4 +161,29 @@ async function updateOrderStatus(
     throw new Error(err.message ?? "更新訂單失敗");
   }
   return res.json();
+}
+
+// ─── Type Guards（放下方，hoisting 保證上方可用） ─────────────────────────────
+
+function isOrder(v: unknown): v is Order {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    typeof (v as Record<string, unknown>).id === "string" &&
+    typeof (v as Record<string, unknown>).orderId === "number" &&
+    typeof (v as Record<string, unknown>).customerName === "string" &&
+    typeof (v as Record<string, unknown>).status === "string"
+  );
+}
+
+function isOrdersQueryData(
+  v: unknown
+): v is { orders: Order[]; total: number } {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    Array.isArray((v as Record<string, unknown>).orders) &&
+    ((v as Record<string, unknown>).orders as unknown[]).every(isOrder) &&
+    typeof (v as Record<string, unknown>).total === "number"
+  );
 }
