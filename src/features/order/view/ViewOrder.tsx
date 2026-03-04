@@ -24,9 +24,6 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
   // 在 page 層管理選中的訂單 ID
   const [selectedId, setSelectedId] = useState<string | null>();
 
-  // 取得全部訂單（供狀態方塊數量使用）
-  const { data: allOrders = [] } = orderApi.getOrders.useQuery({});
-
   // 取得訂單列表（API 已處理篩選）
   const {
     data: filteredOrders = [],
@@ -60,11 +57,6 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     <div className={cn("flex flex-col gap-4", props.className)}>
       <OrderHeader orders={filteredOrders} />
 
-      <OrderFilters
-        status={filterParams.status}
-        onFiltersChange={handleFiltersChange}
-        allOrders={allOrders}
-      />
       <SearchInput
         value={filterParams.keyword}
         onChange={(v) => handleFiltersChange({ keyword: v })}

@@ -62,6 +62,10 @@
   "prettier.useEditorConfig": false,
   "prettier.enable": true,
 
+  // 關閉內建 CSS 驗證，避免對 Tailwind CSS v4 的 @theme、@custom-variant 等報錯
+  "css.validate": false,
+  "scss.validate": false,
+
   // 檔案關聯
   "files.associations": {
     "*.css": "tailwindcss"

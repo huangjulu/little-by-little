@@ -55,7 +55,7 @@ const InputShell: React.FC<InputStoryProps> = ({
       <div
         className={[
           "flex items-center rounded-md border bg-background px-2 py-1 shadow-xs transition-colors",
-          "focus-within:border-ring focus-within:ring-ring/40 focus-within:ring-[3px]",
+          "focus-within:border-ring focus-within:ring-ring/40 focus-within:ring-[0.1875rem]",
           getStatusClassName(status),
         ]
           .filter(Boolean)

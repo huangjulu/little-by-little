@@ -3,8 +3,18 @@
 import { cn } from "@/lib/utils";
 import { ViewOrder } from "@/features/order/view/ViewOrder";
 import { AuthGate } from "@/features/auth/AuthGate";
+import { orderApi } from "@/features/order";
+import { useEffect } from "react";
 
 export default function OrdersPage() {
+  // 為了避免 Supabase 的資料過期，我們需要每隔 7 天自動重新 fetch 一次資料
+  useEffect(function automaticFetchOrdersEvery7days() {
+    const interval = setInterval(() => {
+      orderApi.getOrders.useQuery();
+    }, 7 * 24 * 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <AuthGate>
       <div
