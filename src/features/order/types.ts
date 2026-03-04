@@ -46,6 +46,8 @@ export interface ApiResponse<T> {
 export interface GetOrdersParams {
   status?: StatusFilterValue;
   keyword?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface CreateOrderParams {
