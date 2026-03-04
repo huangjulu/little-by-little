@@ -11,7 +11,7 @@ export const CustomerInfo: React.FC<CustomerInfoProps> = (props) => {
   return (
     <div className={cn("flex flex-col", props.className)}>
       <span className="text-xs font-medium">{props.name}</span>
-      <span className="truncate text-[11px] text-gray-400">
+      <span className="truncate text-[0.6875rem] text-gray-400">
         {props.mobilePhone}
       </span>
     </div>

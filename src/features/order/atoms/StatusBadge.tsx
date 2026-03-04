@@ -18,7 +18,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
   return (
     <Badge
       className={cn(
-        "inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[10px] font-medium ring-1",
+        "inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[0.625rem] font-medium ring-1",
         statusChipStyle[status],
         className
       )}
