@@ -1,30 +1,32 @@
 ---
-description: useEffect / useCallback 必須使用命名函式，提升可讀性與除錯追蹤
+description: useEffect 必須使用命名函式，提升可讀性與除錯追蹤
 globs: "**/*.tsx,**/*.ts"
 alwaysApply: false
 ---
 
-# Hook Callback 命名函式規範
+# useEffect 命名函式規範
 
 ## 核心原則
 
-所有 `useEffect`、`useCallback` 的 callback **必須**使用命名函式（named function），而非箭頭函式或匿名函式。
+所有 `useEffect` 的 callback **必須**使用命名函式（named function），而非箭頭函式或匿名函式。
+
+`useCallback` 和 `useMemo` **不在此規範內**，可繼續使用箭頭函式。
 
 ## 規則
 
 ### 1. 命名格式
-- 函式名稱應描述該 callback 的意圖或副作用
+- 函式名稱應描述該 effect 的意圖或副作用
 - 使用 camelCase，以動詞開頭（如 `fetchOrders`、`syncLocalStorage`、`handleResize`）
 
 ### 2. 優點
-- **可讀性**：一眼看出每個 effect / callback 在做什麼
+- **可讀性**：一眼看出每個 effect 在做什麼
 - **React DevTools**：Profiler 可顯示具名 effect 名稱
 - **錯誤追蹤**：stack trace 會顯示函式名稱，除錯更快
 
 ## 範例
 
 ```typescript
-// ✅ 正確：命名函式
+// ✅ 正確：useEffect 使用命名函式
 useEffect(function checkAuthSession() {
   fetch("/api/auth/check")
     .then((r) => r.json())
@@ -39,10 +41,19 @@ useEffect(function subscribeToResize() {
 ```
 
 ```typescript
-// ❌ 錯誤：箭頭函式 / 匿名函式
+// ❌ 錯誤：useEffect 使用箭頭函式
 useEffect(() => {
   fetch("/api/auth/check")
     .then((r) => r.json())
     .then((data) => setStatus(data.authenticated ? "ok" : "locked"));
 }, []);
+```
+
+```typescript
+// ✅ useCallback / useMemo 可繼續使用箭頭函式
+const handleClick = useCallback((id: string) => {
+  setSelectedId(id);
+}, []);
+
+const total = useMemo(() => items.reduce((sum, i) => sum + i.price, 0), [items]);
 ```

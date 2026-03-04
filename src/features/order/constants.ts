@@ -1,4 +1,4 @@
-import type { OrderStatus, StatusFilterOption } from "./order-types";
+import type { OrderStatus, StatusFilterOption } from "./types";
 
 export const statusLabel: Record<OrderStatus, string> = {
   active: "啟用中",

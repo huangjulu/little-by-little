@@ -1,9 +1,14 @@
+---
+description: 整體開發規範 - 涵蓋技術棧、編碼標準、架構與工作流程
+alwaysApply: true
+---
+
 # Cursor Project Rules - Little-by-Little
 
 ## Project Identity & Tech Stack
 - **Frontend**: Next.js 15.x (Stable App Router) / React 19.x
 - **Styling**: Tailwind CSS 4 (CSS-First approach)
-- **Backend**: Node.js Express server (located in `/server`)
+- **Backend**: Next.js 15 App Router，API Routes 位於 `src/app/api/`
 - **UI Components**: shadcn/ui with RWD isolation layer
 - **Constraint**: Avoid Experimental Next.js 16 features to ensure stability.
 
@@ -11,12 +16,14 @@
 - **Mode: Snippet/Diff Only.** Never rewrite the entire file unless it's a new file or specifically requested.
 - **Explain "Why", Not Just "What"**: For every significant code change, provide a concise 1-2 sentence explanation of the **purpose and benefit**.
 - **Tooling Silence**: Do NOT explain or remind about `npm run format`, `eslint`, or `prettier`.
-- **Architectural Rationale**: Explain how changes align with React 19 (e.g., async params) or memory optimization (reducing unnecessary `useMemo`).
+- **Architectural Rationale**: Explain how changes align with React 19 (e.g., async params) or memory optimization.
 
 ## Coding Standards (Strict Mode)
-- **TypeScript**: Strict mode only. **No `any`**, no `as` casting (unless strictly required by libs).
-- **Component Pattern**: Use `React.FC<PropsType>` and destructure props in the function body.
-- **Performance**: Minimize `useMemo/useCallback` overhead; use stable constant references outside components where possible.
+- **TypeScript**: Strict mode only. **No `any`**, no `as` casting. See `type-safety.mdc` for detailed alternatives and enforcement rules.
+- **Component Pattern**:
+  - Features 層（`src/features/`）：使用 `React.FC<PropsType>`，在 function body 內解構 props
+  - UI 層（`src/ui/`）：使用 `function` 宣告，與 shadcn/ui 保持一致
+- **Performance**: 在頻繁 re-render 的元件中使用 `useMemo/useCallback` 保護穩定引用；純展示元件搭配 `React.memo`。
 - **Dependencies**: Prefer native ES6+ over `lodash`.
 
 ## Component Architecture (RWD Isolation)
@@ -26,7 +33,7 @@
 ## Component State Isolation
 - **Internal State Management**: Components should manage their own UI state (e.g., `keyword`, `statusFilter`, `selectedId`) internally using `useState`.
 - **API Data Only in Page**: Only API-related data fetching (via hooks like `useQuery`, `useMutation`) should be handled at the page level.
-- **Cross-Component Shared State**: For state that needs to be shared across multiple unrelated components (e.g., user selections, cart items), use Redux. See `state-management.mdc` for details.
+- **Cross-Component Shared State**: 跨元件共享狀態優先使用 React Query 的 `queryClient.setQueryData`，或提升 state 到共同父層。See `state-management.mdc` for details.
 - **Callback Pattern**: Components notify parent components of state changes through callback props (e.g., `onFiltersChange`, `onOrderSelect`) rather than exposing internal state.
 - **Separation of Concerns**: Page components are responsible for API calls and data orchestration, while UI components handle their own interaction state.
 
@@ -39,7 +46,7 @@
 - **Consistent Color Usage**: All components must use the defined color system to ensure visual consistency across the application.
 
 ## Workflow & Context
-- **Independent Context**: Front-end (`/src`) and Back-end (`/server`) are decoupled. Do not suggest server changes when working on frontend unless asked.
+- **Fullstack Context**: 前後端皆在同一 Next.js 專案內（`src/app/api/` 為 API Routes）。修改 API 時需注意前端呼叫端的對應。
 - **Verification**: If information is missing, ASK the user before generating code.
 
 ## Type Management & Reusability

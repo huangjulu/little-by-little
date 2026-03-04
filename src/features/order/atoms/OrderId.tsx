@@ -12,7 +12,10 @@ interface OrderIdProps {
 export const OrderId: React.FC<OrderIdProps> = (props) => {
   return (
     <span
-      className={cn("font-mono text-[11px] text-gray-700", props.className)}
+      className={cn(
+        "font-mono text-[0.6875rem] text-gray-700",
+        props.className
+      )}
     >
       {props.id}
     </span>

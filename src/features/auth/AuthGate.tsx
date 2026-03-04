@@ -44,8 +44,9 @@ export const AuthGate: React.FC<AuthGateProps> = (props) => {
       } else {
         setStatus("unlocked");
       }
-    } catch {
-      setErrorMsg("網路錯誤，請重試");
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "網路錯誤，請重試";
+      setErrorMsg(msg);
     } finally {
       setSubmitting(false);
     }

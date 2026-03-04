@@ -1,0 +1,68 @@
+// ─── Domain Types ─────────────────────────────────────────────────────────────
+
+export type OrderStatus = "active" | "inactive";
+export type StatusFilterValue = "all" | OrderStatus;
+
+export type CustomerInfoData = {
+  customer_name: string;
+  mobile_phone: string;
+  community_name: string;
+  house_unit: string;
+};
+
+export type Order = {
+  id: string;
+  orderId: number;
+  customerName: string;
+  mobilePhone: string;
+  communityName: string;
+  houseUnit: string;
+  basePrice: number;
+  currentPrice: number;
+  contractStartDate: string;
+  contractEndDate: string;
+  paymentDeadline: string;
+  nextBillingDate: string;
+  createdAt: string;
+  status: OrderStatus;
+};
+
+export type StatusFilterOption = {
+  value: StatusFilterValue;
+  label: string;
+};
+
+export type StatusCounts = Record<StatusFilterValue, number>;
+
+// ─── API 介面型別（前後端共用） ──────────────────────────────────────────────
+
+export interface ApiResponse<T> {
+  error: boolean;
+  data: T;
+  message?: string;
+  total?: number;
+}
+
+export interface GetOrdersParams {
+  status?: StatusFilterValue;
+  keyword?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface CreateOrderParams {
+  customerName: string;
+  mobilePhone: string;
+  communityName?: string;
+  houseUnit?: string;
+  basePrice?: number;
+  currentPrice?: number;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  paymentDeadline?: string;
+  nextBillingDate?: string;
+}
+
+export interface UpdateOrderStatusParams {
+  status: OrderStatus;
+}

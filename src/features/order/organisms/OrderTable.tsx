@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/ui/table";
 import { OrderRow } from "../molecules";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { cn } from "@/lib/utils";
 
 interface OrderTableProps {
@@ -35,7 +35,7 @@ export const OrderTable: React.FC<OrderTableProps> = (props) => {
       <div className="border-b border-gray-100 px-4 py-2 text-xs text-gray-500">
         共 {props.orders.length} 筆訂單
       </div>
-      <div className="max-h-[480px] overflow-auto text-sm">
+      <div className="max-h-120 overflow-auto text-sm">
         <Table>
           <TableHeader>
             <TableRow

@@ -1,128 +1,111 @@
 ---
-description: 狀態管理規則 - 使用 Redux 管理跨組件共享狀態
+description: 狀態管理規則 - 依據狀態類型選擇對應工具
 globs: "**/*.tsx,**/*.ts"
 alwaysApply: false
 ---
 
-# 狀態管理規範 (Redux)
+# 狀態管理規範
 
 ## 核心原則
 
-使用 Redux 作為 MVC 架構中的 Controller，管理跨組件的共享狀態（如使用者勾選項目、購物車狀態等）。
+依據狀態的性質選擇對應的管理工具，不引入不必要的外部狀態庫。
 
-## 狀態分類與工具選擇
+## 狀態分層與工具選擇
 
 | 狀態類型 | 使用工具 | 範例 |
 |---------|---------|------|
-| 組件內部 UI 狀態 | `useState` | input focus、dropdown open |
-| 伺服器資料快取 | `@tanstack/react-query` | API 資料、列表資料 |
-| 跨組件共享狀態 | `Redux` | 勾選項目、購物車、全域篩選 |
+| 組件內部 UI 狀態 | `useState` | input focus、dropdown open、keyword |
+| 伺服器資料快取 | `@tanstack/react-query` | API 資料、列表、詳情 |
+| 跨元件共享狀態 | React Query `queryClient` 或提升 state 到共同父層 | 篩選條件、已選項目 |
 
 ## 規則
 
-### 1. Redux 用於共享狀態
-- 當狀態需要在多個不相關組件間共享時，使用 Redux
-- 使用者操作產生的全域狀態變更（如勾選、選擇）適合用 Redux
+### 1. 組件內部 UI 狀態 → `useState`
+- 組件自身的互動狀態（如 `keyword`、`statusFilter`、`isOpen`）使用 `useState` 管理
+- 透過 callback props 通知父層（如 `onFiltersChange`、`onOrderSelect`）
 
-### 2. 目錄結構
+### 2. 伺服器資料 → `@tanstack/react-query`
+- 所有 API 資料的 fetching、caching、synchronizing 使用 React Query
+- 使用 `useQuery` 讀取、`useMutation` 寫入
+- API 相關的資料抓取只在 Page 層級進行
 
-```
-src/
-├── store/
-│   ├── index.ts          # Store 配置與匯出
-│   ├── hooks.ts          # Typed hooks (useAppDispatch, useAppSelector)
-│   └── slices/
-│       ├── cartSlice.ts      # 購物車 slice
-│       └── selectionSlice.ts # 勾選狀態 slice
-```
-
-### 3. 使用 Redux Toolkit
-- 使用 `@reduxjs/toolkit` 簡化 Redux 開發
-- 使用 `createSlice` 定義 reducer 和 actions
-- 使用 typed hooks 確保型別安全
+### 3. 跨元件共享狀態
+- **優先**使用 React Query 的 `queryClient.setQueryData` 來共享伺服器資料的衍生狀態
+- **其次**將 state 提升到共同父層，透過 props 向下傳遞
+- **不需要**額外引入全域狀態管理庫
 
 ## 範例
 
-### Slice 定義
+### React Query 管理伺服器資料
 
 ```typescript
-// store/slices/selectionSlice.ts
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+// useOrders.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-interface SelectionState {
-  selectedIds: string[];
+export function useOrders() {
+  return useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchOrders,
+  });
 }
 
-const initialState: SelectionState = {
-  selectedIds: [],
-};
+export function useUpdateOrder() {
+  const queryClient = useQueryClient();
 
-export const selectionSlice = createSlice({
-  name: "selection",
-  initialState,
-  reducers: {
-    toggleSelection: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      const index = state.selectedIds.indexOf(id);
-      if (index >= 0) {
-        state.selectedIds.splice(index, 1);
-      } else {
-        state.selectedIds.push(id);
-      }
+  return useMutation({
+    mutationFn: updateOrder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
-    clearSelection: (state) => {
-      state.selectedIds = [];
-    },
-  },
-});
-
-export const { toggleSelection, clearSelection } = selectionSlice.actions;
-export default selectionSlice.reducer;
+  });
+}
 ```
 
-### Typed Hooks
+### 跨元件共享：提升 state 到父層
 
 ```typescript
-// store/hooks.ts
-import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
-import type { RootState, AppDispatch } from "./index";
+// Page 層級管理共享狀態，向下傳遞
+export const OrderPage: React.FC = () => {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const { data: orders } = useOrders();
 
-export const useAppDispatch: () => AppDispatch = useDispatch;
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-```
-
-### 組件使用
-
-```typescript
-// Component usage
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { toggleSelection } from "@/store/slices/selectionSlice";
-
-export const SelectableItem: React.FC<{ id: string }> = ({ id }) => {
-  const dispatch = useAppDispatch();
-  const isSelected = useAppSelector(
-    (state) => state.selection.selectedIds.includes(id)
-  );
-  
   return (
-    <Checkbox 
-      checked={isSelected} 
-      onCheckedChange={() => dispatch(toggleSelection(id))}
-    />
+    <>
+      <OrderFilters selectedIds={selectedIds} />
+      <OrderTable
+        orders={orders}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+      />
+    </>
   );
 };
 ```
 
-## 與 React Query 的分工
-
-- **React Query**：負責伺服器狀態（fetching、caching、synchronizing）
-- **Redux**：負責客戶端狀態（UI 狀態、使用者選擇）
+### 跨元件共享：React Query setQueryData
 
 ```typescript
-// ✅ 正確：React Query 管理 API 資料
-const { data: orders } = useQuery({ queryKey: ["orders"], queryFn: fetchOrders });
+// 透過 queryClient 共享衍生狀態
+const queryClient = useQueryClient();
 
-// ✅ 正確：Redux 管理使用者勾選
-const selectedIds = useAppSelector((state) => state.selection.selectedIds);
-const selectedOrders = orders?.filter((o) => selectedIds.includes(o.id));
+function handleSelectOrder(id: string) {
+  queryClient.setQueryData<string[]>(["selectedOrders"], (prev = []) => {
+    return prev.includes(id)
+      ? prev.filter((i) => i !== id)
+      : [...prev, id];
+  });
+}
+
+// 其他元件讀取
+const selectedIds = useQuery({
+  queryKey: ["selectedOrders"],
+  initialData: [],
+});
 ```
+
+## 未來擴充
+
+如果未來需要引入 Redux 等全域狀態管理庫（例如複雜的購物車、多步驟表單跨頁共享），請先：
+1. 建立 `src/store/` 目錄結構
+2. 更新此規則文件
+3. 在 `development.mdc` 中同步說明

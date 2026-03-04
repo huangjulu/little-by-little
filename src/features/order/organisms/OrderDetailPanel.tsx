@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@/ui/card";
 import { OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
-import type { Order } from "../order-types";
+import type { Order } from "../types";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "../atoms/StatusBadge";
 
@@ -23,17 +23,20 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
   const { order, error, className } = props;
   const prevErrorRef = useRef<Error | null>(null);
 
-  useEffect(() => {
-    if (!error) {
-      toast.dismiss("order-detail-error");
-      prevErrorRef.current = null;
-    } else if (error !== prevErrorRef.current) {
-      toast.error(`載入失敗：${error.message}`, {
-        id: "order-detail-error",
-      });
-      prevErrorRef.current = error;
-    }
-  }, [error]);
+  useEffect(
+    function syncErrorToast() {
+      if (!error) {
+        toast.dismiss("order-detail-error");
+        prevErrorRef.current = null;
+      } else if (error !== prevErrorRef.current) {
+        toast.error(`載入失敗：${error.message}`, {
+          id: "order-detail-error",
+        });
+        prevErrorRef.current = error;
+      }
+    },
+    [error]
+  );
 
   return (
     <Card className={cn("flex flex-col gap-3 bg-gray-50 p-4", className)}>
@@ -59,15 +62,15 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
           <div className="mt-2 flex justify-between gap-2">
             <div>
               <div className="text-xs font-medium">{order.customerName}</div>
-              <div className="text-[11px] text-gray-500">
+              <div className="text-[0.6875rem] text-gray-500">
                 {order.mobilePhone}
               </div>
-              <div className="text-[11px] text-gray-400">
+              <div className="text-[0.6875rem] text-gray-400">
                 {order.communityName} {order.houseUnit}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] text-gray-500">目前金額</div>
+              <div className="text-[0.6875rem] text-gray-500">目前金額</div>
               <CurrencyDisplay
                 value={order.currentPrice}
                 className="text-sm font-semibold"
@@ -78,7 +81,7 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
 
         <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3">
           <span className="text-xs font-medium text-gray-700">合約資訊</span>
-          <div className="grid grid-cols-2 gap-2 text-[11px]">
+          <div className="grid grid-cols-2 gap-2 text-[0.6875rem]">
             <div>
               <span className="text-gray-400">合約起始</span>
               <div className="font-medium">

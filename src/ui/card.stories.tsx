@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>;
 // ============================================
 export const Default: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <CardTitle>訂單摘要</CardTitle>
         <CardDescription>顯示您的訂單詳細資訊</CardDescription>
@@ -50,7 +50,7 @@ export const Default: Story = {
 // ============================================
 export const Loading: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-4 w-48" />
@@ -79,7 +79,7 @@ export const Loading: Story = {
 // ============================================
 export const Empty: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <CardTitle>訂單列表</CardTitle>
         <CardDescription>您的所有訂單</CardDescription>
@@ -122,7 +122,7 @@ export const Empty: Story = {
 // ============================================
 export const Error: Story = {
   render: () => (
-    <Card className="w-[350px] border-red-200 bg-red-50">
+    <Card className="w-[21.875rem] border-red-200 bg-red-50">
       <CardHeader>
         <CardTitle className="text-red-700">載入失敗</CardTitle>
         <CardDescription className="text-red-500">
@@ -169,7 +169,7 @@ export const Error: Story = {
 // ============================================
 export const LongContent: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <CardTitle>
           這是一個非常非常非常非常非常非常非常非常非常非常非常非常長的標題，用來測試標題換行的情況
@@ -220,7 +220,7 @@ export const LongContent: Story = {
 // ============================================
 export const LongContentTruncated: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <CardTitle className="truncate">
           這是一個非常非常非常非常非常非常非常非常非常非常非常非常長的標題會被截斷
@@ -346,7 +346,7 @@ export const MobileViewCompact: Story = {
 // ============================================
 export const WithAction: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-[21.875rem]">
       <CardHeader>
         <CardTitle>訂單詳情</CardTitle>
         <CardDescription>訂單編號: #12345</CardDescription>
@@ -388,7 +388,7 @@ export const WithAction: Story = {
 export const DarkMode: Story = {
   render: () => (
     <div className="dark rounded-lg bg-gray-900 p-4">
-      <Card className="w-[350px]">
+      <Card className="w-[21.875rem]">
         <CardHeader>
           <CardTitle>深色模式</CardTitle>
           <CardDescription>測試深色主題下的顯示效果</CardDescription>

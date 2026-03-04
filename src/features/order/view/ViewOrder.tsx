@@ -1,75 +1,75 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryState,
+} from "nuqs";
 import { cn } from "@/lib/utils";
-import {
-  SearchInput,
-  StatusFilterValue,
-  useOrders,
-  useSingleOrderById,
-} from "..";
-import {
-  OrderDetailPanel,
-  OrderFilters,
-  OrderHeader,
-  OrderTable,
-} from "../organisms";
+import { SearchInput, StatusFilterValue, orderApi } from "..";
+import { OrderDetailPanel, OrderHeader, OrderTable } from "../organisms";
 import { DataTableSkeleton } from "./DataTableSkeleton";
 import { PanelDetailSkeleton } from "./PanelDetailSkeleton";
 
+const PAGE_SIZE = 20;
+const STATUS_OPTIONS = ["all", "active", "inactive"] as const;
+
 export const ViewOrder: React.FC<{ className?: string }> = (props) => {
-  const [filterParams, setFilterParams] = useState<{
-    keyword: string;
-    status: StatusFilterValue;
-  }>({
-    keyword: "",
-    status: "all",
-  });
+  const [keyword, setKeyword] = useQueryState(
+    "keyword",
+    parseAsString.withDefault("")
+  );
+  const [status, setStatus] = useQueryState(
+    "status",
+    parseAsStringLiteral(STATUS_OPTIONS).withDefault("all")
+  );
+  const [selectedId, setSelectedId] = useQueryState("orderId", parseAsString);
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
-  // 在 page 層管理選中的訂單 ID
-  const [selectedId, setSelectedId] = useState<string | null>();
-
-  // 使用 React Query 取得全部訂單（供狀態方塊數量使用）
-  const { data: allOrders = [] } = useOrders({});
-
-  // 使用 React Query 取得訂單列表（API 已處理篩選）
   const {
-    data: filteredOrders = [],
+    data: ordersData,
     isLoading: isLoadingOrders,
     error: ordersError,
-  } = useOrders({
-    status: filterParams.status !== "all" ? filterParams.status : undefined,
-    keyword: filterParams.keyword.trim() || undefined,
+  } = orderApi.getOrders.useQuery({
+    status: status !== "all" ? status : undefined,
+    keyword: keyword.trim() || undefined,
+    page,
+    pageSize: PAGE_SIZE,
   });
 
-  // 使用 React Query 取得選中的訂單（僅在點選時才查詢與顯示）
-  const { data: OrderData, isLoading: isLoadingOrderDetail } =
-    useSingleOrderById(selectedId ?? null);
+  const filteredOrders = ordersData?.orders ?? [];
+  const totalOrders = ordersData?.total ?? 0;
+  const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
 
-  // 處理篩選條件變化（支援 partial 合併）
+  const { data: OrderData, isLoading: isLoadingOrderDetail } =
+    orderApi.getOrder.useQuery(selectedId ?? null);
+
+  const safeError = ordersError instanceof Error ? ordersError : null;
+
   const handleFiltersChange = useCallback(
     (patch: Partial<{ keyword: string; status: StatusFilterValue }>) => {
-      setFilterParams((prev) => ({ ...prev, ...patch }));
+      if (patch.keyword !== undefined) void setKeyword(patch.keyword);
+      if (patch.status !== undefined) void setStatus(patch.status);
+      void setPage(1);
     },
-    []
+    [setKeyword, setStatus, setPage]
   );
 
-  // 再點同一筆訂單時收起 panel（toggle）
-  const handleOrderClick = useCallback((orderId: string) => {
-    setSelectedId((prev) => (prev === orderId ? null : orderId));
-  }, []);
+  const handleOrderClick = useCallback(
+    (orderId: string) => {
+      void setSelectedId((prev) => (prev === orderId ? null : orderId));
+    },
+    [setSelectedId]
+  );
 
   return (
     <div className={cn("flex flex-col gap-4", props.className)}>
       <OrderHeader orders={filteredOrders} />
 
-      <OrderFilters
-        status={filterParams.status}
-        onFiltersChange={handleFiltersChange}
-        allOrders={allOrders}
-      />
       <SearchInput
-        value={filterParams.keyword}
+        value={keyword}
         onChange={(v) => handleFiltersChange({ keyword: v })}
         placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
@@ -85,12 +85,38 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
         {isLoadingOrders ? (
           <DataTableSkeleton rows={5} columns={5} showSummary />
         ) : (
-          <OrderTable
-            orders={filteredOrders}
-            selectedOrderId={selectedId}
-            onOrderClick={handleOrderClick}
-            isLoading={false}
-          />
+          <div className="flex flex-col gap-3">
+            <OrderTable
+              orders={filteredOrders}
+              selectedOrderId={selectedId}
+              onOrderClick={handleOrderClick}
+              isLoading={false}
+            />
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-end gap-3 px-1 text-sm text-gray-500">
+                <button
+                  onClick={() => void setPage((p) => Math.max(1, (p ?? 1) - 1))}
+                  disabled={page <= 1}
+                  className="rounded-lg px-3 py-1.5 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  上一頁
+                </button>
+                <span className="text-xs">
+                  第 {page} 頁，共 {totalPages} 頁（{totalOrders} 筆）
+                </span>
+                <button
+                  onClick={() =>
+                    void setPage((p) => Math.min(totalPages, (p ?? 1) + 1))
+                  }
+                  disabled={page >= totalPages}
+                  className="rounded-lg px-3 py-1.5 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  下一頁
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {selectedId && (!OrderData || isLoadingOrderDetail) && (
@@ -98,7 +124,7 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
         )}
 
         {selectedId && OrderData && (
-          <OrderDetailPanel order={OrderData} error={ordersError} />
+          <OrderDetailPanel order={OrderData} error={safeError} />
         )}
       </div>
     </div>
