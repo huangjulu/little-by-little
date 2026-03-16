@@ -74,12 +74,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
   );
 };
 
-DateRangePicker.displayName = "DateRangePicker";
-
-export default DateRangePicker;
-
 // Types
-
 /**
  * 寬鬆的日期區間型別，允許 from/to 皆為選填
  * 用於與 react-hook-form + zod schema 整合
@@ -88,6 +83,10 @@ interface DateRangeValue {
   from?: Date;
   to?: Date;
 }
+
+DateRangePicker.displayName = "DateRangePicker";
+
+export default DateRangePicker;
 
 function formatDateRange(
   range: DateRangeValue | undefined,

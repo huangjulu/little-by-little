@@ -39,15 +39,14 @@ const NaviItemWithPopover: React.FC<NaviItemWithPopoverProps> = (props) => {
   );
 };
 
-NaviItemWithPopover.displayName = "NaviItemWithPopover";
-
-export default NaviItemWithPopover;
-
 // Types
-
 interface NaviItemWithPopoverProps {
   href: string;
   icon: React.ReactNode;
   label: string;
   className?: string;
 }
+
+NaviItemWithPopover.displayName = "NaviItemWithPopover";
+
+export default NaviItemWithPopover;

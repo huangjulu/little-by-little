@@ -129,12 +129,7 @@ const CreateOrderFormFields: React.FC = () => {
   );
 };
 
-CreateOrderFormFields.displayName = "CreateOrderFormFields";
-
-export default CreateOrderFormFields;
-
 // Types
-
 type ControlledFieldProps<T extends Path<CreateOrderFormValues>> = {
   name: T;
   label: string;
@@ -153,6 +148,10 @@ type InputFieldProps = {
   React.InputHTMLAttributes<HTMLInputElement>,
   "id" | "name" | "aria-invalid"
 >;
+
+CreateOrderFormFields.displayName = "CreateOrderFormFields";
+
+export default CreateOrderFormFields;
 
 // Helpers
 

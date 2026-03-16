@@ -200,14 +200,14 @@ const PrintableNotice = forwardRef<HTMLDivElement, PrintableNoticeProps>(
   }
 );
 
-PrintableNotice.displayName = "PrintableNotice";
-
-export default PrintableNotice;
-
 // Types
 interface PrintableNoticeProps {
   orders: Order[];
 }
+
+PrintableNotice.displayName = "PrintableNotice";
+
+export default PrintableNotice;
 
 // Helpers
 function computeAtmAmount(order: Order): number | null {

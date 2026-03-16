@@ -17,10 +17,7 @@ const Skeleton: React.FC<SkeletonProps> = (props) => {
   return <div className={cn(baseClassName, className)} {...rest} />;
 };
 
-Skeleton.displayName = "Skeleton";
-
-export default Skeleton;
-
+// Types
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * 要渲染的 Skeleton row 數量。
@@ -35,3 +32,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   rowClassName?: string;
 }
+
+Skeleton.displayName = "Skeleton";
+
+export default Skeleton;

@@ -72,38 +72,29 @@ const DialogBody: React.FC<DialogBodyProps> = (props) => {
 };
 
 const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
-  const {
-    className,
-    children,
-    isSticky = false,
-    isClosable = false,
-    handleBar = false,
-    ...rest
-  } = props;
   return (
     <div
       className={cn(
         "relative flex flex-col space-y-1.5 text-center sm:text-left shrink-0",
-        isSticky &&
+        props.isSticky &&
           "sticky top-0 z-10 -mx-6 -mt-6 mb-0 px-6 pb-4 bg-background",
-        className
+        props.className
       )}
-      {...rest}
     >
-      {isClosable && (
+      {props.isClosable && (
         <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 -translate-2 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
           <X className="h-4 w-4" />
           <span className="sr-only">關閉</span>
         </RadixDialog.Close>
       )}
 
-      {handleBar && (
+      {props.handleBar && (
         <div className="mb-3 flex cursor-pointer justify-center sm:hidden">
           <div className="h-1.5 w-12 rounded-full bg-muted" />
         </div>
       )}
 
-      {children}
+      {props.children}
     </div>
   );
 };
@@ -138,27 +129,15 @@ const DialogDescription: React.FC<
 };
 
 const DialogFooter: React.FC<DialogFooterProps> = (props) => {
-  const {
-    className,
-    children,
-    haveCancel,
-    onConfirm,
-    confirmText,
-    cancelText,
-    isAutoClose,
-    ...rest
-  } = props;
-
-  if (children) {
+  if (props.children) {
     return (
       <div
         className={cn(
           "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-          className
+          props.className
         )}
-        {...rest}
       >
-        {children}
+        {props.children}
       </div>
     );
   }
@@ -168,13 +147,11 @@ const DialogFooter: React.FC<DialogFooterProps> = (props) => {
       type="button"
       onClick={(e) => {
         e.stopPropagation();
-        if (onConfirm) {
-          onConfirm();
-        }
+        props.onConfirm?.();
       }}
       className="inline-flex flex-1 justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
     >
-      {confirmText}
+      {props.confirmText}
     </button>
   );
 
@@ -182,22 +159,21 @@ const DialogFooter: React.FC<DialogFooterProps> = (props) => {
     <div
       className={cn(
         "flex flex-col-reverse gap-4 sm:flex-row sm:justify-end",
-        className
+        props.className
       )}
-      {...rest}
     >
-      {haveCancel && (
+      {props.haveCancel && (
         <RadixDialog.Close asChild>
           <button
             type="button"
             className="inline-flex flex-1 justify-center rounded-md border px-4 py-2 text-sm"
           >
-            {cancelText}
+            {props.cancelText}
           </button>
         </RadixDialog.Close>
       )}
 
-      {isAutoClose !== false ? (
+      {props.isAutoClose !== false ? (
         <RadixDialog.Close asChild>{confirmButton}</RadixDialog.Close>
       ) : (
         confirmButton
@@ -242,8 +218,6 @@ const Dialog = {
   Overlay: DialogOverlay,
   Root: DialogRoot,
 } as const;
-
-export default Dialog;
 
 // Types
 
@@ -373,6 +347,8 @@ type DialogFooterProps = Pick<
   | "cancelText"
   | "isAutoClose"
 >;
+
+export default Dialog;
 
 // Helpers
 

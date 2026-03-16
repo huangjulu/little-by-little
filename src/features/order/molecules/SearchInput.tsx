@@ -49,9 +49,7 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
           <Search className="h-4 w-4 shrink-0 text-gray-400" />
 
           {filter.active && (
-            <Badge variant="soft" onClose={filter.onClear}>
-              {filter.active.label}
-            </Badge>
+            <Badge onClose={filter.onClear}>{filter.active.label}</Badge>
           )}
 
           <Input
@@ -89,10 +87,6 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
   );
 };
 
-SearchInput.displayName = "SearchInput";
-
-export default SearchInput;
-
 // Types
 type SearchFilterOption = {
   key: string;
@@ -105,6 +99,10 @@ type SearchFilterState = {
   onSelect: (option: SearchFilterOption) => void;
   onClear: () => void;
 };
+
+SearchInput.displayName = "SearchInput";
+
+export default SearchInput;
 
 // Constants
 const SEARCH_FILTER_OPTIONS: SearchFilterOption[] = [
