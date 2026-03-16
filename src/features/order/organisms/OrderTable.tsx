@@ -23,6 +23,7 @@ interface OrderTableProps {
   billingMode?: boolean;
   checkedIds?: Set<string>;
   onToggleCheck?: (id: string) => void;
+  hideUpload?: boolean;
 }
 
 /**
@@ -41,7 +42,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         <span className="text-xs text-gray-500">
           共 {props.orders.length} 筆訂單
         </span>
-        <UploadOrderButton />
+        {!props.hideUpload && <UploadOrderButton />}
       </div>
       <div className="max-h-120 overflow-auto text-sm">
         <Table>
@@ -52,7 +53,14 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
                 " *:px-3 *:py-2 *:text-left *:text-xs *:font-medium *:text-gray-500"
               )}
             >
-              {props.billingMode && <TableHead className="w-10" />}
+              <TableHead
+                className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  props.billingMode
+                    ? "w-10 max-w-10 opacity-100 p-3"
+                    : "w-0 max-w-0 opacity-0 p-0 border-0"
+                )}
+              />
               <TableHead>訂單編號</TableHead>
               <TableHead>客戶</TableHead>
               <TableHead>建立時間</TableHead>

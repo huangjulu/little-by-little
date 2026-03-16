@@ -11,50 +11,52 @@ import { cn } from "@/lib/utils";
 import Calendar from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
+interface DateRangePickerProps {
+  value?: DateRangeValue;
+  onChange?: (range: DateRangeValue | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  id?: string;
+}
+
 const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
-  const {
-    value,
-    onChange,
-    placeholder = "選擇日期區間",
-    className,
-    disabled = false,
-    id,
-  } = props;
+  const { placeholder = "選擇日期區間" } = props;
   const [open, setOpen] = useState(false);
 
   const handleSelect = (range: DateRange | undefined) => {
     if (!range) {
-      onChange?.(undefined);
+      props.onChange?.(undefined);
       return;
     }
-    onChange?.({ from: range.from, to: range.to });
+    props.onChange?.({ from: range.from, to: range.to });
     // 僅在選完起始日與結束日後才關閉，讓使用者可完整操作兩次點選
     if (range.from != null && range.to != null) {
       setOpen(false);
     }
   };
 
-  const calendarSelected: DateRange | undefined = value?.from
-    ? { from: value.from, to: value.to }
+  const calendarSelected: DateRange | undefined = props.value?.from
+    ? { from: props.value.from, to: props.value.to }
     : undefined;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          id={id}
+          id={props.id}
           type="button"
-          disabled={disabled}
+          disabled={props.disabled}
           className={cn(
             "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-left text-sm shadow-xs transition-[color,box-shadow] outline-none",
             "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[0.1875rem]",
             "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-            !value?.from && "text-muted-foreground",
-            className
+            !props.value?.from && "text-muted-foreground",
+            props.className
           )}
         >
           <span className="truncate">
-            {formatDateRange(value, placeholder)}
+            {formatDateRange(props.value, placeholder)}
           </span>
           <CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
@@ -62,7 +64,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="range"
-          defaultMonth={value?.from}
+          defaultMonth={props.value?.from}
           selected={calendarSelected}
           onSelect={handleSelect}
           numberOfMonths={2}
@@ -86,17 +88,6 @@ interface DateRangeValue {
   from?: Date;
   to?: Date;
 }
-
-interface DateRangePickerProps {
-  value?: DateRangeValue;
-  onChange?: (range: DateRangeValue | undefined) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-  id?: string;
-}
-
-// Helpers
 
 function formatDateRange(
   range: DateRangeValue | undefined,

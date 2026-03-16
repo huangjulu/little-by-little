@@ -30,20 +30,26 @@ const OrderRow: React.FC<OrderRowProps> = (props) => {
         className
       )}
     >
-      {props.billingMode && (
-        <td>
-          <input
-            type="checkbox"
-            checked={props.checked ?? false}
-            onChange={(e) => {
-              e.stopPropagation();
-              props.onToggleCheck?.();
-            }}
-            onClick={(e) => e.stopPropagation()}
-            className="h-4 w-4 rounded border-gray-300 accent-green-600"
-          />
-        </td>
-      )}
+      <td
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          props.billingMode
+            ? "w-10 max-w-10 opacity-100 p-3"
+            : "w-0 max-w-0 opacity-0 p-0 border-0"
+        )}
+      >
+        <input
+          type="checkbox"
+          checked={props.checked ?? false}
+          onChange={(e) => {
+            e.stopPropagation();
+            props.onToggleCheck?.();
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="h-4 w-4 rounded border-gray-300 accent-green-600"
+          tabIndex={props.billingMode ? 0 : -1}
+        />
+      </td>
       <td>
         <span className="font-mono text-[0.6875rem] text-gray-700">
           {order.id}

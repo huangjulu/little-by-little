@@ -47,5 +47,14 @@ next-env.d.ts
 *storybook.log
 storybook-static/**
 
+# crash dumps
+*.stackdump
+
+# supabase（public repo 不暴露 schema 結構）
+supabase/migrations/
+
 # git worktree 備份節點
 .worktrees/
+
+# example files 為範本檔，不需要進 commit
+example/
