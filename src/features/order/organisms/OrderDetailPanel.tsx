@@ -1,3 +1,4 @@
+import { Check, Printer } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +18,9 @@ import type { Order } from "../types";
 interface OrderDetailPanelProps {
   order: Order;
   error?: Error | null;
+  onPrint?: () => void;
+  onMarkPaid?: () => void;
+  isPrinted?: boolean;
   className?: string;
 }
 
@@ -115,6 +119,35 @@ const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
             </div>
           </div>
         </div>
+
+        {props.onPrint && (
+          <div className="flex justify-start">
+            {props.isPrinted ? (
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-400">
+                <Check className="size-3.5" />
+                已列印
+              </span>
+            ) : order.paymentStatus === "invoiced" ? (
+              <button
+                type="button"
+                onClick={props.onMarkPaid}
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+              >
+                <Check className="size-3.5" />
+                已付款
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={props.onPrint}
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+              >
+                <Printer className="size-3.5" />
+                列印
+              </button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -221,9 +221,14 @@ const DialogOverlay: React.FC<DialogOverlayProps> = (props) => {
   );
 };
 
-DialogHeader.displayName = "DialogHeader";
+DialogRoot.displayName = "DialogRoot";
+DialogContent.displayName = "DialogContent";
 DialogBody.displayName = "DialogBody";
+DialogHeader.displayName = "DialogHeader";
+DialogTitle.displayName = "DialogTitle";
+DialogDescription.displayName = "DialogDescription";
 DialogFooter.displayName = "DialogFooter";
+DialogOverlay.displayName = "DialogOverlay";
 
 const Dialog = {
   Trigger: RadixDialog.Trigger,
