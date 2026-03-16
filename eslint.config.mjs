@@ -1,5 +1,7 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
+import reactPlugin from 'eslint-plugin-react';
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 import { defineConfig } from "eslint/config";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -29,6 +31,7 @@ const eslintConfig = defineConfig([{
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    ".worktrees/**",
   ],
 }, ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"), {
   rules: {
@@ -38,6 +41,21 @@ const eslintConfig = defineConfig([{
     ],
   },
 }, {
+  plugins:{
+    react: reactPlugin,
+  },
+  rules: {
+    'react/no-unknown-property': ['error'],
+  }
+},{
+  plugins: {
+    "simple-import-sort": simpleImportSort,
+  },
+  rules: {
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+  },
+},{
   // 架構邊界：components 不可直接引用 React Query，只能透過 orderApi
   files: ["src/features/**/*.tsx", "src/app/**/*.tsx"],
   rules: {

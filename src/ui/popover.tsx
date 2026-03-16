@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+
 import { cn } from "@/lib/utils";
 
 const Popover = PopoverPrimitive.Root;
@@ -10,14 +10,17 @@ const PopoverTrigger = PopoverPrimitive.Trigger;
 
 const PopoverAnchor = PopoverPrimitive.Anchor;
 
-function PopoverContent({
-  className,
-  side,
-  align = "center",
-  sideOffset = 4,
-  ref,
-  ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+const PopoverContent: React.FC<
+  React.ComponentProps<typeof PopoverPrimitive.Content>
+> = (props) => {
+  const {
+    className,
+    side,
+    align = "center",
+    sideOffset = 4,
+    ref,
+    ...rest
+  } = props;
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
@@ -32,12 +35,12 @@ function PopoverContent({
           "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           className
         )}
-        {...props}
+        {...rest}
       />
     </PopoverPrimitive.Portal>
   );
-}
+};
 
 PopoverContent.displayName = "PopoverContent";
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };

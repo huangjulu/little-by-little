@@ -1,8 +1,10 @@
-import * as React from "react";
 import { useState } from "react";
-import { StatCard, CreateOrderForm } from "../molecules";
+
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+
+import CreateOrderForm from "../add-order/CreateOrderButton";
+import StatCard from "../molecules/StatCard";
 import type { Order } from "../types";
 
 interface OrderHeaderProps {
@@ -10,7 +12,7 @@ interface OrderHeaderProps {
   className?: string;
 }
 
-export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
+const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const thisMonth = new Date().getMonth() + 1;
@@ -49,3 +51,5 @@ export const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
 };
 
 OrderHeader.displayName = "OrderHeader";
+
+export default OrderHeader;

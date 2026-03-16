@@ -1,8 +1,9 @@
-import * as React from "react";
 import { useMemo } from "react";
-import { StatusFilter } from "../molecules";
-import type { StatusFilterValue, Order } from "../types";
+
 import { cn } from "@/lib/utils";
+
+import StatusFilter from "../molecules/StatusFilter";
+import type { Order, StatusFilterValue } from "../types";
 
 interface OrderFiltersProps {
   status: StatusFilterValue;
@@ -14,7 +15,7 @@ interface OrderFiltersProps {
 /**
  * OrderFilters - 訂單篩選區有機體組件（僅狀態方塊，Search 在 table 上方）
  */
-export const OrderFilters: React.FC<OrderFiltersProps> = (props) => {
+const OrderFilters: React.FC<OrderFiltersProps> = (props) => {
   const { status, onFiltersChange, allOrders = [], className } = props;
 
   const statusCounts = useMemo(
@@ -38,3 +39,5 @@ export const OrderFilters: React.FC<OrderFiltersProps> = (props) => {
 };
 
 OrderFilters.displayName = "OrderFilters";
+
+export default OrderFilters;

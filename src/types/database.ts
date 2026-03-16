@@ -72,6 +72,7 @@ export type Database = {
           id: number;
           order_id: number | null;
           order_status: string;
+          payment_status: string;
         };
         Insert: {
           created_at?: string | null;
@@ -79,6 +80,7 @@ export type Database = {
           id?: number;
           order_id?: number | null;
           order_status?: string;
+          payment_status?: string;
         };
         Update: {
           created_at?: string | null;
@@ -86,6 +88,7 @@ export type Database = {
           id?: number;
           order_id?: number | null;
           order_status?: string;
+          payment_status?: string;
         };
         Relationships: [
           {
@@ -134,34 +137,64 @@ export type Database = {
       };
       orders: {
         Row: {
+          atm_account_number: string | null;
           base_price: number | null;
+          billing_plan: string | null;
           contract_end_date: string | null;
           contract_start_date: string | null;
           created_at: string | null;
           current_price: number | null;
+          deposit: number | null;
           id: number;
           next_billing_date: string | null;
           payment_deadline: string | null;
+          price_difference: number | null;
+          project_code: string | null;
+          speed: string | null;
+          two_year_bonus_months: number | null;
+          two_year_fee: number | null;
+          yearly_bonus_months: number | null;
+          yearly_fee: number | null;
         };
         Insert: {
+          atm_account_number?: string | null;
           base_price?: number | null;
+          billing_plan?: string | null;
           contract_end_date?: string | null;
           contract_start_date?: string | null;
           created_at?: string | null;
           current_price?: number | null;
+          deposit?: number | null;
           id?: number;
           next_billing_date?: string | null;
           payment_deadline?: string | null;
+          price_difference?: number | null;
+          project_code?: string | null;
+          speed?: string | null;
+          two_year_bonus_months?: number | null;
+          two_year_fee?: number | null;
+          yearly_bonus_months?: number | null;
+          yearly_fee?: number | null;
         };
         Update: {
+          atm_account_number?: string | null;
           base_price?: number | null;
+          billing_plan?: string | null;
           contract_end_date?: string | null;
           contract_start_date?: string | null;
           created_at?: string | null;
           current_price?: number | null;
+          deposit?: number | null;
           id?: number;
           next_billing_date?: string | null;
           payment_deadline?: string | null;
+          price_difference?: number | null;
+          project_code?: string | null;
+          speed?: string | null;
+          two_year_bonus_months?: number | null;
+          two_year_fee?: number | null;
+          yearly_bonus_months?: number | null;
+          yearly_fee?: number | null;
         };
         Relationships: [];
       };
@@ -218,7 +251,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      batch_update_payment_status: {
+        Args: {
+          p_customer_ids: number[];
+          p_new_status: string;
+          p_update_billing?: boolean;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       [_ in never]: never;

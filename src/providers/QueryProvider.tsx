@@ -1,18 +1,39 @@
 "use client";
 
-import * as React from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import { isOfflineError } from "@/lib/network-error";
 
 /**
  * QueryClient 設定
  */
 function makeQueryClient() {
   return new QueryClient({
+    queryCache: new QueryCache({
+      onError(error, query) {
+        const id = JSON.stringify(query.queryKey);
+        if (isOfflineError(error)) {
+          toast.warning("目前離線", { id });
+        } else {
+          toast.error("連線不穩，請稍後再試", { id });
+        }
+      },
+      onSuccess(_data, query) {
+        toast.dismiss(JSON.stringify(query.queryKey));
+      },
+    }),
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000, // 1 分鐘
         gcTime: 5 * 60 * 1000, // 5 分鐘 (舊版叫 cacheTime)
-        retry: 1,
+        retry: (failureCount, error) =>
+          !isOfflineError(error) && failureCount < 2,
+        throwOnError: (error) => !isOfflineError(error),
         refetchOnWindowFocus: false,
       },
       mutations: {
@@ -37,13 +58,14 @@ function getQueryClient() {
   }
 }
 
-export interface QueryProviderProps {
-  children: React.ReactNode;
-}
-
 /**
  * QueryProvider - React Query 的 Provider 元件
  */
+
+interface QueryProviderProps {
+  children: React.ReactNode;
+}
+
 export function QueryProvider({ children }: QueryProviderProps) {
   const queryClient = getQueryClient();
 

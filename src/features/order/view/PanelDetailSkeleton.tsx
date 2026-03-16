@@ -1,6 +1,5 @@
-import * as React from "react";
-import { Skeleton } from "@/ui/skeleton";
 import { cn } from "@/lib/utils";
+import Skeleton from "@/ui/skeleton";
 
 interface PanelDetailSkeletonProps {
   className?: string;
@@ -12,9 +11,7 @@ interface PanelDetailSkeletonProps {
  * PanelDetailSkeleton - 通用詳情面板骨架組件
  * 模擬右側詳情面板，包含頭像區、多行長條、內容區塊
  */
-export const PanelDetailSkeleton: React.FC<PanelDetailSkeletonProps> = (
-  props
-) => {
+const PanelDetailSkeleton: React.FC<PanelDetailSkeletonProps> = (props) => {
   const { className, showAvatar = false, contentSections = 3 } = props;
 
   return (
@@ -106,3 +103,5 @@ export const PanelDetailSkeleton: React.FC<PanelDetailSkeletonProps> = (
 };
 
 PanelDetailSkeleton.displayName = "PanelDetailSkeleton";
+
+export default PanelDetailSkeleton;

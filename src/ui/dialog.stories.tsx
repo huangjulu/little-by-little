@@ -1,7 +1,22 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import Dialog, { type DialogProps } from "./dialog";
+import React from "react";
 
-interface DialogStoryShellProps extends DialogProps {
+import Dialog from "./dialog";
+
+interface DialogStoryShellProps {
+  isClosable?: boolean;
+  size?: "sm" | "md" | "lg";
+  title?: string;
+  description?: string;
+  haveCancel?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void;
+  isAutoClose?: boolean;
+  loadingState?: boolean;
+  needReturnFocus?: boolean;
+  handleBar?: boolean;
+  overlay?: boolean;
   triggerText?: string;
 }
 
@@ -9,7 +24,7 @@ const DialogStoryShell: React.FC<DialogStoryShellProps> = (props) => {
   const {
     isClosable = true,
     size = "md",
-    title,
+    title = "對話框標題",
     description = "",
     haveCancel = false,
     confirmText = "確認",

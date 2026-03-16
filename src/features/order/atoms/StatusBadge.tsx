@@ -1,8 +1,8 @@
-import * as React from "react";
-import { Badge } from "@/ui/badge";
-import { statusLabel, statusChipStyle } from "../constants";
-import type { OrderStatus } from "../types";
 import { cn } from "@/lib/utils";
+import Badge from "@/ui/badge";
+
+import { statusChipStyle, statusLabel } from "../constants";
+import type { OrderStatus } from "../types";
 
 interface StatusBadgeProps {
   status: OrderStatus;
@@ -12,7 +12,7 @@ interface StatusBadgeProps {
 /**
  * StatusBadge - 訂單狀態標籤原子組件
  */
-export const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
+const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
   const { status, className } = props;
 
   return (
@@ -29,3 +29,5 @@ export const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
 };
 
 StatusBadge.displayName = "StatusBadge";
+
+export default StatusBadge;

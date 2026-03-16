@@ -1,17 +1,255 @@
 "use client";
 
-import { createContext, useContext } from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { IconCross } from "@/icon/IconCross";
+import { X } from "lucide-react";
+import { createContext, useContext } from "react";
+
 import { cn } from "@/lib/utils";
-import { Skeleton } from "./skeleton";
+
+import Skeleton from "./skeleton";
 
 // TODO: 需要處理 Dialog 在手機版 bottom sheet 模式下，
 // 透過 handle bar 的拖曳在「半高」與「全高」之間切換。
 
+const DialogConfigContext = createContext<{ overlay: boolean } | undefined>(
+  undefined
+);
+
+const DialogRoot: React.FC<DialogRootProps> = (props) => {
+  const { overlay = true, children, ...restProps } = props;
+
+  return (
+    <DialogConfigContext.Provider value={{ overlay }}>
+      <RadixDialog.Root {...restProps}>{children}</RadixDialog.Root>
+    </DialogConfigContext.Provider>
+  );
+};
+
+const DialogContent: React.FC<DialogContentProps> = (props) => {
+  const { size = "md", overlay, children, className, ref } = props;
+  const useDialogConfig = () => useContext(DialogConfigContext);
+
+  const ctxOverlay = useDialogConfig();
+  const shouldShowOverlay = overlay ?? ctxOverlay?.overlay;
+
+  return (
+    <RadixDialog.Portal>
+      <DialogOverlay isShow={shouldShowOverlay ?? false} />
+      <RadixDialog.Content
+        ref={ref}
+        className={cn(
+          getSizeClass(size),
+          "fixed flex flex-col gap-4 z-50 origin-center max-h-[90vh] overflow-hidden sm:slide-in-from-top-50 sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:bottom-auto sm:rounded-lg p-6 shadow-lg border bg-background",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out duration-200",
+          "sm:data-[state=open]:fade-in-0 sm:data-[state=closed]:fade-out-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95",
+          "bottom-0 rounded-t-lg w-full",
+          "data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
+          className
+        )}
+      >
+        {children}
+      </RadixDialog.Content>
+    </RadixDialog.Portal>
+  );
+};
+
+const DialogBody: React.FC<DialogBodyProps> = (props) => {
+  const { loadingState = false, className, children, ...rest } = props;
+  return (
+    <div
+      className={cn("min-h-0 flex-1 p-2 overflow-y-auto", className)}
+      {...rest}
+    >
+      {loadingState ? (
+        <div className="space-y-3">
+          <Skeleton rows={3} rowClassName="h-4" />
+        </div>
+      ) : (
+        children
+      )}
+    </div>
+  );
+};
+
+const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
+  const {
+    className,
+    children,
+    isSticky = false,
+    isClosable = false,
+    handleBar = false,
+    ...rest
+  } = props;
+  return (
+    <div
+      className={cn(
+        "relative flex flex-col space-y-1.5 text-center sm:text-left shrink-0",
+        isSticky &&
+          "sticky top-0 z-10 -mx-6 -mt-6 mb-0 px-6 pb-4 bg-background",
+        className
+      )}
+      {...rest}
+    >
+      {isClosable && (
+        <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 -translate-2 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
+          <X className="h-4 w-4" />
+          <span className="sr-only">關閉</span>
+        </RadixDialog.Close>
+      )}
+
+      {handleBar && (
+        <div className="mb-3 flex cursor-pointer justify-center sm:hidden">
+          <div className="h-1.5 w-12 rounded-full bg-muted" />
+        </div>
+      )}
+
+      {children}
+    </div>
+  );
+};
+
+const DialogTitle: React.FC<React.ComponentProps<typeof RadixDialog.Title>> = (
+  props
+) => {
+  const { className, ref, ...rest } = props;
+  return (
+    <RadixDialog.Title
+      ref={ref}
+      className={cn(
+        "text-lg font-semibold leading-none tracking-tight",
+        className
+      )}
+      {...rest}
+    />
+  );
+};
+
+const DialogDescription: React.FC<
+  React.ComponentProps<typeof RadixDialog.Description>
+> = (props) => {
+  const { className, ref, ...rest } = props;
+  return (
+    <RadixDialog.Description
+      ref={ref}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...rest}
+    />
+  );
+};
+
+const DialogFooter: React.FC<DialogFooterProps> = (props) => {
+  const {
+    className,
+    children,
+    haveCancel,
+    onConfirm,
+    confirmText,
+    cancelText,
+    isAutoClose,
+    ...rest
+  } = props;
+
+  if (children) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+          className
+        )}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  const confirmButton = (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onConfirm) {
+          onConfirm();
+        }
+      }}
+      className="inline-flex flex-1 justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+    >
+      {confirmText}
+    </button>
+  );
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col-reverse gap-4 sm:flex-row sm:justify-end",
+        className
+      )}
+      {...rest}
+    >
+      {haveCancel && (
+        <RadixDialog.Close asChild>
+          <button
+            type="button"
+            className="inline-flex flex-1 justify-center rounded-md border px-4 py-2 text-sm"
+          >
+            {cancelText}
+          </button>
+        </RadixDialog.Close>
+      )}
+
+      {isAutoClose !== false ? (
+        <RadixDialog.Close asChild>{confirmButton}</RadixDialog.Close>
+      ) : (
+        confirmButton
+      )}
+    </div>
+  );
+};
+
+const DialogOverlay: React.FC<DialogOverlayProps> = (props) => {
+  const { className, isShow, ref, ...rest } = props;
+  return (
+    <RadixDialog.Overlay
+      ref={ref}
+      className={cn(
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80",
+        isShow ? "" : "hidden",
+        className
+      )}
+      {...rest}
+    />
+  );
+};
+
+DialogRoot.displayName = "DialogRoot";
+DialogContent.displayName = "DialogContent";
+DialogBody.displayName = "DialogBody";
+DialogHeader.displayName = "DialogHeader";
+DialogTitle.displayName = "DialogTitle";
+DialogDescription.displayName = "DialogDescription";
+DialogFooter.displayName = "DialogFooter";
+DialogOverlay.displayName = "DialogOverlay";
+
+const Dialog = {
+  Trigger: RadixDialog.Trigger,
+  Close: RadixDialog.Close,
+  Header: DialogHeader,
+  Body: DialogBody,
+  Footer: DialogFooter,
+  Content: DialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Overlay: DialogOverlay,
+  Root: DialogRoot,
+} as const;
+
+export default Dialog;
+
+// Types
+
 type DialogSize = "sm" | "md" | "lg";
 
-export interface DialogProps
+interface DialogProps
   extends React.ComponentPropsWithoutRef<typeof RadixDialog.Root>,
     Pick<
       React.HTMLAttributes<HTMLDivElement>,
@@ -136,222 +374,7 @@ type DialogFooterProps = Pick<
   | "isAutoClose"
 >;
 
-const DialogConfigContext = createContext<{ overlay: boolean } | undefined>(
-  undefined
-);
-
-const DialogRoot: React.FC<DialogRootProps> = (props) => {
-  const { overlay = true, children, ...restProps } = props;
-
-  return (
-    <DialogConfigContext.Provider value={{ overlay }}>
-      <RadixDialog.Root {...restProps}>{children}</RadixDialog.Root>
-    </DialogConfigContext.Provider>
-  );
-};
-
-function DialogContent(props: DialogContentProps) {
-  const { size = "md", overlay, children, className, ref } = props;
-  const useDialogConfig = () => useContext(DialogConfigContext);
-
-  const ctxOverlay = useDialogConfig();
-  const shouldShowOverlay = overlay ?? ctxOverlay?.overlay;
-
-  return (
-    <RadixDialog.Portal>
-      <DialogOverlay isShow={shouldShowOverlay ?? false} />
-      <RadixDialog.Content
-        ref={ref}
-        className={cn(
-          getSizeClass(size),
-          "fixed flex flex-col gap-4 z-50 origin-center max-h-[90vh] overflow-hidden sm:slide-in-from-top-50 sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:bottom-auto sm:rounded-lg p-6 shadow-lg border bg-background",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out duration-200",
-          "sm:data-[state=open]:fade-in-0 sm:data-[state=closed]:fade-out-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95",
-          "bottom-0 rounded-t-lg w-full",
-          "data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
-          className
-        )}
-      >
-        {children}
-      </RadixDialog.Content>
-    </RadixDialog.Portal>
-  );
-}
-
-const DialogBody: React.FC<DialogBodyProps> = (props) => {
-  const { loadingState = false, className, children, ...rest } = props;
-  return (
-    <div
-      className={cn("min-h-0 flex-1 p-2 overflow-y-auto", className)}
-      {...rest}
-    >
-      {loadingState ? (
-        <div className="space-y-3">
-          <Skeleton rows={3} rowClassName="h-4" />
-        </div>
-      ) : (
-        children
-      )}
-    </div>
-  );
-};
-
-const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
-  const { isSticky = false, ...rest } = props;
-  return (
-    <div
-      className={cn(
-        "relative flex flex-col space-y-1.5 text-center sm:text-left shrink-0",
-        isSticky &&
-          "sticky top-0 z-10 -mx-6 -mt-6 mb-0 px-6 pb-4 bg-background",
-        props.className
-      )}
-      {...rest}
-    >
-      {props.isClosable && (
-        <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 -translate-2 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
-          <IconCross />
-          <span className="sr-only">關閉</span>
-        </RadixDialog.Close>
-      )}
-
-      {props.handleBar && (
-        <div className="mb-3 flex cursor-pointer justify-center sm:hidden">
-          <div className="h-1.5 w-12 rounded-full bg-muted" />
-        </div>
-      )}
-
-      {props.children}
-    </div>
-  );
-};
-
-function DialogTitle({
-  className,
-  ref,
-  ...props
-}: React.ComponentProps<typeof RadixDialog.Title>) {
-  return (
-    <RadixDialog.Title
-      ref={ref}
-      className={cn(
-        "text-lg font-semibold leading-none tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  );
-}
-
-function DialogDescription({
-  className,
-  ref,
-  ...props
-}: React.ComponentProps<typeof RadixDialog.Description>) {
-  return (
-    <RadixDialog.Description
-      ref={ref}
-      className={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    />
-  );
-}
-
-const DialogFooter: React.FC<DialogFooterProps> = (props) => {
-  if (props.children) {
-    return (
-      <div
-        className={cn(
-          "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-          props.className
-        )}
-        {...props}
-      >
-        {props.children}
-      </div>
-    );
-  }
-
-  const confirmButton = (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        if (props.onConfirm) {
-          props.onConfirm();
-        }
-      }}
-      className="inline-flex flex-1 justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-    >
-      {props.confirmText}
-    </button>
-  );
-
-  return (
-    <div
-      className={cn(
-        "flex flex-col-reverse gap-4 sm:flex-row sm:justify-end",
-        props.className
-      )}
-      {...props}
-    >
-      {props.haveCancel && (
-        <RadixDialog.Close asChild>
-          <button
-            type="button"
-            className="inline-flex flex-1 justify-center rounded-md border px-4 py-2 text-sm"
-          >
-            {props.cancelText}
-          </button>
-        </RadixDialog.Close>
-      )}
-
-      {props.isAutoClose !== false ? (
-        <RadixDialog.Close asChild>{confirmButton}</RadixDialog.Close>
-      ) : (
-        confirmButton
-      )}
-    </div>
-  );
-};
-
-DialogHeader.displayName = "DialogHeader";
-DialogBody.displayName = "DialogBody";
-DialogFooter.displayName = "DialogFooter";
-
-function DialogOverlay({
-  className,
-  isShow,
-  ref,
-  ...props
-}: DialogOverlayProps) {
-  return (
-    <RadixDialog.Overlay
-      ref={ref}
-      className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80",
-        isShow ? "" : "hidden",
-        className
-      )}
-      {...props}
-    />
-  );
-}
-
-const Dialog = {
-  Trigger: RadixDialog.Trigger,
-  Close: RadixDialog.Close,
-  Header: DialogHeader,
-  Body: DialogBody,
-  Footer: DialogFooter,
-  Content: DialogContent,
-  Title: DialogTitle,
-  Description: DialogDescription,
-  Overlay: DialogOverlay,
-  Root: DialogRoot,
-} as const;
-
-export default Dialog;
+// Helpers
 
 function getSizeClass(size: DialogSize): string {
   switch (size) {

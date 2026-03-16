@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
-import { Calendar } from "./calendar";
 import type { DateRange } from "react-day-picker";
+
+import Calendar from "./calendar";
 
 const meta = {
   title: "UI/Calendar",
@@ -15,9 +16,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
 // 1. Default - 單日選擇
-// ============================================
 export const Default: Story = {
   render: function DefaultCalendar() {
     const [date, setDate] = useState<Date | undefined>(new Date());
@@ -39,9 +38,7 @@ export const Default: Story = {
   },
 };
 
-// ============================================
 // 2. Range - 日期區間選擇
-// ============================================
 export const Range: Story = {
   render: function RangeCalendar() {
     const [range, setRange] = useState<DateRange | undefined>({
@@ -67,9 +64,7 @@ export const Range: Story = {
   },
 };
 
-// ============================================
 // 3. Multiple - 多日選擇
-// ============================================
 export const Multiple: Story = {
   render: function MultipleCalendar() {
     const [dates, setDates] = useState<Date[] | undefined>([]);
@@ -91,9 +86,7 @@ export const Multiple: Story = {
   },
 };
 
-// ============================================
 // 4. Disabled Dates - 停用特定日期
-// ============================================
 export const DisabledDates: Story = {
   render: function DisabledCalendar() {
     const [date, setDate] = useState<Date | undefined>();
@@ -117,9 +110,7 @@ export const DisabledDates: Story = {
   },
 };
 
-// ============================================
 // 5. Mobile View - 行動版
-// ============================================
 export const MobileView: Story = {
   render: function MobileCalendar() {
     const [date, setDate] = useState<Date | undefined>(new Date());

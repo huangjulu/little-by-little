@@ -1,22 +1,31 @@
 "use client";
 
-import { useCallback } from "react";
 import {
   parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
   useQueryState,
 } from "nuqs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+
 import { cn } from "@/lib/utils";
-import { SearchInput, StatusFilterValue, orderApi } from "..";
-import { OrderDetailPanel, OrderHeader, OrderTable } from "../organisms";
-import { DataTableSkeleton } from "./DataTableSkeleton";
-import { PanelDetailSkeleton } from "./PanelDetailSkeleton";
+
+import BillingActionBar from "../billing/BillingActionBar";
+import PrintableNotice from "../billing/PrintableNotice";
+import SearchInput from "../molecules/SearchInput";
+import { orderApi } from "../order.api";
+import OrderDetailPanel from "../organisms/OrderDetailPanel";
+import OrderHeader from "../organisms/OrderHeader";
+import OrderTable from "../organisms/OrderTable";
+import type { StatusFilterValue } from "../types";
+import DataTableSkeleton from "./DataTableSkeleton";
+import PanelDetailSkeleton from "./PanelDetailSkeleton";
 
 const PAGE_SIZE = 20;
 const STATUS_OPTIONS = ["all", "active", "inactive"] as const;
 
-export const ViewOrder: React.FC<{ className?: string }> = (props) => {
+const ViewOrder: React.FC<{ className?: string }> = (props) => {
   const [keyword, setKeyword] = useQueryState(
     "keyword",
     parseAsString.withDefault("")
@@ -26,6 +35,7 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     parseAsStringLiteral(STATUS_OPTIONS).withDefault("all")
   );
   const [selectedId, setSelectedId] = useQueryState("orderId", parseAsString);
+  const [billing, setBilling] = useQueryState("billing", parseAsString);
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const {
@@ -34,12 +44,24 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     error: ordersError,
   } = orderApi.getOrders.useQuery({
     status: status !== "all" ? status : undefined,
+    billing: billing === "next-month" ? "next-month" : undefined,
     keyword: keyword.trim() || undefined,
     page,
     pageSize: PAGE_SIZE,
   });
 
-  const filteredOrders = ordersData?.orders ?? [];
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
+  const [printingId, setPrintingId] = useState<string | null>(null);
+  const printingIdRef = useRef<string | null>(null);
+  const markInvoicedMutation = orderApi.batchUpdateStatus.useMutation();
+  const markPaidMutation = orderApi.batchUpdateStatus.useMutation();
+
+  const isBillingMode = billing === "next-month";
+  const filteredOrders = useMemo(
+    () => ordersData?.orders ?? [],
+    [ordersData?.orders]
+  );
   const totalOrders = ordersData?.total ?? 0;
   const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
 
@@ -57,6 +79,86 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     [setKeyword, setStatus, setPage]
   );
 
+  const handleToggleCheck = useCallback((id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setCheckedIds(new Set(filteredOrders.map((o) => o.id)));
+  }, [filteredOrders]);
+
+  const searchFilter = useMemo(
+    () => ({
+      active:
+        billing === "next-month"
+          ? { key: "billing:next-month", label: "下個月繳費名單" }
+          : null,
+      onSelect: (option: { key: string }) => {
+        if (option.key === "billing:next-month") {
+          void setBilling("next-month");
+          void setSelectedId(null);
+          void setKeyword("");
+          void setPage(1);
+        }
+      },
+      onClear: () => {
+        void setBilling(null);
+        void setPage(1);
+        setCheckedIds(new Set());
+      },
+    }),
+    [billing, setBilling, setSelectedId, setKeyword, setPage]
+  );
+
+  const handlePrint = useCallback((id: string) => {
+    printingIdRef.current = id;
+    setPrintingId(id);
+    requestAnimationFrame(() => {
+      window.print();
+    });
+  }, []);
+
+  useEffect(
+    function listenAfterPrint() {
+      function handleAfterPrint() {
+        const id = printingIdRef.current;
+        if (!id) return;
+        markInvoicedMutation.mutate(
+          { ids: [id], paymentStatus: "invoiced" },
+          {
+            onSuccess: () => toast.success("已標記為「已出帳」"),
+            onError: (err) => toast.error(err.message),
+          }
+        );
+        setPrintedIds((prev) => new Set(prev).add(id));
+        printingIdRef.current = null;
+        setPrintingId(null);
+      }
+
+      window.addEventListener("afterprint", handleAfterPrint);
+      return () => window.removeEventListener("afterprint", handleAfterPrint);
+    },
+    [markInvoicedMutation]
+  );
+
+  const handleMarkPaid = useCallback(
+    (id: string) => {
+      markPaidMutation.mutate(
+        { ids: [id], paymentStatus: "up_to_date", updateBillingDate: true },
+        {
+          onSuccess: () => toast.success("已標記為「正常繳費」並續期"),
+          onError: (err) => toast.error(err.message),
+        }
+      );
+    },
+    [markPaidMutation]
+  );
+
   const handleOrderClick = useCallback(
     (orderId: string) => {
       void setSelectedId((prev) => (prev === orderId ? null : orderId));
@@ -71,8 +173,17 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
       <SearchInput
         value={keyword}
         onChange={(v) => handleFiltersChange({ keyword: v })}
+        filter={searchFilter}
         placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
+
+      {isBillingMode && checkedIds.size > 0 && (
+        <BillingActionBar
+          orders={filteredOrders}
+          checkedIds={checkedIds}
+          onSelectAll={handleSelectAll}
+        />
+      )}
 
       <div
         className={cn(
@@ -91,6 +202,13 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
               selectedOrderId={selectedId}
               onOrderClick={handleOrderClick}
               isLoading={false}
+              billingMode={isBillingMode}
+              checkedIds={checkedIds}
+              onToggleCheck={handleToggleCheck}
+              onPrint={handlePrint}
+              onMarkPaid={handleMarkPaid}
+              printedIds={printedIds}
+              hideUpload={!!selectedId}
             />
 
             {totalPages > 1 && (
@@ -124,11 +242,25 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
         )}
 
         {selectedId && OrderData && (
-          <OrderDetailPanel order={OrderData} error={safeError} />
+          <OrderDetailPanel
+            order={OrderData}
+            error={safeError}
+            onPrint={() => handlePrint(OrderData.id)}
+            onMarkPaid={() => handleMarkPaid(OrderData.id)}
+            isPrinted={printedIds.has(OrderData.id)}
+          />
         )}
       </div>
+
+      {printingId && (
+        <PrintableNotice
+          orders={filteredOrders.filter((o) => o.id === printingId)}
+        />
+      )}
     </div>
   );
 };
 
 ViewOrder.displayName = "ViewOrder";
+
+export default ViewOrder;

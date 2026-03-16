@@ -1,7 +1,8 @@
-import * as React from "react";
-import { IconPlus } from "@/icon/IconPlus";
+import { Plus } from "lucide-react";
+
 import { cn } from "@/lib/utils";
-import { ViewCreateOrder } from "./view/ViewCreateOrder";
+
+import ViewCreateOrder from "./view/ViewCreateOrder";
 
 interface CreateOrderButtonProps {
   onClick: () => void;
@@ -13,7 +14,7 @@ interface CreateOrderButtonProps {
 /**
  * CreateOrderForm - 建立訂單按鈕分子組件
  */
-export const CreateOrderForm: React.FC<CreateOrderButtonProps> = (props) => {
+const CreateOrderForm: React.FC<CreateOrderButtonProps> = (props) => {
   return (
     <>
       <button
@@ -27,7 +28,7 @@ export const CreateOrderForm: React.FC<CreateOrderButtonProps> = (props) => {
         )}
         aria-label="建立新訂單"
       >
-        <IconPlus className="h-5 w-5" />
+        <Plus className="h-5 w-5" />
       </button>
 
       {props.open && (
@@ -38,3 +39,5 @@ export const CreateOrderForm: React.FC<CreateOrderButtonProps> = (props) => {
 };
 
 CreateOrderForm.displayName = "CreateOrderForm";
+
+export default CreateOrderForm;

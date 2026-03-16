@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
-import { DatePicker } from "./date-picker";
+
+import DatePicker from "./date-picker";
 
 const meta = {
   title: "UI/DatePicker",
@@ -24,9 +25,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
 // 1. Default - 預設狀態
-// ============================================
 export const Default: Story = {
   render: function DefaultPicker(args) {
     const [value, setValue] = useState<Date | undefined>();
@@ -48,9 +47,7 @@ export const Default: Story = {
   },
 };
 
-// ============================================
 // 2. With Value - 已選擇日期
-// ============================================
 export const WithValue: Story = {
   render: function WithValuePicker(args) {
     const [value, setValue] = useState<Date | undefined>(new Date());
@@ -69,9 +66,7 @@ export const WithValue: Story = {
   },
 };
 
-// ============================================
 // 3. Disabled - 停用狀態
-// ============================================
 export const Disabled: Story = {
   render: function DisabledPicker(args) {
     return (
@@ -92,9 +87,7 @@ export const Disabled: Story = {
   },
 };
 
-// ============================================
 // 4. Mobile View - 行動版
-// ============================================
 export const MobileView: Story = {
   render: function MobilePicker(args) {
     const [value, setValue] = useState<Date | undefined>();

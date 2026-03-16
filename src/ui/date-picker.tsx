@@ -1,12 +1,13 @@
 "use client";
 
-import * as React from "react";
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { Calendar } from "./calendar";
+
+import Calendar from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 interface DatePickerProps {
@@ -18,18 +19,16 @@ interface DatePickerProps {
   id?: string;
 }
 
-function DatePicker({
-  value,
-  onChange,
-  placeholder = "選擇日期",
-  className,
-  disabled = false,
-  id,
-}: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
+const DatePicker: React.FC<DatePickerProps> = (props) => {
+  const { placeholder = "選擇日期" } = props;
+  const [open, setOpen] = useState(false);
 
   const handleSelect = (date: Date | undefined) => {
-    onChange?.(date);
+    if (!date) {
+      props.onChange?.(undefined);
+      return;
+    }
+    props.onChange?.(date);
     setOpen(false);
   };
 
@@ -37,20 +36,20 @@ function DatePicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          id={id}
+          id={props.id}
           type="button"
-          disabled={disabled}
+          disabled={props.disabled}
           className={cn(
             "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-left text-sm shadow-xs transition-[color,box-shadow] outline-none",
             "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[0.1875rem]",
             "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-            !value && "text-muted-foreground",
-            className
+            !props.value && "text-muted-foreground",
+            props.className
           )}
         >
           <span className="truncate">
-            {value
-              ? format(value, "yyyy/MM/dd", { locale: zhTW })
+            {props.value
+              ? format(props.value, "yyyy/MM/dd", { locale: zhTW })
               : placeholder}
           </span>
           <CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -59,16 +58,15 @@ function DatePicker({
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={value}
+          selected={props.value}
           onSelect={handleSelect}
-          defaultMonth={value}
+          defaultMonth={props.value}
         />
       </PopoverContent>
     </Popover>
   );
-}
+};
 
 DatePicker.displayName = "DatePicker";
 
-export { DatePicker };
-export type { DatePickerProps };
+export default DatePicker;

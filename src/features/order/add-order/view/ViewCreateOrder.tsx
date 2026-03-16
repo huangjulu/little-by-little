@@ -2,23 +2,25 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DialogProps } from "@radix-ui/react-dialog";
+import { format } from "date-fns";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { format } from "date-fns";
+
 import Dialog from "@/ui/dialog";
-import type { CreateOrderParams } from "../../types";
+
 import { orderApi } from "../../order.api";
+import type { CreateOrderParams } from "../../types";
 import {
-  createOrderSchema,
   type CreateOrderFormValues,
+  createOrderSchema,
 } from "../create-order.schema";
-import { CreateOrderFormFields } from "../CreateOrderFormFields";
+import CreateOrderFormFields from "../CreateOrderFormFields";
 
 interface ViewCreateOrderProps extends DialogProps {
   className?: string;
 }
 
-export const ViewCreateOrder: React.FC<ViewCreateOrderProps> = (props) => {
+const ViewCreateOrder: React.FC<ViewCreateOrderProps> = (props) => {
   const createMutation = orderApi.create.useMutation();
   const methods = useForm<CreateOrderFormValues>({
     resolver: zodResolver(createOrderSchema),
@@ -78,6 +80,8 @@ export const ViewCreateOrder: React.FC<ViewCreateOrderProps> = (props) => {
 };
 
 ViewCreateOrder.displayName = "ViewCreateOrder";
+
+export default ViewCreateOrder;
 
 const defaultValues: CreateOrderFormValues = {
   customerName: "",

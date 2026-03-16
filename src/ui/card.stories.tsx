@@ -1,14 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+
 import {
   Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
   CardAction,
-  CardDescription,
   CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "./card";
-import { Skeleton } from "./skeleton";
+import Skeleton from "./skeleton";
 
 const meta = {
   title: "UI/Card",
@@ -22,9 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
 // 1. Default - 基本使用範例
-// ============================================
 export const Default: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -45,9 +44,7 @@ export const Default: Story = {
   ),
 };
 
-// ============================================
 // 2. Loading State - 資料載入中的樣貌
-// ============================================
 export const Loading: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -74,9 +71,7 @@ export const Loading: Story = {
   },
 };
 
-// ============================================
 // 3. Empty State - 當資料為空時的處理
-// ============================================
 export const Empty: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -117,9 +112,7 @@ export const Empty: Story = {
   },
 };
 
-// ============================================
 // 4. Error State - 當資料格式錯誤時的處理
-// ============================================
 export const Error: Story = {
   render: () => (
     <Card className="w-[21.875rem] border-red-200 bg-red-50">
@@ -164,9 +157,7 @@ export const Error: Story = {
   },
 };
 
-// ============================================
 // 5. Long Content - 測試文字極長時的排版
-// ============================================
 export const LongContent: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -215,9 +206,7 @@ export const LongContent: Story = {
   },
 };
 
-// ============================================
 // 6. Long Content with Truncation - 截斷長文字
-// ============================================
 export const LongContentTruncated: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -255,9 +244,7 @@ export const LongContentTruncated: Story = {
   },
 };
 
-// ============================================
 // 7. Mobile View - 小螢幕下的表現
-// ============================================
 export const MobileView: Story = {
   render: () => (
     <Card className="w-full">
@@ -307,9 +294,7 @@ export const MobileView: Story = {
   },
 };
 
-// ============================================
 // 8. Mobile View Compact - 緊湊的行動版
-// ============================================
 export const MobileViewCompact: Story = {
   render: () => (
     <Card className="w-full">
@@ -341,9 +326,7 @@ export const MobileViewCompact: Story = {
   },
 };
 
-// ============================================
 // 9. With Card Action - 帶有操作按鈕
-// ============================================
 export const WithAction: Story = {
   render: () => (
     <Card className="w-[21.875rem]">
@@ -382,9 +365,7 @@ export const WithAction: Story = {
   },
 };
 
-// ============================================
 // 10. Dark Mode Preview - 深色模式預覽
-// ============================================
 export const DarkMode: Story = {
   render: () => (
     <div className="dark rounded-lg bg-gray-900 p-4">

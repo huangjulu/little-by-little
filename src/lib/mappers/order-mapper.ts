@@ -1,9 +1,10 @@
-import type { Tables } from "@/types/database";
 import type {
+  CustomerInfoData,
   Order,
   OrderStatus,
-  CustomerInfoData,
+  PaymentStatus,
 } from "@/features/order/types";
+import type { Tables } from "@/types/database";
 
 /** JOIN 查詢結果：customers + orders（對應 Supabase .select("*, orders!inner(*)")） */
 export type CustomerRow = Tables<"customers"> & {
@@ -15,10 +16,15 @@ const emptyCustomerInfo: CustomerInfoData = {
   mobile_phone: "",
   community_name: "",
   house_unit: "",
+  address: "",
 };
 
-function isOrderStatus(value: string): value is OrderStatus {
+export function isOrderStatus(value: unknown): value is OrderStatus {
   return value === "active" || value === "inactive";
+}
+
+export function isPaymentStatus(value: unknown): value is PaymentStatus {
+  return value === "up_to_date" || value === "invoiced" || value === "overdue";
 }
 
 export function mapToOrder(row: CustomerRow): Order {
@@ -31,6 +37,7 @@ export function mapToOrder(row: CustomerRow): Order {
     mobilePhone: info.mobile_phone ?? "",
     communityName: info.community_name ?? "",
     houseUnit: info.house_unit ?? "",
+    address: info.address ?? "",
     basePrice: Number(order?.base_price ?? 0),
     currentPrice: Number(order?.current_price ?? 0),
     contractStartDate: order?.contract_start_date ?? "",
@@ -39,5 +46,18 @@ export function mapToOrder(row: CustomerRow): Order {
     nextBillingDate: order?.next_billing_date ?? "",
     createdAt: row.created_at ?? "",
     status: isOrderStatus(row.order_status) ? row.order_status : "inactive",
+    paymentStatus: isPaymentStatus(row.payment_status)
+      ? row.payment_status
+      : "up_to_date",
+    speed: order?.speed ?? "",
+    billingPlan: order?.billing_plan ?? "",
+    atmAccountNumber: order?.atm_account_number ?? "",
+    projectCode: order?.project_code ?? "",
+    deposit: Number(order?.deposit ?? 0),
+    priceDifference: Number(order?.price_difference ?? 0),
+    yearlyFee: order?.yearly_fee ?? null,
+    yearlyBonusMonths: order?.yearly_bonus_months ?? null,
+    twoYearFee: order?.two_year_fee ?? null,
+    twoYearBonusMonths: order?.two_year_bonus_months ?? null,
   };
 }

@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { mapToOrder } from "@/lib/mappers/order-mapper";
+import { NextRequest, NextResponse } from "next/server";
+
 import type { OrderStatus } from "@/features/order/types";
 import type { UpdateOrderStatusParams } from "@/features/order/types";
+import { mapToOrder } from "@/lib/mappers/order-mapper";
+import { createClient } from "@/utils/supabase/server";
 
 /**
  * GET /api/orders/[id]

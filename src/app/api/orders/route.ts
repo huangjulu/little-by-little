@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { mapToOrder, type CustomerRow } from "@/lib/mappers/order-mapper";
+import { NextRequest, NextResponse } from "next/server";
+
 import type { CreateOrderParams } from "@/features/order/types";
+import { getNextMonthRange } from "@/lib/billing-filter";
+import { type CustomerRow, mapToOrder } from "@/lib/mappers/order-mapper";
+import { createClient } from "@/utils/supabase/server";
 
 /**
  * GET /api/orders
@@ -14,6 +16,7 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
+    const billing = searchParams.get("billing");
     const keyword = searchParams.get("keyword");
     const pageStr = searchParams.get("page");
     const pageSizeStr = searchParams.get("pageSize");
@@ -33,6 +36,13 @@ export async function GET(request: NextRequest) {
 
     if (status && status !== "all") {
       query = query.eq("order_status", status);
+    }
+
+    if (billing === "next-month") {
+      const { start, end } = getNextMonthRange();
+      query = query
+        .gte("orders.next_billing_date", start)
+        .lte("orders.next_billing_date", end);
     }
 
     if (keyword) {

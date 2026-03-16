@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { ViewOrder } from "@/features/order/view/ViewOrder";
 import { AuthGate } from "@/features/auth/AuthGate";
+import ViewOrder from "@/features/order/view/ViewOrder";
+import { cn } from "@/lib/utils";
 
 export default function OrdersPage() {
   return (

@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export const IconFinance: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   const { width = 24, height = 24, ...restProps } = props;
 

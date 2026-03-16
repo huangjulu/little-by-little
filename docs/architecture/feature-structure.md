@@ -11,11 +11,11 @@ src/features/{feature-name}/
 ├── atoms/              # 原子組件（最基礎的組件）
 ├── molecules/          # 分子組件（組合多個原子組件）
 ├── organisms/          # 有機體組件（組合多個分子和原子組件）
-├── {feature}-types.ts  # 類型定義（單檔，直接命名）
-├── {feature}-api.ts    # API 函數（單檔，直接命名）
-├── use{Feature}.ts     # React Query Hooks（單檔，直接命名）
+├── {sub-feature}/      # 子功能目錄（如 billing/、upload-order/、add-order/）
+├── types.ts            # 類型定義
+├── order.api.ts        # API namespace（TanStack React Query）
 ├── constants.ts        # 常數定義
-└── index.ts           # 統一匯出
+└── view/               # 頁面層級視圖
 ```
 
 ### 重要規則
@@ -25,70 +25,96 @@ src/features/{feature-name}/
    - ❌ 不要使用 `components/atoms`、`components/molecules`、`components/organisms`
    - ✅ 直接使用 `atoms/`、`molecules/`、`organisms/` 在 feature 根目錄下
 
-2. **單檔命名規則**
+2. **禁止 barrel export（index.ts）**
+
+   - 不建立 `index.ts` 做 re-export，所有 import 必須指向具體檔案
+   - 目的：讓讀者從 import path 就能知道來源檔案
+
+3. **單檔命名規則**
 
    - 如果 `api`、`hooks`、`types` 資料夾內只有一個檔案，不要建立資料夾
    - 直接以檔案名稱命名：
-     - `api/orders.ts` → `orders-api.ts`
-     - `hooks/useOrders.ts` → `useOrders.ts`
-     - `types/order.ts` → `order-types.ts`
+     - `types.ts`（不是 `types/order.ts`）
+     - `order.api.ts`（不是 `api/orders.ts`）
+     - `constants.ts`
 
-3. **組件層級**
+4. **組件層級**
 
-   - `atoms/` - 最基礎的原子組件（如 StatusBadge、OrderId）
-   - `molecules/` - 組合多個原子組件的分子組件（如 OrderRow、StatusFilter）
-   - `organisms/` - 組合多個分子和原子組件的有機體組件（如 OrderTable、OrderDetailPanel）
+   - `atoms/` — 純展示、無互動邏輯、不持有 state（如 StatusBadge）
+   - `molecules/` — 組合 atom + 互動邏輯、持有 callback/hook（如 OrderRow、SearchInput）
+   - `organisms/` — 組合多個 molecule/atom、構成頁面區塊（如 OrderTable、OrderDetailPanel）
 
-4. **匯出方式**
-   - 每個層級（atoms、molecules、organisms）都有自己的 `index.ts`
-   - feature 根目錄的 `index.ts` 統一匯出所有公開的組件、hooks、types 和常數
+5. **子功能目錄**
 
-### 範例：Order Feature
+   - 跨多檔案的子功能獨立成目錄（如 `billing/`、`upload-order/`、`add-order/`）
+   - 子功能內可包含自己的元件、utils、schema
+
+### 範例：Order Feature（目前實際結構）
 
 ```
 src/features/order/
 ├── atoms/
-│   ├── StatusBadge.tsx
-│   ├── OrderId.tsx
-│   ├── DateDisplay.tsx
-│   ├── CurrencyDisplay.tsx
-│   ├── CustomerInfo.tsx
-│   └── index.ts
+│   └── StatusBadge.tsx
 ├── molecules/
-│   ├── OrderRow.tsx
+│   ├── OrderRow.tsx           # 含內部子元件 CustomerInfo
 │   ├── OrderItemRow.tsx
 │   ├── SearchInput.tsx
 │   ├── StatCard.tsx
-│   ├── StatusFilter.tsx
-│   └── index.ts
+│   └── StatusFilter.tsx
 ├── organisms/
-│   ├── OrderTable.tsx
 │   ├── OrderDetailPanel.tsx
 │   ├── OrderFilters.tsx
 │   ├── OrderHeader.tsx
-│   └── index.ts
-├── order-types.ts
-├── orders-api.ts
-├── useOrders.ts
-├── constants.ts
-└── index.ts
+│   └── OrderTable.tsx
+├── billing/
+│   ├── PrintableNotice.tsx    # 列印用繳費通知版面
+│   └── BillingActionBar.tsx   # 列印 + 狀態更新動作列
+├── upload-order/
+│   └── UploadOrderDialog.tsx
+├── add-order/
+│   ├── AddOrderDialog.tsx
+│   ├── create-order.schema.ts
+│   └── __tests__/
+│       └── create-order.schema.test.ts
+├── view/
+│   └── ViewOrder.tsx          # 主頁面視圖
+├── types.ts
+├── order.api.ts
+└── constants.ts
+```
+
+### 共用模組結構
+
+```
+src/lib/
+├── hooks/
+│   └── useFaultTolerantQuery.ts
+├── mappers/
+│   └── order-mapper.ts
+├── __tests__/
+│   └── billing-filter.test.ts
+├── billing-filter.ts
+├── local-cache.ts
+└── supabase/
+    ├── client.ts
+    └── server.ts
+
+src/ui/                        # shadcn/ui 元件（自動生成，不手動修改）
+├── button.tsx
+├── card.tsx
+├── dialog.tsx
+├── table.tsx
+└── ...
 ```
 
 ### 使用方式
 
 ```typescript
-// 從 feature 統一匯出使用
-import {
-  OrderHeader,
-  OrderFilters,
-  OrderTable,
-  OrderDetailPanel,
-  SearchInput,
-  useOrders,
-  useSingleOrderById,
-  type StatusFilterValue,
-  type Order,
-} from "@/features/order";
+// 直接指向具體檔案（禁止 barrel export）
+import StatusBadge from "@/features/order/atoms/StatusBadge";
+import OrderTable from "@/features/order/organisms/OrderTable";
+import { orderApi } from "@/features/order/order.api";
+import type { Order } from "@/features/order/types";
 ```
 
 ### 未來新增 Feature 時
@@ -100,9 +126,7 @@ src/features/finance/
 ├── atoms/
 ├── molecules/
 ├── organisms/
-├── finance-types.ts
-├── finance-api.ts
-├── useFinance.ts
-├── constants.ts
-└── index.ts
+├── types.ts
+├── finance.api.ts
+└── constants.ts
 ```

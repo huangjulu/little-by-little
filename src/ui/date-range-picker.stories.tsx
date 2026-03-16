@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
-import { DateRangePicker, type DateRangeValue } from "./date-range-picker";
 import { addDays } from "date-fns";
+import React from "react";
+import { useState } from "react";
+
+import DateRangePicker from "./date-range-picker";
+
+type DateRangePickerProps = React.ComponentPropsWithoutRef<
+  typeof DateRangePicker
+>;
+type DateRangeValue = NonNullable<DateRangePickerProps["value"]>;
 
 const meta = {
   title: "UI/DateRangePicker",
@@ -25,9 +32,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
 // 1. Default - 預設狀態
-// ============================================
 export const Default: Story = {
   render: function DefaultPicker(args) {
     const [value, setValue] = useState<DateRangeValue | undefined>();
@@ -49,9 +54,7 @@ export const Default: Story = {
   },
 };
 
-// ============================================
 // 2. With Value - 已選擇日期
-// ============================================
 export const WithValue: Story = {
   render: function WithValuePicker(args) {
     const [value, setValue] = useState<DateRangeValue | undefined>({
@@ -73,9 +76,7 @@ export const WithValue: Story = {
   },
 };
 
-// ============================================
 // 3. Partial Selection - 僅選擇開始日
-// ============================================
 export const PartialSelection: Story = {
   render: function PartialPicker(args) {
     const [value, setValue] = useState<DateRangeValue | undefined>({
@@ -97,9 +98,7 @@ export const PartialSelection: Story = {
   },
 };
 
-// ============================================
 // 4. Disabled - 停用狀態
-// ============================================
 export const Disabled: Story = {
   render: function DisabledPicker(args) {
     return (
@@ -120,9 +119,7 @@ export const Disabled: Story = {
   },
 };
 
-// ============================================
 // 5. Long Date Range - 長期區間
-// ============================================
 export const LongDateRange: Story = {
   render: function LongRangePicker(args) {
     const [value, setValue] = useState<DateRangeValue | undefined>({
@@ -144,9 +141,7 @@ export const LongDateRange: Story = {
   },
 };
 
-// ============================================
 // 6. Mobile View - 行動版
-// ============================================
 export const MobileView: Story = {
   render: function MobilePicker(args) {
     const [value, setValue] = useState<DateRangeValue | undefined>();
@@ -168,9 +163,7 @@ export const MobileView: Story = {
   },
 };
 
-// ============================================
 // 7. In Form Context - 表單情境
-// ============================================
 export const InFormContext: Story = {
   render: function FormContextPicker() {
     const [value, setValue] = useState<DateRangeValue | undefined>();
