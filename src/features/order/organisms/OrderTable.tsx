@@ -23,6 +23,9 @@ interface OrderTableProps {
   billingMode?: boolean;
   checkedIds?: Set<string>;
   onToggleCheck?: (id: string) => void;
+  onPrint?: (id: string) => void;
+  onMarkPaid?: (id: string) => void;
+  printedIds?: Set<string>;
   hideUpload?: boolean;
 }
 
@@ -63,17 +66,24 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
               />
               <TableHead>訂單編號</TableHead>
               <TableHead>客戶</TableHead>
-              <TableHead>建立時間</TableHead>
+              <TableHead>合約期間</TableHead>
+              <TableHead>繳費期限</TableHead>
               <TableHead>金額</TableHead>
               <TableHead>狀態</TableHead>
+              <TableHead
+                className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  props.billingMode
+                    ? "w-24 max-w-24 opacity-100 p-3"
+                    : "w-0 max-w-0 opacity-0 p-0 border-0"
+                )}
+              />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {props.isLoading && (
-              <TableLoading colSpan={props.billingMode ? 6 : 5} />
-            )}
+            {props.isLoading && <TableLoading colSpan={8} />}
             {!props.isLoading && props.orders.length === 0 ? (
-              <TableEmpty colSpan={props.billingMode ? 6 : 5} />
+              <TableEmpty colSpan={8} />
             ) : (
               props.orders.map((order) => (
                 <OrderRow
@@ -84,6 +94,9 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
                   billingMode={props.billingMode}
                   checked={props.checkedIds?.has(order.id)}
                   onToggleCheck={() => props.onToggleCheck?.(order.id)}
+                  onPrint={() => props.onPrint?.(order.id)}
+                  onMarkPaid={() => props.onMarkPaid?.(order.id)}
+                  isPrinted={props.printedIds?.has(order.id)}
                 />
               ))
             )}

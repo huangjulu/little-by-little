@@ -1,10 +1,11 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const Badge: React.FC<BadgeProps> = (props) => {
-  const { className, variant, asChild = false, ...rest } = props;
+  const { className, variant, asChild = false, onClose, ...rest } = props;
   const Comp = asChild ? Slot : "span";
 
   return (
@@ -12,7 +13,19 @@ const Badge: React.FC<BadgeProps> = (props) => {
       data-slot="badge"
       className={cn(badgeVariants({ variant }), className)}
       {...rest}
-    />
+    >
+      {props.children}
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-0.5 -mr-0.5 inline-flex shrink-0 items-center justify-center rounded-full p-0.5 transition-colors hover:bg-black/10"
+          aria-label="移除"
+        >
+          <X className="size-3" />
+        </button>
+      )}
+    </Comp>
   );
 };
 
@@ -24,6 +37,7 @@ interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {
   asChild?: boolean;
+  onClose?: () => void;
 }
 
 const badgeVariants = cva(
@@ -39,6 +53,7 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        soft: "border-transparent bg-primary/20 text-primary",
       },
     },
     defaultVariants: {

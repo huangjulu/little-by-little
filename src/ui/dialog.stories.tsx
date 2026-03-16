@@ -3,9 +3,20 @@ import React from "react";
 
 import Dialog from "./dialog";
 
-type DialogRootProps = React.ComponentProps<typeof Dialog.Root>;
-
-interface DialogStoryShellProps extends DialogRootProps {
+interface DialogStoryShellProps {
+  isClosable?: boolean;
+  size?: "sm" | "md" | "lg";
+  title?: string;
+  description?: string;
+  haveCancel?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void;
+  isAutoClose?: boolean;
+  loadingState?: boolean;
+  needReturnFocus?: boolean;
+  handleBar?: boolean;
+  overlay?: boolean;
   triggerText?: string;
 }
 
@@ -13,7 +24,7 @@ const DialogStoryShell: React.FC<DialogStoryShellProps> = (props) => {
   const {
     isClosable = true,
     size = "md",
-    title,
+    title = "對話框標題",
     description = "",
     haveCancel = false,
     confirmText = "確認",

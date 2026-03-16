@@ -2,13 +2,14 @@ import { CalendarClock, Search } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import Badge from "@/ui/badge";
 import Input from "@/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@/ui/popover";
 
 interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSuggestionSelect?: (key: string) => void;
+  filter: SearchFilterState;
   placeholder?: string;
   className?: string;
 }
@@ -18,13 +19,7 @@ interface SearchInputProps {
  * 聚焦時顯示搜尋建議（如「下個月繳費名單」快捷篩選）
  */
 const SearchInput: React.FC<SearchInputProps> = (props) => {
-  const {
-    value,
-    onChange,
-    onSuggestionSelect,
-    placeholder = "搜尋...",
-    className,
-  } = props;
+  const { value, onChange, filter, placeholder = "搜尋...", className } = props;
   const [open, setOpen] = useState(false);
 
   const handleChange = useCallback(
@@ -35,15 +30,15 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
   );
 
   const handleSuggestionClick = useCallback(
-    (key: string) => {
+    (item: SearchFilterOption) => {
       setOpen(false);
-      onSuggestionSelect?.(key);
+      filter.onSelect(item);
     },
-    [onSuggestionSelect]
+    [filter]
   );
 
   return (
-    <Popover open={open && !value} onOpenChange={setOpen}>
+    <Popover open={open && !value && !filter.active} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
         <div
           className={cn(
@@ -52,11 +47,18 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
           )}
         >
           <Search className="h-4 w-4 shrink-0 text-gray-400" />
+
+          {filter.active && (
+            <Badge variant="soft" onClose={filter.onClear}>
+              {filter.active.label}
+            </Badge>
+          )}
+
           <Input
             value={value}
             onChange={handleChange}
             onFocus={() => setOpen(true)}
-            placeholder={placeholder}
+            placeholder={filter.active ? "" : placeholder}
             className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400 border-0 shadow-none px-0 focus-visible:ring-0"
           />
         </div>
@@ -71,14 +73,17 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
         <p className="mb-1.5 px-2 text-[0.6875rem] font-medium text-gray-400">
           快速篩選
         </p>
-        <button
-          type="button"
-          onClick={() => handleSuggestionClick("billing:next-month")}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
-        >
-          <CalendarClock className="h-4 w-4 text-amber-500" />
-          下個月繳費名單
-        </button>
+        {SEARCH_FILTER_OPTIONS.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => handleSuggestionClick(item)}
+            className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            <item.icon className="h-4 w-4 text-amber-500" />
+            {item.label}
+          </button>
+        ))}
       </PopoverContent>
     </Popover>
   );
@@ -87,3 +92,25 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
 SearchInput.displayName = "SearchInput";
 
 export default SearchInput;
+
+// Types
+type SearchFilterOption = {
+  key: string;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+};
+
+type SearchFilterState = {
+  active: { key: string; label: string } | null;
+  onSelect: (option: SearchFilterOption) => void;
+  onClear: () => void;
+};
+
+// Constants
+const SEARCH_FILTER_OPTIONS: SearchFilterOption[] = [
+  {
+    key: "billing:next-month",
+    label: "下個月繳費名單",
+    icon: CalendarClock,
+  },
+];
