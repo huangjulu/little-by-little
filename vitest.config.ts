@@ -45,6 +45,22 @@ export default defineConfig({
           name: "unit",
           environment: "happy-dom",
           include: ["src/**/__tests__/**/*.test.{ts,tsx}"],
+          exclude: ["src/**/__tests__/**/*.integration.test.{ts,tsx}"],
+        },
+      },
+      {
+        resolve: {
+          alias: {
+            "@": path.join(dirname, "src"),
+          },
+        },
+        esbuild: {
+          jsx: "automatic",
+        },
+        test: {
+          name: "integration",
+          environment: "happy-dom",
+          include: ["src/**/__tests__/**/*.integration.test.{ts,tsx}"],
         },
       },
     ],
