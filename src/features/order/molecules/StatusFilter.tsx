@@ -1,8 +1,9 @@
-import * as React from "react";
 import { useCallback } from "react";
-import { statusFilterOptions } from "../constants";
-import type { StatusFilterValue, StatusCounts } from "../types";
+
 import { cn } from "@/lib/utils";
+
+import { statusFilterOptions } from "../constants";
+import type { StatusCounts, StatusFilterValue } from "../types";
 
 interface StatusFilterProps {
   value: StatusFilterValue;
@@ -14,7 +15,7 @@ interface StatusFilterProps {
 /**
  * StatusFilter - 狀態篩選器分子組件（四個方塊，選中為 primary，顯示各狀態數量）
  */
-export const StatusFilter: React.FC<StatusFilterProps> = (props) => {
+const StatusFilter: React.FC<StatusFilterProps> = (props) => {
   const { value, onChange, statusCounts, className } = props;
 
   const handleOptionClick = useCallback(
@@ -62,3 +63,5 @@ export const StatusFilter: React.FC<StatusFilterProps> = (props) => {
 };
 
 StatusFilter.displayName = "StatusFilter";
+
+export default StatusFilter;

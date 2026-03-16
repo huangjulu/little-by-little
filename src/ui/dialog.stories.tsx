@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import Dialog, { type DialogProps } from "./dialog";
+import React from "react";
 
-interface DialogStoryShellProps extends DialogProps {
+import Dialog from "./dialog";
+
+type DialogRootProps = React.ComponentProps<typeof Dialog.Root>;
+
+interface DialogStoryShellProps extends DialogRootProps {
   triggerText?: string;
 }
 

@@ -1,19 +1,12 @@
 "use client";
 
-import * as React from "react";
-import { useState } from "react";
 import Link from "next/link";
-import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { useState } from "react";
+
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
 
-interface NaviItemWithPopoverProps {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-  className?: string;
-}
-
-export function NaviItemWithPopover(props: NaviItemWithPopoverProps) {
+const NaviItemWithPopover: React.FC<NaviItemWithPopoverProps> = (props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,4 +37,17 @@ export function NaviItemWithPopover(props: NaviItemWithPopoverProps) {
       </Popover>
     </div>
   );
+};
+
+NaviItemWithPopover.displayName = "NaviItemWithPopover";
+
+export default NaviItemWithPopover;
+
+// Types
+
+interface NaviItemWithPopoverProps {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  className?: string;
 }

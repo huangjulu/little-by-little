@@ -72,6 +72,7 @@ export type Database = {
           id: number;
           order_id: number | null;
           order_status: string;
+          payment_status: string;
         };
         Insert: {
           created_at?: string | null;
@@ -79,6 +80,7 @@ export type Database = {
           id?: number;
           order_id?: number | null;
           order_status?: string;
+          payment_status?: string;
         };
         Update: {
           created_at?: string | null;
@@ -86,6 +88,7 @@ export type Database = {
           id?: number;
           order_id?: number | null;
           order_status?: string;
+          payment_status?: string;
         };
         Relationships: [
           {
@@ -218,7 +221,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      batch_update_payment_status: {
+        Args: {
+          p_customer_ids: number[];
+          p_new_status: string;
+          p_update_billing?: boolean;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       [_ in never]: never;

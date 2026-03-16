@@ -1,17 +1,19 @@
 "use client";
 
 import {
-  useFormContext,
   Controller,
-  type Path,
   type ControllerRenderProps,
+  type Path,
+  useFormContext,
 } from "react-hook-form";
-import { Input } from "@/ui/input";
-import { DatePicker } from "@/ui/date-picker";
-import { DateRangePicker } from "@/ui/date-range-picker";
+
+import DatePicker from "@/ui/date-picker";
+import DateRangePicker from "@/ui/date-range-picker";
+import Input from "@/ui/input";
+
 import type { CreateOrderFormValues } from "./create-order.schema";
 
-export const CreateOrderFormFields: React.FC = () => {
+const CreateOrderFormFields: React.FC = () => {
   const {
     formState: { errors },
   } = useFormContext<CreateOrderFormValues>();
@@ -129,6 +131,10 @@ export const CreateOrderFormFields: React.FC = () => {
 
 CreateOrderFormFields.displayName = "CreateOrderFormFields";
 
+export default CreateOrderFormFields;
+
+// Types
+
 type ControlledFieldProps<T extends Path<CreateOrderFormValues>> = {
   name: T;
   label: string;
@@ -137,6 +143,18 @@ type ControlledFieldProps<T extends Path<CreateOrderFormValues>> = {
     field: ControllerRenderProps<CreateOrderFormValues, T>
   ) => React.ReactElement;
 };
+
+type InputFieldProps = {
+  name: Path<CreateOrderFormValues>;
+  label: string;
+  required?: boolean;
+  errorMessage?: string;
+} & Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "id" | "name" | "aria-invalid"
+>;
+
+// Helpers
 
 function ControlledField<T extends Path<CreateOrderFormValues>>(
   props: ControlledFieldProps<T>
@@ -160,13 +178,6 @@ function ControlledField<T extends Path<CreateOrderFormValues>>(
     </div>
   );
 }
-
-type InputFieldProps = {
-  name: Path<CreateOrderFormValues>;
-  label: string;
-  required?: boolean;
-  errorMessage?: string;
-} & Omit<React.ComponentProps<"input">, "id" | "name" | "aria-invalid">;
 
 const InputField: React.FC<InputFieldProps> = (props) => {
   const { name, label, required, errorMessage, ...inputProps } = props;

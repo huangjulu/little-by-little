@@ -1,66 +1,35 @@
 "use client";
 
-import * as React from "react";
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
-import { Calendar } from "./calendar";
+
+import Calendar from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
-/**
- * 寬鬆的日期區間型別，允許 from/to 皆為選填
- * 用於與 react-hook-form + zod schema 整合
- */
-interface DateRangeValue {
-  from?: Date;
-  to?: Date;
-}
-
-interface DateRangePickerProps {
-  value?: DateRangeValue;
-  onChange?: (range: DateRangeValue | undefined) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-  id?: string;
-}
-
-function DateRangePicker({
-  value,
-  onChange,
-  placeholder = "選擇日期區間",
-  className,
-  disabled = false,
-  id,
-}: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false);
-
-  const formatDateRange = (range: DateRangeValue | undefined): string => {
-    if (!range) return placeholder;
-    const { from, to } = range;
-    if (from && to) {
-      return `${format(from, "yyyy/MM/dd", { locale: zhTW })} ~ ${format(
-        to,
-        "yyyy/MM/dd",
-        { locale: zhTW }
-      )}`;
-    }
-    if (from) {
-      return `${format(from, "yyyy/MM/dd", { locale: zhTW })} ~ 選擇結束日`;
-    }
-    return placeholder;
-  };
+const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
+  const {
+    value,
+    onChange,
+    placeholder = "選擇日期區間",
+    className,
+    disabled = false,
+    id,
+  } = props;
+  const [open, setOpen] = useState(false);
 
   const handleSelect = (range: DateRange | undefined) => {
-    const valueToEmit: DateRangeValue | undefined = range
-      ? { from: range.from, to: range.to }
-      : undefined;
-    onChange?.(valueToEmit);
+    if (!range) {
+      onChange?.(undefined);
+      return;
+    }
+    onChange?.({ from: range.from, to: range.to });
     // 僅在選完起始日與結束日後才關閉，讓使用者可完整操作兩次點選
-    if (range?.from != null && range?.to != null) {
+    if (range.from != null && range.to != null) {
       setOpen(false);
     }
   };
@@ -84,7 +53,9 @@ function DateRangePicker({
             className
           )}
         >
-          <span className="truncate">{formatDateRange(value)}</span>
+          <span className="truncate">
+            {formatDateRange(value, placeholder)}
+          </span>
           <CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
@@ -99,9 +70,41 @@ function DateRangePicker({
       </PopoverContent>
     </Popover>
   );
-}
+};
 
 DateRangePicker.displayName = "DateRangePicker";
 
-export { DateRangePicker };
-export type { DateRangePickerProps, DateRangeValue };
+export default DateRangePicker;
+
+// Types
+
+/**
+ * 寬鬆的日期區間型別，允許 from/to 皆為選填
+ * 用於與 react-hook-form + zod schema 整合
+ */
+interface DateRangeValue {
+  from?: Date;
+  to?: Date;
+}
+
+interface DateRangePickerProps {
+  value?: DateRangeValue;
+  onChange?: (range: DateRangeValue | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  id?: string;
+}
+
+// Helpers
+
+function formatDateRange(
+  range: DateRangeValue | undefined,
+  placeholder: string
+): string {
+  if (!range?.from) return placeholder;
+  const { from, to } = range;
+  const fromStr = format(from, "yyyy/MM/dd", { locale: zhTW });
+  if (!to) return `${fromStr} ~ 選擇結束日`;
+  return `${fromStr} ~ ${format(to, "yyyy/MM/dd", { locale: zhTW })}`;
+}

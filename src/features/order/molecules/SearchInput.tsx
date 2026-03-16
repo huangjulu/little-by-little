@@ -1,7 +1,8 @@
-import * as React from "react";
+import { Search } from "lucide-react";
 import { useCallback } from "react";
-import { Input } from "@/ui/input";
+
 import { cn } from "@/lib/utils";
+import Input from "@/ui/input";
 
 interface SearchInputProps {
   value: string;
@@ -13,7 +14,7 @@ interface SearchInputProps {
 /**
  * SearchInput - 搜尋輸入框分子組件
  */
-export const SearchInput: React.FC<SearchInputProps> = (props) => {
+const SearchInput: React.FC<SearchInputProps> = (props) => {
   const { value, onChange, placeholder = "搜尋...", className } = props;
 
   // 使用 useCallback 記憶化處理函數，確保 props 穩定引用
@@ -31,7 +32,7 @@ export const SearchInput: React.FC<SearchInputProps> = (props) => {
         className
       )}
     >
-      <span className="text-gray-400">🔍</span>
+      <Search className="h-4 w-4 shrink-0 text-gray-400" />
       <Input
         value={value}
         onChange={handleChange}
@@ -43,3 +44,5 @@ export const SearchInput: React.FC<SearchInputProps> = (props) => {
 };
 
 SearchInput.displayName = "SearchInput";
+
+export default SearchInput;

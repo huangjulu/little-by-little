@@ -1,22 +1,29 @@
 "use client";
 
-import { useCallback } from "react";
 import {
   parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
   useQueryState,
 } from "nuqs";
+import { useCallback, useState } from "react";
+
 import { cn } from "@/lib/utils";
-import { SearchInput, StatusFilterValue, orderApi } from "..";
-import { OrderDetailPanel, OrderHeader, OrderTable } from "../organisms";
-import { DataTableSkeleton } from "./DataTableSkeleton";
-import { PanelDetailSkeleton } from "./PanelDetailSkeleton";
+
+import BillingActionBar from "../billing/BillingActionBar";
+import SearchInput from "../molecules/SearchInput";
+import { orderApi } from "../order.api";
+import OrderDetailPanel from "../organisms/OrderDetailPanel";
+import OrderHeader from "../organisms/OrderHeader";
+import OrderTable from "../organisms/OrderTable";
+import type { StatusFilterValue } from "../types";
+import DataTableSkeleton from "./DataTableSkeleton";
+import PanelDetailSkeleton from "./PanelDetailSkeleton";
 
 const PAGE_SIZE = 20;
 const STATUS_OPTIONS = ["all", "active", "inactive"] as const;
 
-export const ViewOrder: React.FC<{ className?: string }> = (props) => {
+const ViewOrder: React.FC<{ className?: string }> = (props) => {
   const [keyword, setKeyword] = useQueryState(
     "keyword",
     parseAsString.withDefault("")
@@ -26,6 +33,7 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     parseAsStringLiteral(STATUS_OPTIONS).withDefault("all")
   );
   const [selectedId, setSelectedId] = useQueryState("orderId", parseAsString);
+  const [billing] = useQueryState("billing", parseAsString);
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const {
@@ -34,11 +42,15 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     error: ordersError,
   } = orderApi.getOrders.useQuery({
     status: status !== "all" ? status : undefined,
+    billing: billing === "next-month" ? "next-month" : undefined,
     keyword: keyword.trim() || undefined,
     page,
     pageSize: PAGE_SIZE,
   });
 
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+
+  const isBillingMode = billing === "next-month";
   const filteredOrders = ordersData?.orders ?? [];
   const totalOrders = ordersData?.total ?? 0;
   const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
@@ -57,6 +69,15 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
     [setKeyword, setStatus, setPage]
   );
 
+  const handleToggleCheck = useCallback((id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
   const handleOrderClick = useCallback(
     (orderId: string) => {
       void setSelectedId((prev) => (prev === orderId ? null : orderId));
@@ -73,6 +94,14 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
         onChange={(v) => handleFiltersChange({ keyword: v })}
         placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
+
+      {isBillingMode && !isLoadingOrders && filteredOrders.length > 0 && (
+        <BillingActionBar
+          orders={filteredOrders}
+          checkedIds={checkedIds}
+          onToggleCheck={handleToggleCheck}
+        />
+      )}
 
       <div
         className={cn(
@@ -91,6 +120,9 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
               selectedOrderId={selectedId}
               onOrderClick={handleOrderClick}
               isLoading={false}
+              billingMode={isBillingMode}
+              checkedIds={checkedIds}
+              onToggleCheck={handleToggleCheck}
             />
 
             {totalPages > 1 && (
@@ -132,3 +164,5 @@ export const ViewOrder: React.FC<{ className?: string }> = (props) => {
 };
 
 ViewOrder.displayName = "ViewOrder";
+
+export default ViewOrder;

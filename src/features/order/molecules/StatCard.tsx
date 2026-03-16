@@ -1,6 +1,5 @@
-import * as React from "react";
-import { Card, CardContent } from "@/ui/card";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/ui/card";
 
 interface StatCardProps {
   label: string;
@@ -12,7 +11,7 @@ interface StatCardProps {
 /**
  * StatCard - 統計卡片分子組件
  */
-export const StatCard: React.FC<StatCardProps> = (props) => {
+const StatCard: React.FC<StatCardProps> = (props) => {
   return (
     <Card
       className={cn("px-4 py-2", "border-gray-200 bg-gray-50", props.className)}
@@ -26,3 +25,5 @@ export const StatCard: React.FC<StatCardProps> = (props) => {
 };
 
 StatCard.displayName = "StatCard";
+
+export default StatCard;

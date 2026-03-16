@@ -1,5 +1,26 @@
 import { cn } from "@/lib/utils";
 
+const Skeleton: React.FC<SkeletonProps> = (props) => {
+  const { className, rows = 1, rowClassName, ...rest } = props;
+  const baseClassName = "animate-pulse rounded-md bg-gray-200";
+
+  if (rows > 1) {
+    return (
+      <div className={cn("space-y-3", className)} {...rest}>
+        {Array.from({ length: rows }).map((_, index) => (
+          <div key={index} className={cn(baseClassName, rowClassName)} />
+        ))}
+      </div>
+    );
+  }
+
+  return <div className={cn(baseClassName, className)} {...rest} />;
+};
+
+Skeleton.displayName = "Skeleton";
+
+export default Skeleton;
+
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * 要渲染的 Skeleton row 數量。
@@ -14,28 +35,3 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   rowClassName?: string;
 }
-
-function Skeleton({
-  className,
-  rows = 1,
-  rowClassName,
-  ...props
-}: SkeletonProps) {
-  const baseClassName = "animate-pulse rounded-md bg-gray-200";
-
-  if (rows > 1) {
-    return (
-      <div className={cn("space-y-3", className)} {...props}>
-        {Array.from({ length: rows }).map((_, index) => (
-          <div key={index} className={cn(baseClassName, rowClassName)} />
-        ))}
-      </div>
-    );
-  }
-
-  return <div className={cn(baseClassName, className)} {...props} />;
-}
-
-Skeleton.displayName = "Skeleton";
-
-export { Skeleton };

@@ -1,6 +1,7 @@
 // ─── Domain Types ─────────────────────────────────────────────────────────────
 
 export type OrderStatus = "active" | "inactive";
+export type PaymentStatus = "up_to_date" | "invoiced" | "overdue";
 export type StatusFilterValue = "all" | OrderStatus;
 
 export type CustomerInfoData = {
@@ -25,6 +26,7 @@ export type Order = {
   nextBillingDate: string;
   createdAt: string;
   status: OrderStatus;
+  paymentStatus: PaymentStatus;
 };
 
 export type StatusFilterOption = {
@@ -45,6 +47,7 @@ export interface ApiResponse<T> {
 
 export interface GetOrdersParams {
   status?: StatusFilterValue;
+  billing?: "next-month";
   keyword?: string;
   page?: number;
   pageSize?: number;

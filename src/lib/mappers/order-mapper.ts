@@ -1,9 +1,10 @@
-import type { Tables } from "@/types/database";
 import type {
+  CustomerInfoData,
   Order,
   OrderStatus,
-  CustomerInfoData,
+  PaymentStatus,
 } from "@/features/order/types";
+import type { Tables } from "@/types/database";
 
 /** JOIN 查詢結果：customers + orders（對應 Supabase .select("*, orders!inner(*)")） */
 export type CustomerRow = Tables<"customers"> & {
@@ -17,8 +18,12 @@ const emptyCustomerInfo: CustomerInfoData = {
   house_unit: "",
 };
 
-function isOrderStatus(value: string): value is OrderStatus {
+export function isOrderStatus(value: unknown): value is OrderStatus {
   return value === "active" || value === "inactive";
+}
+
+export function isPaymentStatus(value: unknown): value is PaymentStatus {
+  return value === "up_to_date" || value === "invoiced" || value === "overdue";
 }
 
 export function mapToOrder(row: CustomerRow): Order {
@@ -39,5 +44,8 @@ export function mapToOrder(row: CustomerRow): Order {
     nextBillingDate: order?.next_billing_date ?? "",
     createdAt: row.created_at ?? "",
     status: isOrderStatus(row.order_status) ? row.order_status : "inactive",
+    paymentStatus: isPaymentStatus(row.payment_status)
+      ? row.payment_status
+      : "up_to_date",
   };
 }

@@ -1,16 +1,20 @@
 import {
-  useMutation,
-  useQueryClient,
   queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
+
+import { OfflineError } from "@/lib/network-error";
+
 import type {
-  Order,
-  GetOrdersParams,
-  CreateOrderParams,
-  UpdateOrderStatusParams,
   ApiResponse,
+  CreateOrderParams,
+  GetOrdersParams,
+  Order,
+  PaymentStatus,
+  UpdateOrderStatusParams,
 } from "./types";
-import { useFaultTolerantQuery } from "@/lib/hooks/useFaultTolerantQuery";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
@@ -44,29 +48,22 @@ export const orderQueryOptions = {
 export const orderApi = {
   getOrders: {
     useQuery: (params?: GetOrdersParams) =>
-      useFaultTolerantQuery<
-        ApiResponse<Order[]>,
-        { orders: Order[]; total: number }
-      >({
+      useQuery({
         queryKey: orderKeys.list(params),
         queryFn: () => getOrders(params),
         staleTime: 5 * 60 * 1000,
         select: (r) => ({ orders: r.data, total: r.total ?? 0 }),
-        cacheKey: `orders-list-${JSON.stringify(params ?? {})}`,
-        cacheGuard: isOrdersQueryData,
       }),
   },
 
   getOrder: {
     useQuery: (id: string | null) =>
-      useFaultTolerantQuery<ApiResponse<Order>, Order>({
+      useQuery({
         queryKey: orderKeys.detail(id ?? ""),
         queryFn: () => getOrder(id ?? ""),
         staleTime: 5 * 60 * 1000,
         enabled: !!id,
         select: (r) => r.data,
-        cacheKey: `orders-detail-${id ?? ""}`,
-        cacheGuard: isOrder,
       }),
   },
 
@@ -75,6 +72,18 @@ export const orderApi = {
       const queryClient = useQueryClient();
       return useMutation({
         mutationFn: (params: CreateOrderParams) => createOrder(params),
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+        },
+      });
+    },
+  },
+
+  import: {
+    useMutation: () => {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: (orders: CreateOrderParams[]) => importOrders(orders),
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
         },
@@ -106,16 +115,41 @@ export const orderApi = {
       });
     },
   },
+
+  batchUpdateStatus: {
+    useMutation: () => {
+      const queryClient = useQueryClient();
+      return useMutation({
+        mutationFn: (params: BatchUpdateStatusParams) =>
+          batchUpdateStatus(params),
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+        },
+      });
+    },
+  },
 } as const;
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface BatchUpdateStatusParams {
+  ids: string[];
+  paymentStatus: PaymentStatus;
+  updateBillingDate?: boolean;
+}
 
 // ─── Fetch Functions（內部使用，不對外匯出） ──────────────────────────────────
 
 async function getOrders(
   params?: GetOrdersParams
 ): Promise<ApiResponse<Order[]>> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new OfflineError();
+  }
   const searchParams = new URLSearchParams();
   if (params?.status && params.status !== "all")
     searchParams.append("status", params.status);
+  if (params?.billing) searchParams.append("billing", params.billing);
   if (params?.keyword) searchParams.append("keyword", params.keyword);
   if (params?.page) searchParams.append("page", params.page.toString());
   if (params?.pageSize)
@@ -127,6 +161,9 @@ async function getOrders(
 }
 
 async function getOrder(id: string): Promise<ApiResponse<Order>> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new OfflineError();
+  }
   const res = await fetch(`/api/orders/${id}`);
   if (!res.ok) throw new Error("取得訂單失敗");
   return res.json();
@@ -147,6 +184,30 @@ async function createOrder(
   return res.json();
 }
 
+interface ImportResult {
+  success: number;
+  failed: number;
+  errors: { index: number; message: string }[];
+}
+
+async function importOrders(
+  orders: CreateOrderParams[]
+): Promise<ApiResponse<ImportResult>> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new OfflineError();
+  }
+  const res = await fetch("/api/orders/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orders }),
+  });
+  if (!res.ok) {
+    const err: ApiResponse<never> = await res.json();
+    throw new Error(err.message ?? "匯入訂單失敗");
+  }
+  return res.json();
+}
+
 async function updateOrderStatus(
   id: string,
   params: UpdateOrderStatusParams
@@ -163,27 +224,20 @@ async function updateOrderStatus(
   return res.json();
 }
 
-// ─── Type Guards（放下方，hoisting 保證上方可用） ─────────────────────────────
-
-function isOrder(v: unknown): v is Order {
-  return (
-    typeof v === "object" &&
-    v !== null &&
-    typeof (v as Record<string, unknown>).id === "string" &&
-    typeof (v as Record<string, unknown>).orderId === "number" &&
-    typeof (v as Record<string, unknown>).customerName === "string" &&
-    typeof (v as Record<string, unknown>).status === "string"
-  );
-}
-
-function isOrdersQueryData(
-  v: unknown
-): v is { orders: Order[]; total: number } {
-  return (
-    typeof v === "object" &&
-    v !== null &&
-    Array.isArray((v as Record<string, unknown>).orders) &&
-    ((v as Record<string, unknown>).orders as unknown[]).every(isOrder) &&
-    typeof (v as Record<string, unknown>).total === "number"
-  );
+async function batchUpdateStatus(
+  params: BatchUpdateStatusParams
+): Promise<ApiResponse<{ updated: number; status: string }>> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new OfflineError();
+  }
+  const res = await fetch("/api/orders/batch-status", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const err: ApiResponse<never> = await res.json();
+    throw new Error(err.message ?? "批量更新狀態失敗");
+  }
+  return res.json();
 }

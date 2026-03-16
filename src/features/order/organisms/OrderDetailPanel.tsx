@@ -1,17 +1,18 @@
-import * as React from "react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+
+import { formatCurrency, formatDate } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from "@/ui/card";
-import { OrderId, DateDisplay, CurrencyDisplay } from "../atoms";
+
+import StatusBadge from "../atoms/StatusBadge";
 import type { Order } from "../types";
-import { cn } from "@/lib/utils";
-import { StatusBadge } from "../atoms/StatusBadge";
 
 interface OrderDetailPanelProps {
   order: Order;
@@ -19,7 +20,7 @@ interface OrderDetailPanelProps {
   className?: string;
 }
 
-export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
+const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
   const { order, error, className } = props;
   const prevErrorRef = useRef<Error | null>(null);
 
@@ -53,11 +54,12 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
       <CardContent className="space-y-4 p-0 text-xs">
         <div className="space-y-1 rounded-lg border border-gray-200 bg-white px-3 py-3">
           <div className="flex items-center justify-between gap-2">
-            <OrderId id={order.id} />
-            <DateDisplay
-              dateString={order.createdAt}
-              className="text-xs text-gray-400"
-            />
+            <span className="font-mono text-[0.6875rem] text-gray-700">
+              {order.id}
+            </span>
+            <span className="text-xs text-gray-400">
+              {formatDate(order.createdAt)}
+            </span>
           </div>
           <div className="mt-2 flex justify-between gap-2">
             <div>
@@ -71,10 +73,9 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
             </div>
             <div className="text-right">
               <div className="text-[0.6875rem] text-gray-500">目前金額</div>
-              <CurrencyDisplay
-                value={order.currentPrice}
-                className="text-sm font-semibold"
-              />
+              <span className="text-sm font-semibold">
+                {formatCurrency(order.currentPrice)}
+              </span>
             </div>
           </div>
         </div>
@@ -102,17 +103,15 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
             </div>
             <div>
               <span className="text-gray-400">基本價格</span>
-              <CurrencyDisplay
-                value={order.basePrice}
-                className="font-medium"
-              />
+              <span className="font-medium">
+                {formatCurrency(order.basePrice)}
+              </span>
             </div>
             <div>
               <span className="text-gray-400">目前價格</span>
-              <CurrencyDisplay
-                value={order.currentPrice}
-                className="font-medium"
-              />
+              <span className="font-medium">
+                {formatCurrency(order.currentPrice)}
+              </span>
             </div>
           </div>
         </div>
@@ -122,3 +121,5 @@ export const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
 };
 
 OrderDetailPanel.displayName = "OrderDetailPanel";
+
+export default OrderDetailPanel;

@@ -1,13 +1,15 @@
+import "./globals.css";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { QueryProvider } from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
-import { IconOrder } from "@/icon/IconOrder";
+
 import { IconFinance } from "@/icon/IconFinance";
 import { IconLogo } from "@/icon/IconLogo";
-import { NaviItemWithPopover } from "@/ui/NaviItemWithPopover";
-import "./globals.css";
+import { IconOrder } from "@/icon/IconOrder";
+import { QueryProvider } from "@/providers/QueryProvider";
+import NaviItemWithPopover from "@/ui/NaviItemWithPopover";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

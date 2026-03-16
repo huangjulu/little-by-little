@@ -1,4 +1,5 @@
-import * as React from "react";
+import { cn } from "@/lib/utils";
+import Skeleton from "@/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -7,8 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/ui/table";
-import { Skeleton } from "@/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 interface DataTableSkeletonProps {
   rows?: number;
@@ -22,7 +21,7 @@ interface DataTableSkeletonProps {
  * DataTableSkeleton - 通用資料表格骨架組件
  * 使用 Table 結構，第一列為標題列，後續為模擬資料列
  */
-export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = (props) => {
+const DataTableSkeleton: React.FC<DataTableSkeletonProps> = (props) => {
   const {
     rows = 5,
     columns = 5,
@@ -86,3 +85,5 @@ export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = (props) => {
 };
 
 DataTableSkeleton.displayName = "DataTableSkeleton";
+
+export default DataTableSkeleton;

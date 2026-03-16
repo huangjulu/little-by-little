@@ -1,10 +1,9 @@
 "use client";
 
-import * as React from "react";
-
 import { cn } from "@/lib/utils";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+const Table: React.FC<React.HTMLAttributes<HTMLTableElement>> = (props) => {
+  const { className, ...rest } = props;
   return (
     <div
       data-slot="table-container"
@@ -13,33 +12,42 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
+        {...rest}
       />
     </div>
   );
-}
+};
 
-function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+const TableHeader: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <thead
       data-slot="table-header"
       className={cn("[&_tr]:border-b", className)}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <tbody
       data-slot="table-body"
       className={cn("[&_tr:last-child]:border-0", className)}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+const TableFooter: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <tfoot
       data-slot="table-footer"
@@ -47,12 +55,15 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
         "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
         className
       )}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <tr
       data-slot="table-row"
@@ -60,12 +71,15 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
         "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
         className
       )}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <th
       data-slot="table-head"
@@ -73,12 +87,15 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
         "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-0.5",
         className
       )}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <td
       data-slot="table-cell"
@@ -86,23 +103,23 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5",
         className
       )}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
-function TableCaption({
-  className,
-  ...props
-}: React.ComponentProps<"caption">) {
+const TableCaption: React.FC<React.HTMLAttributes<HTMLTableCaptionElement>> = (
+  props
+) => {
+  const { className, ...rest } = props;
   return (
     <caption
       data-slot="table-caption"
       className={cn("text-muted-foreground mt-4 text-sm", className)}
-      {...props}
+      {...rest}
     />
   );
-}
+};
 
 Table.displayName = "Table";
 TableHeader.displayName = "TableHeader";
@@ -115,11 +132,11 @@ TableCaption.displayName = "TableCaption";
 
 export {
   Table,
-  TableHeader,
   TableBody,
+  TableCaption,
+  TableCell,
   TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
-  TableCell,
-  TableCaption,
 };

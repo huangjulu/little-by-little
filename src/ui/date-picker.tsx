@@ -1,34 +1,31 @@
 "use client";
 
-import * as React from "react";
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { Calendar } from "./calendar";
+
+import Calendar from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
-interface DatePickerProps {
-  value?: Date;
-  onChange?: (date: Date | undefined) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
-  id?: string;
-}
-
-function DatePicker({
-  value,
-  onChange,
-  placeholder = "選擇日期",
-  className,
-  disabled = false,
-  id,
-}: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
+const DatePicker: React.FC<DatePickerProps> = (props) => {
+  const {
+    value,
+    onChange,
+    placeholder = "選擇日期",
+    className,
+    disabled = false,
+    id,
+  } = props;
+  const [open, setOpen] = useState(false);
 
   const handleSelect = (date: Date | undefined) => {
+    if (!date) {
+      onChange?.(undefined);
+      return;
+    }
     onChange?.(date);
     setOpen(false);
   };
@@ -66,9 +63,19 @@ function DatePicker({
       </PopoverContent>
     </Popover>
   );
-}
+};
 
 DatePicker.displayName = "DatePicker";
 
-export { DatePicker };
-export type { DatePickerProps };
+export default DatePicker;
+
+// Types
+
+interface DatePickerProps {
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  id?: string;
+}

@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { AlertTriangle, Plus } from "lucide-react";
+import React from "react";
 import { useState } from "react";
-import { Input } from "./input";
-import { IconPlus } from "@/icon/IconPlus";
-import { IconAlert } from "@/icon/IconAlert";
+
+import Input from "./input";
 
 type InputStatus = "default" | "success" | "warning" | "error";
 
@@ -63,7 +64,7 @@ const InputShell: React.FC<InputStoryProps> = ({
       >
         {hasLeftIcon && (
           <span className="mr-2 inline-flex text-muted-foreground">
-            <IconPlus width={16} height={16} />
+            <Plus className="h-4 w-4" />
           </span>
         )}
 
@@ -84,15 +85,15 @@ const InputShell: React.FC<InputStoryProps> = ({
 
         {hasRightIcon && (
           <span className="ml-2 inline-flex text-muted-foreground">
-            {status === "default" && <IconPlus width={16} height={16} />}
+            {status === "default" && <Plus className="h-4 w-4" />}
             {status === "success" && (
               <span className="h-2 w-2 rounded-full bg-green-500" />
             )}
             {status === "warning" && (
-              <IconAlert width={18} height={18} className="text-yellow-500" />
+              <AlertTriangle className="h-[1.125rem] w-[1.125rem] text-yellow-500" />
             )}
             {status === "error" && (
-              <IconAlert width={18} height={18} className="text-destructive" />
+              <AlertTriangle className="h-[1.125rem] w-[1.125rem] text-destructive" />
             )}
           </span>
         )}
@@ -132,9 +133,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// ============================================
 // 1. Default - 一般文字輸入
-// ============================================
 export const Default: Story = {
   render: (args) => <InputShell {...args} />,
   args: {
@@ -154,9 +153,7 @@ export const Default: Story = {
   },
 };
 
-// ============================================
 // 2. WithIcons - 左右 icon 樣式
-// ============================================
 export const WithIcons: Story = {
   render: (args) => <InputShell {...args} />,
   args: {
@@ -176,9 +173,7 @@ export const WithIcons: Story = {
   },
 };
 
-// ============================================
 // 3. Password - 密碼輸入樣式
-// ============================================
 export const Password: Story = {
   render: (args) => <InputShell {...args} />,
   args: {
@@ -198,9 +193,7 @@ export const Password: Story = {
   },
 };
 
-// ============================================
 // 4. StatusVariants - 成功 / 警告 / 錯誤 樣式
-// ============================================
 export const StatusVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
