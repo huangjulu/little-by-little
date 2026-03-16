@@ -9,6 +9,7 @@ export type CustomerInfoData = {
   mobile_phone: string;
   community_name: string;
   house_unit: string;
+  address: string;
 };
 
 export type Order = {
@@ -18,6 +19,7 @@ export type Order = {
   mobilePhone: string;
   communityName: string;
   houseUnit: string;
+  address: string;
   basePrice: number;
   currentPrice: number;
   contractStartDate: string;
@@ -27,6 +29,16 @@ export type Order = {
   createdAt: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
+  speed: string;
+  billingPlan: string;
+  atmAccountNumber: string;
+  projectCode: string;
+  deposit: number;
+  priceDifference: number;
+  yearlyFee: number | null;
+  yearlyBonusMonths: number | null;
+  twoYearFee: number | null;
+  twoYearBonusMonths: number | null;
 };
 
 export type StatusFilterOption = {

@@ -16,6 +16,7 @@ const emptyCustomerInfo: CustomerInfoData = {
   mobile_phone: "",
   community_name: "",
   house_unit: "",
+  address: "",
 };
 
 export function isOrderStatus(value: unknown): value is OrderStatus {
@@ -36,6 +37,7 @@ export function mapToOrder(row: CustomerRow): Order {
     mobilePhone: info.mobile_phone ?? "",
     communityName: info.community_name ?? "",
     houseUnit: info.house_unit ?? "",
+    address: info.address ?? "",
     basePrice: Number(order?.base_price ?? 0),
     currentPrice: Number(order?.current_price ?? 0),
     contractStartDate: order?.contract_start_date ?? "",
@@ -47,5 +49,15 @@ export function mapToOrder(row: CustomerRow): Order {
     paymentStatus: isPaymentStatus(row.payment_status)
       ? row.payment_status
       : "up_to_date",
+    speed: order?.speed ?? "",
+    billingPlan: order?.billing_plan ?? "",
+    atmAccountNumber: order?.atm_account_number ?? "",
+    projectCode: order?.project_code ?? "",
+    deposit: Number(order?.deposit ?? 0),
+    priceDifference: Number(order?.price_difference ?? 0),
+    yearlyFee: order?.yearly_fee ?? null,
+    yearlyBonusMonths: order?.yearly_bonus_months ?? null,
+    twoYearFee: order?.two_year_fee ?? null,
+    twoYearBonusMonths: order?.two_year_bonus_months ?? null,
   };
 }
