@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import Badge from "@/ui/badge";
 
-import { statusChipStyle, statusLabel } from "../constants";
+import { statusBadgeVariant, statusLabel } from "../constants";
 import type { OrderStatus } from "../types";
 
 interface StatusBadgeProps {
@@ -17,11 +17,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = (props) => {
 
   return (
     <Badge
-      className={cn(
-        "inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[0.625rem] font-medium ring-1",
-        statusChipStyle[status],
-        className
-      )}
+      variant={statusBadgeVariant[status]}
+      size="sm"
+      className={cn("px-2.5 py-1 text-[0.625rem]", className)}
     >
       {statusLabel[status]}
     </Badge>

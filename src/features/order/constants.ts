@@ -1,13 +1,17 @@
+import Badge from "@/ui/badge";
+
 import type { OrderStatus, PaymentStatus, StatusFilterOption } from "./types";
+
+type BadgeVariant = NonNullable<React.ComponentProps<typeof Badge>["variant"]>;
 
 export const statusLabel: Record<OrderStatus, string> = {
   active: "啟用中",
   inactive: "已停用",
 };
 
-export const statusChipStyle: Record<OrderStatus, string> = {
-  active: "bg-green-100 text-green-800 ring-green-200",
-  inactive: "bg-gray-100 text-gray-500 ring-gray-200",
+export const statusBadgeVariant: Record<OrderStatus, BadgeVariant> = {
+  active: "success",
+  inactive: "default",
 };
 
 export const paymentStatusLabel: Record<PaymentStatus, string> = {
@@ -16,10 +20,10 @@ export const paymentStatusLabel: Record<PaymentStatus, string> = {
   overdue: "逾期未繳",
 };
 
-export const paymentStatusChipStyle: Record<PaymentStatus, string> = {
-  up_to_date: "bg-blue-100 text-blue-800 ring-blue-200",
-  invoiced: "bg-amber-100 text-amber-800 ring-amber-200",
-  overdue: "bg-red-100 text-red-800 ring-red-200",
+export const paymentBadgeVariant: Record<PaymentStatus, BadgeVariant> = {
+  up_to_date: "info",
+  invoiced: "warning",
+  overdue: "alert",
 };
 
 export const statusFilterOptions: StatusFilterOption[] = [

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  paymentStatusChipStyle,
+  paymentBadgeVariant,
   paymentStatusLabel,
-  statusChipStyle,
+  statusBadgeVariant,
   statusFilterOptions,
   statusLabel,
 } from "@/features/order/constants";
@@ -155,7 +155,7 @@ describe("mapToOrder", () => {
   });
 });
 
-// ─── statusLabel / statusChipStyle ───────────────────────────────────────────
+// ─── statusLabel / statusBadgeVariant ────────────────────────────────────────
 
 describe("statusLabel", () => {
   it("應包含 active 和 inactive", () => {
@@ -165,14 +165,17 @@ describe("statusLabel", () => {
   });
 });
 
-describe("statusChipStyle", () => {
-  it("應包含 active（green）和 inactive（gray）", () => {
-    expect(statusChipStyle.active).toContain("green");
-    expect(statusChipStyle.inactive).toContain("gray");
+describe("statusBadgeVariant", () => {
+  it("active 應映射為 success variant", () => {
+    expect(statusBadgeVariant.active).toBe("success");
+  });
+
+  it("inactive 應映射為 default variant", () => {
+    expect(statusBadgeVariant.inactive).toBe("default");
   });
 });
 
-// ─── paymentStatusLabel / paymentStatusChipStyle ─────────────────────────────
+// ─── paymentStatusLabel / paymentBadgeVariant ────────────────────────────────
 
 describe("paymentStatusLabel", () => {
   it("應包含 3 個繳費狀態標籤", () => {
@@ -182,17 +185,17 @@ describe("paymentStatusLabel", () => {
   });
 });
 
-describe("paymentStatusChipStyle", () => {
-  it("up_to_date 應為 blue 色系", () => {
-    expect(paymentStatusChipStyle.up_to_date).toContain("blue");
+describe("paymentBadgeVariant", () => {
+  it("up_to_date 應映射為 info variant", () => {
+    expect(paymentBadgeVariant.up_to_date).toBe("info");
   });
 
-  it("invoiced 應為 amber 色系", () => {
-    expect(paymentStatusChipStyle.invoiced).toContain("amber");
+  it("invoiced 應映射為 warning variant", () => {
+    expect(paymentBadgeVariant.invoiced).toBe("warning");
   });
 
-  it("overdue 應為 red 色系", () => {
-    expect(paymentStatusChipStyle.overdue).toContain("red");
+  it("overdue 應映射為 alert variant", () => {
+    expect(paymentBadgeVariant.overdue).toBe("alert");
   });
 });
 
