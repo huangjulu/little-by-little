@@ -27,7 +27,7 @@ const NaviItemWithPopover: React.FC<NaviItemWithPopoverProps> = (props) => {
           </Link>
         </PopoverTrigger>
         <PopoverContent
-          side="top"
+          side="right"
           sideOffset={8}
           align="center"
           className="w-auto px-3 py-2 text-xs font-medium text-gray-800"

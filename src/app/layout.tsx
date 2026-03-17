@@ -39,9 +39,9 @@ export default function RootLayout({
       >
         <NuqsAdapter>
           <QueryProvider>
-            <div className="flex min-h-screen">
-              <nav className="flex flex-col items-center gap-2 px-3 py-4 bg-white shadow-sm sticky z-30 h-full no-scrollbar overflow-x-hidden">
-                <div className="mb-4 text-xs font-semibold text-gray-500">
+            <div className="flex min-h-screen md:flex-row flex-col">
+              <nav className="fixed z-30 bg-white shadow-sm no-scrollbar overflow-x-hidden md:left-0 md:top-0 md:h-screen md:flex-col md:items-center md:gap-2 md:px-3 md:py-4 bottom-0 left-0 right-0 flex flex-row items-center justify-around px-2 py-2 border-t md:border-t-0 md:border-r border-gray-200">
+                <div className="mb-4 text-xs font-semibold text-gray-500 hidden md:block">
                   <IconLogo />
                 </div>
                 <NaviItemWithPopover
@@ -57,7 +57,7 @@ export default function RootLayout({
                   className="w-full"
                 />
               </nav>
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 md:pl-16 pb-16 md:pb-0">{children}</main>
             </div>
           </QueryProvider>
         </NuqsAdapter>
