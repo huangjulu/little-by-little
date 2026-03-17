@@ -153,7 +153,7 @@ const DialogFooter: React.FC<DialogFooterProps> = (props) => {
     return (
       <div
         className={cn(
-          "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+          "flex shrink-0 flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
           className
         )}
         {...rest}
@@ -181,7 +181,7 @@ const DialogFooter: React.FC<DialogFooterProps> = (props) => {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse gap-4 sm:flex-row sm:justify-end",
+        "flex shrink-0 flex-col-reverse gap-4 sm:flex-row sm:justify-end",
         className
       )}
       {...rest}
