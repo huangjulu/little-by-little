@@ -42,7 +42,7 @@ const StatusFilter: React.FC<StatusFilterProps> = (props) => {
             className={cn(
               "flex flex-col items-start justify-center rounded-xl border px-4 py-3 text-left transition-colors",
               isSelected
-                ? "border-primary bg-green-200 text-green-800 shadow-sm"
+                ? "border-primary bg-blue-200 text-blue-800 shadow-sm"
                 : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
             )}
           >
@@ -50,7 +50,7 @@ const StatusFilter: React.FC<StatusFilterProps> = (props) => {
             <span
               className={cn(
                 "mt-1 text-2xl font-semibold tabular-nums",
-                isSelected ? "text-green-800" : "text-gray-800"
+                isSelected ? "text-blue-800" : "text-gray-800"
               )}
             >
               {count}

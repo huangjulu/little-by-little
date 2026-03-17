@@ -68,7 +68,7 @@ const badgeVariants = cva(
         default: "bg-gray-100 text-gray-500 ring-gray-200",
         success: "bg-green-100 text-green-800 ring-green-200",
         info: "bg-blue-100 text-blue-800 ring-blue-200",
-        warning: "bg-amber-100 text-amber-800 ring-amber-200",
+        warning: "bg-yellow-100 text-yellow-800 ring-yellow-200",
         alert: "bg-red-100 text-red-800 ring-red-200",
       },
       size: {

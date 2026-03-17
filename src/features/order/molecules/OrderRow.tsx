@@ -1,5 +1,5 @@
 import { Check, Printer } from "lucide-react";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ interface OrderRowProps {
 /**
  * OrderRow - 訂單列表行分子組件
  */
-const OrderRow: React.FC<OrderRowProps> = React.memo((props) => {
+const OrderRow: React.FC<OrderRowProps> = memo((props) => {
   const { order, isSelected = false, className } = props;
   const { onOrderClick, onToggleCheck, onPrint, onMarkPaid } = props;
 
@@ -70,7 +70,7 @@ const OrderRow: React.FC<OrderRowProps> = React.memo((props) => {
             handleToggleCheck();
           }}
           onClick={(e) => e.stopPropagation()}
-          className="h-4 w-4 rounded border-gray-300 accent-green-600"
+          className="h-4 w-4 rounded border-gray-300 accent-blue-500"
           tabIndex={props.billingMode ? 0 : -1}
         />
       </td>

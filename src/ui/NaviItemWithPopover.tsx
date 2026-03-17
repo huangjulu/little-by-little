@@ -20,7 +20,7 @@ const NaviItemWithPopover: React.FC<NaviItemWithPopoverProps> = (props) => {
           <Link
             href={props.href}
             className={cn(
-              "flex p-3 items-center justify-center rounded-md transition-colors hover:bg-green-100 hover:text-primary"
+              "flex p-3 items-center justify-center rounded-md transition-colors hover:bg-blue-100 hover:text-primary"
             )}
           >
             {props.icon}

@@ -131,7 +131,7 @@
   --color-text-white: #ffffff;
 
   /* Button */
-  --color-btn-primary: var(--color-green-500);
+  --color-btn-primary: var(--color-blue-500);
   --color-btn-secondary: var(--color-gray-800);
   --color-btn-teritary: var(--color-gray-100);
   --color-btn-text: var(--color-text-primary);

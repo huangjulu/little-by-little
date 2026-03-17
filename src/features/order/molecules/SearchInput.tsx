@@ -49,7 +49,7 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
           <Search className="h-4 w-4 shrink-0 text-gray-400" />
 
           {filter.active && (
-            <Badge onClose={filter.onClear}>{filter.active.label}</Badge>
+            <Badge variant="warning" onClose={filter.onClear}>{filter.active.label}</Badge>
           )}
 
           <Input
