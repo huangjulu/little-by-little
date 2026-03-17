@@ -60,10 +60,10 @@ const ViewUploadOrder: React.FC<ViewUploadOrderProps> = (props) => {
     setFileError(null);
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const buffer = reader.result as ArrayBuffer;
-        const parsed = parseSpreadsheet(buffer);
+        const parsed = await parseSpreadsheet(buffer);
 
         if (parsed.warnings?.length) {
           setFileError(parsed.warnings.join("；"));

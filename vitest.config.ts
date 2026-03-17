@@ -46,6 +46,7 @@ export default defineConfig({
           environment: "happy-dom",
           include: ["src/**/__tests__/**/*.test.{ts,tsx}"],
           exclude: ["src/**/__tests__/**/*.integration.test.{ts,tsx}"],
+          setupFiles: ["src/__tests__/setup.ts"],
         },
       },
       {

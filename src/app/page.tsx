@@ -1,5 +1,3 @@
-"use client";
-
 import { AuthGate } from "@/features/auth/AuthGate";
 import ViewOrder from "@/features/order/view/ViewOrder";
 import { cn } from "@/lib/utils";

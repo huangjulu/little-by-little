@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { formatCurrency } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -17,11 +17,12 @@ const OrderHeader: React.FC<OrderHeaderProps> = (props) => {
 
   const thisMonth = new Date().getMonth() + 1;
 
-  const totalRevenue = props.orders
-    .filter((o) => o.status === "active")
-    .reduce((sum, o) => sum + o.currentPrice, 0);
-
-  const formattedRevenue = formatCurrency(totalRevenue);
+  const formattedRevenue = useMemo(() => {
+    const total = props.orders
+      .filter((o) => o.status === "active")
+      .reduce((sum, o) => sum + o.currentPrice, 0);
+    return formatCurrency(total);
+  }, [props.orders]);
 
   return (
     <header

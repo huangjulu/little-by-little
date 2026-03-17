@@ -1,4 +1,5 @@
 import { Check, Printer } from "lucide-react";
+import { useCallback } from "react";
 
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -10,25 +11,42 @@ import type { Order } from "../types";
 interface OrderRowProps {
   order: Order;
   isSelected?: boolean;
-  onClick?: () => void;
+  onOrderClick?: (id: string) => void;
   className?: string;
   billingMode?: boolean;
   checked?: boolean;
-  onToggleCheck?: () => void;
-  onPrint?: () => void;
-  onMarkPaid?: () => void;
+  onToggleCheck?: (id: string) => void;
+  onPrint?: (id: string) => void;
+  onMarkPaid?: (id: string) => void;
   isPrinted?: boolean;
 }
 
 /**
  * OrderRow - 訂單列表行分子組件
  */
-const OrderRow: React.FC<OrderRowProps> = (props) => {
-  const { order, isSelected = false, onClick, className } = props;
+const OrderRow: React.FC<OrderRowProps> = React.memo((props) => {
+  const { order, isSelected = false, className } = props;
+  const { onOrderClick, onToggleCheck, onPrint, onMarkPaid } = props;
+
+  const handleClick = useCallback(() => {
+    onOrderClick?.(order.id);
+  }, [onOrderClick, order.id]);
+
+  const handleToggleCheck = useCallback(() => {
+    onToggleCheck?.(order.id);
+  }, [onToggleCheck, order.id]);
+
+  const handlePrint = useCallback(() => {
+    onPrint?.(order.id);
+  }, [onPrint, order.id]);
+
+  const handleMarkPaid = useCallback(() => {
+    onMarkPaid?.(order.id);
+  }, [onMarkPaid, order.id]);
 
   return (
     <tr
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(
         "cursor-pointer border-b border-gray-100 align-middle text-xs transition-colors hover:bg-gray-50",
         "*:p-3",
@@ -49,7 +67,7 @@ const OrderRow: React.FC<OrderRowProps> = (props) => {
           checked={props.checked ?? false}
           onChange={(e) => {
             e.stopPropagation();
-            props.onToggleCheck?.();
+            handleToggleCheck();
           }}
           onClick={(e) => e.stopPropagation()}
           className="h-4 w-4 rounded border-gray-300 accent-green-600"
@@ -107,13 +125,13 @@ const OrderRow: React.FC<OrderRowProps> = (props) => {
           paymentStatus={order.paymentStatus}
           isPrinted={props.isPrinted}
           billingMode={props.billingMode}
-          onPrint={() => props.onPrint?.()}
-          onMarkPaid={() => props.onMarkPaid?.()}
+          onPrint={handlePrint}
+          onMarkPaid={handleMarkPaid}
         />
       </td>
     </tr>
   );
-};
+});
 
 OrderRow.displayName = "OrderRow";
 

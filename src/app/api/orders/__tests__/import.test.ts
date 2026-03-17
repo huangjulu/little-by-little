@@ -3,9 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
-const mockInsert = vi.fn();
-const mockSelect = vi.fn();
-const mockSingle = vi.fn();
+const mockOrderSingle = vi.fn();
+const mockCustomerSingle = vi.fn();
 const mockDelete = vi.fn();
 const mockEq = vi.fn();
 
@@ -21,9 +20,9 @@ vi.mock("@/utils/supabase/server", () => ({
     from: vi.fn((table: string) => {
       if (table === "orders") {
         return {
-          insert: mockInsert.mockReturnValue({
-            select: mockSelect.mockReturnValue({
-              single: mockSingle,
+          insert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: mockOrderSingle,
             }),
           }),
           delete: mockDelete.mockReturnValue({
@@ -33,9 +32,9 @@ vi.mock("@/utils/supabase/server", () => ({
       }
       if (table === "customers") {
         return {
-          insert: mockInsert.mockReturnValue({
-            select: mockSelect.mockReturnValue({
-              single: mockSingle,
+          insert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: mockCustomerSingle,
             }),
           }),
         };
@@ -65,13 +64,11 @@ function makeInvalidRequest(body: string): NextRequest {
 
 // 模擬一筆成功的 Supabase 插入流程
 function mockSuccessfulInsert(orderId: number, customerId: number) {
-  // 第一次 mockSingle → orders insert
-  mockSingle.mockResolvedValueOnce({
+  mockOrderSingle.mockResolvedValueOnce({
     data: { id: orderId, base_price: 0, current_price: 0 },
     error: null,
   });
-  // 第二次 mockSingle → customers insert (with select "*, orders!inner(*)")
-  mockSingle.mockResolvedValueOnce({
+  mockCustomerSingle.mockResolvedValueOnce({
     data: {
       id: customerId,
       customer_info: {
@@ -100,24 +97,21 @@ function mockSuccessfulInsert(orderId: number, customerId: number) {
 }
 
 function mockFailedOrderInsert(errorMsg: string) {
-  mockSingle.mockResolvedValueOnce({
+  mockOrderSingle.mockResolvedValueOnce({
     data: null,
     error: { message: errorMsg },
   });
 }
 
 function mockFailedCustomerInsert(orderId: number, errorMsg: string) {
-  // orders insert 成功
-  mockSingle.mockResolvedValueOnce({
+  mockOrderSingle.mockResolvedValueOnce({
     data: { id: orderId },
     error: null,
   });
-  // customers insert 失敗
-  mockSingle.mockResolvedValueOnce({
+  mockCustomerSingle.mockResolvedValueOnce({
     data: null,
     error: { message: errorMsg },
   });
-  // delete rollback
   mockEq.mockResolvedValueOnce({ error: null });
 }
 

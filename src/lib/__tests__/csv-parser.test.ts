@@ -21,9 +21,9 @@ function makeCSVBuffer(csv: string): ArrayBuffer {
 // ─── parseSpreadsheet ────────────────────────────────────────────────────────
 
 describe("parseSpreadsheet", () => {
-  it("正確解析含標題行的 CSV 資料", () => {
+  it("正確解析含標題行的 CSV 資料", async () => {
     const csv = "客戶姓名,手機號碼\n王大明,0912111111\n李小華,0912222222";
-    const result = parseSpreadsheet(makeCSVBuffer(csv));
+    const result = await parseSpreadsheet(makeCSVBuffer(csv));
     expect(result.rows).toHaveLength(2);
     expect(result.rows[0]).toMatchObject({
       customerName: "王大明",
@@ -31,12 +31,12 @@ describe("parseSpreadsheet", () => {
     });
   });
 
-  it("正確解析 Excel (.xlsx) 資料", () => {
+  it("正確解析 Excel (.xlsx) 資料", async () => {
     const buf = makeWorkbook([
       ["客戶姓名", "手機號碼", "基礎價格"],
       ["張美玲", "0912333333", "1000"],
     ]);
-    const result = parseSpreadsheet(buf);
+    const result = await parseSpreadsheet(buf);
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0]).toMatchObject({
       customerName: "張美玲",
@@ -45,41 +45,43 @@ describe("parseSpreadsheet", () => {
     });
   });
 
-  it("空檔案回傳空陣列", () => {
+  it("空檔案回傳空陣列", async () => {
     const buf = makeWorkbook([["客戶姓名", "手機號碼"]]);
-    const result = parseSpreadsheet(buf);
+    const result = await parseSpreadsheet(buf);
     expect(result.rows).toHaveLength(0);
   });
 
-  it("非標準編碼（BOM UTF-8）正確處理", () => {
+  it("非標準編碼（BOM UTF-8）正確處理", async () => {
     const bom = "\uFEFF";
     const csv = `${bom}客戶姓名,手機號碼\n王大明,0912111111`;
-    const result = parseSpreadsheet(makeCSVBuffer(csv));
+    const result = await parseSpreadsheet(makeCSVBuffer(csv));
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0].customerName).toBe("王大明");
   });
 
-  it("損毀的檔案（非 CSV/Excel 格式）應 throw Error", () => {
+  it("損毀的檔案（非 CSV/Excel 格式）應 throw Error", async () => {
     const garbage = new Uint8Array([0, 1, 2, 3, 4, 5]).buffer as ArrayBuffer;
-    expect(() => parseSpreadsheet(garbage)).toThrow("無法解析此檔案格式");
+    await expect(parseSpreadsheet(garbage)).rejects.toThrow(
+      "無法解析此檔案格式"
+    );
   });
 
-  it("檔案只有標題行沒有資料行應回傳空陣列", () => {
+  it("檔案只有標題行沒有資料行應回傳空陣列", async () => {
     const csv = "客戶姓名,手機號碼,基礎價格";
-    const result = parseSpreadsheet(makeCSVBuffer(csv));
+    const result = await parseSpreadsheet(makeCSVBuffer(csv));
     expect(result.rows).toHaveLength(0);
   });
 
-  it("標題行完全不符合預期欄位名應回傳空陣列 + 警告", () => {
+  it("標題行完全不符合預期欄位名應回傳空陣列 + 警告", async () => {
     const csv = "foo,bar,baz\na,b,c";
-    const result = parseSpreadsheet(makeCSVBuffer(csv));
+    const result = await parseSpreadsheet(makeCSVBuffer(csv));
     expect(result.rows).toHaveLength(0);
     expect(result.warnings).toContain("未偵測到任何已知欄位");
   });
 
-  it("標題行部分匹配應解析匹配的欄位，其餘為 undefined", () => {
+  it("標題行部分匹配應解析匹配的欄位，其餘為 undefined", async () => {
     const csv = "客戶姓名,手機號碼,未知欄位\n王大明,0912111111,xxx";
-    const result = parseSpreadsheet(makeCSVBuffer(csv));
+    const result = await parseSpreadsheet(makeCSVBuffer(csv));
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0].customerName).toBe("王大明");
     expect(result.rows[0].mobilePhone).toBe("0912111111");

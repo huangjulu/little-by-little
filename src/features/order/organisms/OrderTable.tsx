@@ -90,12 +90,12 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
                   key={order.id}
                   order={order}
                   isSelected={props.selectedOrderId === order.id}
-                  onClick={() => props.onOrderClick?.(order.id)}
+                  onOrderClick={props.onOrderClick}
                   billingMode={props.billingMode}
                   checked={props.checkedIds?.has(order.id)}
-                  onToggleCheck={() => props.onToggleCheck?.(order.id)}
-                  onPrint={() => props.onPrint?.(order.id)}
-                  onMarkPaid={() => props.onMarkPaid?.(order.id)}
+                  onToggleCheck={props.onToggleCheck}
+                  onPrint={props.onPrint}
+                  onMarkPaid={props.onMarkPaid}
                   isPrinted={props.printedIds?.has(order.id)}
                 />
               ))

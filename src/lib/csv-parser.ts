@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import type * as XLSXType from "xlsx";
 
 import type { CreateOrderParams } from "@/features/order/types";
 
@@ -60,8 +60,11 @@ const DATE_LABEL: Record<string, string> = {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export function parseSpreadsheet(buffer: ArrayBuffer): ParseResult {
-  const wb = readWorkbook(buffer);
+export async function parseSpreadsheet(
+  buffer: ArrayBuffer
+): Promise<ParseResult> {
+  const XLSX = await import("xlsx");
+  const wb = readWorkbook(XLSX, buffer);
   const sheetName = wb.SheetNames[0] as string;
   if (!sheetName) return { rows: [], warnings: ["檔案中沒有工作表"] };
 
@@ -129,7 +132,10 @@ export function validateRows(rows: RawRow[]): ValidationResult {
 
 // ─── 內部輔助函式 ────────────────────────────────────────────────────────────
 
-function readWorkbook(buffer: ArrayBuffer): XLSX.WorkBook {
+function readWorkbook(
+  XLSX: typeof XLSXType,
+  buffer: ArrayBuffer
+): XLSXType.WorkBook {
   try {
     // 嘗試以 UTF-8 文字讀取（CSV 格式）
     if (looksLikeText(buffer)) {

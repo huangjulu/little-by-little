@@ -52,23 +52,44 @@ export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
+  // 先同步驗證，收集待插入的項目
+  const toInsert: { order: CreateOrderParams; index: number }[] = [];
   for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
     const error = validateOrder(order, i);
     if (error) {
       result.failed++;
       result.errors.push(error);
-      continue;
+    } else {
+      toInsert.push({ order, index: i });
     }
+  }
 
-    try {
-      await insertOrder(supabase, order, i, result);
-    } catch (e) {
-      result.failed++;
-      result.errors.push({
-        index: i,
-        message: e instanceof Error ? e.message : "未知錯誤",
-      });
+  // 批次平行插入（每批 10 筆並發）
+  for (let start = 0; start < toInsert.length; start += BATCH_SIZE) {
+    const batch = toInsert.slice(start, start + BATCH_SIZE);
+    const outcomes = await Promise.allSettled(
+      batch.map((item) => insertOrder(supabase, item.order, item.index))
+    );
+
+    for (const outcome of outcomes) {
+      if (outcome.status === "fulfilled") {
+        if (outcome.value) {
+          result.failed++;
+          result.errors.push(outcome.value);
+        } else {
+          result.success++;
+        }
+      } else {
+        result.failed++;
+        result.errors.push({
+          index: batch[outcomes.indexOf(outcome)].index,
+          message:
+            outcome.reason instanceof Error
+              ? outcome.reason.message
+              : "未知錯誤",
+        });
+      }
     }
   }
 
@@ -76,6 +97,8 @@ export async function POST(request: NextRequest) {
 }
 
 // ─── 內部輔助函式 ────────────────────────────────────────────────────────────
+
+const BATCH_SIZE = 10;
 
 function validateOrder(
   order: CreateOrderParams,
@@ -93,9 +116,8 @@ function validateOrder(
 async function insertOrder(
   supabase: ReturnType<typeof createClient>,
   order: CreateOrderParams,
-  index: number,
-  result: ImportResult
-): Promise<void> {
+  index: number
+): Promise<ImportError | null> {
   // 1. 建立 orders 記錄
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
@@ -111,12 +133,7 @@ async function insertOrder(
     .single();
 
   if (orderError || !orderData) {
-    result.failed++;
-    result.errors.push({
-      index,
-      message: orderError?.message ?? "建立訂單失敗",
-    });
-    return;
+    return { index, message: orderError?.message ?? "建立訂單失敗" };
   }
 
   // 2. 建立 customers 記錄
@@ -138,13 +155,8 @@ async function insertOrder(
   if (customerError) {
     // rollback：刪除已建立的 order
     await supabase.from("orders").delete().eq("id", orderData.id);
-    result.failed++;
-    result.errors.push({
-      index,
-      message: customerError.message ?? "建立客戶記錄失敗",
-    });
-    return;
+    return { index, message: customerError.message ?? "建立客戶記錄失敗" };
   }
 
-  result.success++;
+  return null;
 }

@@ -18,6 +18,8 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const batchMutation = orderApi.batchUpdateStatus.useMutation();
+  const mutateRef = useRef(batchMutation.mutate);
+  mutateRef.current = batchMutation.mutate;
 
   const checkedOrders = useMemo(
     () => orders.filter((o) => checkedIds.has(o.id)),
@@ -39,7 +41,7 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
 
     window.print();
 
-    batchMutation.mutate(
+    mutateRef.current(
       { ids: upToDateIds, paymentStatus: "invoiced" },
       {
         onSuccess: () =>
@@ -47,11 +49,11 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
         onError: (err) => toast.error(err.message),
       }
     );
-  }, [checkedOrders, batchMutation]);
+  }, [checkedOrders]);
 
   const handleConfirmPaid = useCallback(() => {
     if (invoicedIds.length === 0) return;
-    batchMutation.mutate(
+    mutateRef.current(
       {
         ids: invoicedIds,
         paymentStatus: "up_to_date",
@@ -65,7 +67,7 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
         onError: (err) => toast.error(err.message),
       }
     );
-  }, [invoicedIds, batchMutation]);
+  }, [invoicedIds]);
 
   const printableOrders = useMemo(
     () => checkedOrders.filter((o) => o.paymentStatus === "up_to_date"),
