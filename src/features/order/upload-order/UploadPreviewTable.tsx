@@ -41,7 +41,7 @@ const UploadPreviewTable: React.FC<UploadPreviewTableProps> = (props) => {
       </div>
 
       <div className="max-h-64 overflow-auto rounded-md border">
-        <table className="w-full text-sm">
+        <table className="min-w-[800px] w-full text-sm">
           <thead className="sticky top-0 bg-gray-50">
             <tr>
               <th className="px-3 py-2 text-left font-medium text-gray-600">
