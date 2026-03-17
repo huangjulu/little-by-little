@@ -98,19 +98,9 @@ const OrderRow: React.FC<OrderRowProps> = (props) => {
       <td
         className={cn(
           "overflow-hidden transition-all duration-300 ease-in-out",
-          props.billingMode
-            ? "w-24 max-w-24 opacity-100 p-3"
-            : "w-0 max-w-0 opacity-0 p-0 border-0"
+          "w-0 max-w-0 opacity-0 p-0 border-0"
         )}
-      >
-        <BillingButton
-          paymentStatus={order.paymentStatus}
-          isPrinted={props.isPrinted}
-          billingMode={props.billingMode}
-          onPrint={() => props.onPrint?.()}
-          onMarkPaid={() => props.onMarkPaid?.()}
-        />
-      </td>
+      />
     </tr>
   );
 };

@@ -11,10 +11,12 @@ interface BillingActionBarProps {
   orders: Order[];
   checkedIds: Set<string>;
   onSelectAll: () => void;
+  onDeselectAll: () => void;
 }
 
 const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
   const { orders, checkedIds } = props;
+  const isAllSelected = orders.length > 0 && checkedIds.size === orders.length;
   const printRef = useRef<HTMLDivElement>(null);
 
   const batchMutation = orderApi.batchUpdateStatus.useMutation();
@@ -81,10 +83,10 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
 
         <button
           type="button"
-          onClick={props.onSelectAll}
+          onClick={isAllSelected ? props.onDeselectAll : props.onSelectAll}
           className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50"
         >
-          全選
+          {isAllSelected ? "取消全選" : "全選"}
         </button>
 
         {upToDateCount > 0 && (

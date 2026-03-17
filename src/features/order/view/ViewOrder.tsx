@@ -92,6 +92,22 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
     setCheckedIds(new Set(filteredOrders.map((o) => o.id)));
   }, [filteredOrders]);
 
+  useEffect(
+    function autoSelectOnBillingMode() {
+      if (isBillingMode && filteredOrders.length > 0) {
+        setCheckedIds(new Set(filteredOrders.map((o) => o.id)));
+      }
+      if (!isBillingMode) {
+        setCheckedIds(new Set());
+      }
+    },
+    [isBillingMode, filteredOrders]
+  );
+
+  const handleDeselectAll = useCallback(() => {
+    setCheckedIds(new Set());
+  }, []);
+
   const searchFilter = useMemo(
     () => ({
       active:
@@ -177,11 +193,12 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
         placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
 
-      {isBillingMode && checkedIds.size > 0 && (
+      {isBillingMode && (
         <BillingActionBar
           orders={filteredOrders}
           checkedIds={checkedIds}
           onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
         />
       )}
 
