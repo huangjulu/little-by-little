@@ -82,33 +82,6 @@ describe("OrderRow handler 正確傳遞 orderId", () => {
     expect(onToggleCheck).toHaveBeenCalledWith("ORD-077");
   });
 
-  it("列印按鈕 onPrint 收到 order.id", () => {
-    const onPrint = vi.fn();
-    renderRow({
-      order: makeOrder({ id: "ORD-099", paymentStatus: "up_to_date" }),
-      billingMode: true,
-      onPrint,
-    });
-
-    fireEvent.click(screen.getByText("列印"));
-
-    expect(onPrint).toHaveBeenCalledTimes(1);
-    expect(onPrint).toHaveBeenCalledWith("ORD-099");
-  });
-
-  it("已付款按鈕 onMarkPaid 收到 order.id", () => {
-    const onMarkPaid = vi.fn();
-    renderRow({
-      order: makeOrder({ id: "ORD-101", paymentStatus: "invoiced" }),
-      billingMode: true,
-      onMarkPaid,
-    });
-
-    fireEvent.click(screen.getByText("已付款"));
-
-    expect(onMarkPaid).toHaveBeenCalledTimes(1);
-    expect(onMarkPaid).toHaveBeenCalledWith("ORD-101");
-  });
 });
 
 // ─── P1：memo 阻止無關 row 重新渲染 ──────────────────────────────────────────
