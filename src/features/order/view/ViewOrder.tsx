@@ -147,7 +147,16 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
         markInvoicedMutation.mutate(
           { ids: [id], paymentStatus: "invoiced" },
           {
-            onSuccess: () => toast.success("已標記為「已出帳」"),
+            onSuccess: () => {
+              toast.success("已標記為「已出帳」");
+              setTimeout(() => {
+                setPrintedIds((prev) => {
+                  const next = new Set(prev);
+                  next.delete(id);
+                  return next;
+                });
+              }, 1000);
+            },
             onError: (err) => toast.error(err.message),
           }
         );
