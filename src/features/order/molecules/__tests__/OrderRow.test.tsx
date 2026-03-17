@@ -81,7 +81,6 @@ describe("OrderRow handler 正確傳遞 orderId", () => {
     expect(onToggleCheck).toHaveBeenCalledTimes(1);
     expect(onToggleCheck).toHaveBeenCalledWith("ORD-077");
   });
-
 });
 
 // ─── P1：memo 阻止無關 row 重新渲染 ──────────────────────────────────────────

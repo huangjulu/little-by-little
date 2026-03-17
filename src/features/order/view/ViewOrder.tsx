@@ -273,7 +273,6 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
             error={safeError}
             onPrint={() => handlePrint(OrderData.id)}
             onMarkPaid={() => handleMarkPaid(OrderData.id)}
-
           />
         )}
       </div>
