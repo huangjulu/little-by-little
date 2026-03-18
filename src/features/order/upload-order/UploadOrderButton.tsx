@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload } from "lucide-react";
+import { Upload as IconUpload } from "lucide-react";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const UploadOrderButton: React.FC<UploadOrderButtonProps> = (props) => {
         )}
         aria-label="匯入訂單"
       >
-        <Upload className="h-4 w-4" />
+        <IconUpload className="h-4 w-4" />
         匯入
       </button>
 

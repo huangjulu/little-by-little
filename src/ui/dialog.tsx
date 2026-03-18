@@ -1,7 +1,7 @@
 "use client";
 
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { X as CloseIcon } from "lucide-react";
 import { createContext, useContext } from "react";
 
 import { cn } from "@/lib/utils";
@@ -83,7 +83,7 @@ const DialogHeader: React.FC<DialogHeaderProps> = (props) => {
     >
       {props.isClosable && (
         <RadixDialog.Close className="absolute cursor-pointer right-0 top-0 -translate-2 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
-          <X className="h-4 w-4" />
+          <CloseIcon className="h-4 w-4" />
           <span className="sr-only">關閉</span>
         </RadixDialog.Close>
       )}

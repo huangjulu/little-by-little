@@ -2,8 +2,8 @@
  * 格式化日期時間為中文格式
  */
 export function formatDate(dateString: string): string {
-  if (dateString === "") {
-    return "Invalid string";
+  if (!dateString) {
+    return "-";
   }
 
   return new Intl.DateTimeFormat("zh-TW", {

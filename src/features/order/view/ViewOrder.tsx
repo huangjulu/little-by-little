@@ -1,194 +1,100 @@
 "use client";
 
-import {
-  parseAsInteger,
-  parseAsString,
-  parseAsStringLiteral,
-  useQueryState,
-} from "nuqs";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
+import { downloadBillingPdf } from "../billing/billing-notice.utils";
 import BillingActionBar from "../billing/BillingActionBar";
-import PrintableNotice from "../billing/PrintableNotice";
 import SearchInput from "../molecules/SearchInput";
 import { orderApi } from "../order.api";
 import OrderDetailPanel from "../organisms/OrderDetailPanel";
 import OrderHeader from "../organisms/OrderHeader";
 import OrderTable from "../organisms/OrderTable";
-import type { StatusFilterValue } from "../types";
+import type { Order } from "../types";
 import DataTableSkeleton from "./DataTableSkeleton";
 import PanelDetailSkeleton from "./PanelDetailSkeleton";
-
-const PAGE_SIZE = 20;
-const STATUS_OPTIONS = ["all", "active", "inactive"] as const;
+import useCheckedOrders from "./useCheckedOrders";
+import useOrderFilters from "./useOrderFilters";
 
 const ViewOrder: React.FC<{ className?: string }> = (props) => {
-  const [keyword, setKeyword] = useQueryState(
-    "keyword",
-    parseAsString.withDefault("")
-  );
-  const [status, setStatus] = useQueryState(
-    "status",
-    parseAsStringLiteral(STATUS_OPTIONS).withDefault("all")
-  );
-  const [selectedId, setSelectedId] = useQueryState("orderId", parseAsString);
-  const [billing, setBilling] = useQueryState("billing", parseAsString);
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const filters = useOrderFilters();
 
   const {
     data: ordersData,
     isLoading: isLoadingOrders,
     error: ordersError,
   } = orderApi.getOrders.useQuery({
-    status: status !== "all" ? status : undefined,
-    billing: billing === "next-month" ? "next-month" : undefined,
-    keyword: keyword.trim() || undefined,
-    page,
-    pageSize: PAGE_SIZE,
+    status: filters.status !== "all" ? filters.status : undefined,
+    billing:
+      filters.billing === "next-month"
+        ? "next-month"
+        : filters.billing === "overdue"
+        ? "overdue"
+        : undefined,
+    keyword: filters.keyword.trim() || undefined,
+    page: filters.page,
+    pageSize: filters.pageSize,
   });
 
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
-  const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
-  const [printingId, setPrintingId] = useState<string | null>(null);
-  const printingIdRef = useRef<string | null>(null);
-  const markInvoicedMutation = orderApi.batchUpdateStatus.useMutation();
-  const markPaidMutation = orderApi.batchUpdateStatus.useMutation();
-
-  const isBillingMode = billing === "next-month";
   const filteredOrders = useMemo(
     () => ordersData?.orders ?? [],
     [ordersData?.orders]
   );
   const totalOrders = ordersData?.total ?? 0;
-  const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
+  const totalPages = Math.ceil(totalOrders / filters.pageSize);
 
-  const { data: OrderData, isLoading: isLoadingOrderDetail } =
-    orderApi.getOrder.useQuery(selectedId ?? null);
-
-  const safeError = ordersError instanceof Error ? ordersError : null;
-
-  const handleFiltersChange = useCallback(
-    (patch: Partial<{ keyword: string; status: StatusFilterValue }>) => {
-      if (patch.keyword !== undefined) void setKeyword(patch.keyword);
-      if (patch.status !== undefined) void setStatus(patch.status);
-      void setPage(1);
-    },
-    [setKeyword, setStatus, setPage]
-  );
-
-  const handleToggleCheck = useCallback((id: string) => {
-    setCheckedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const handleSelectAll = useCallback(() => {
-    setCheckedIds(new Set(filteredOrders.map((o) => o.id)));
-  }, [filteredOrders]);
-
-  useEffect(
-    function autoSelectOnBillingMode() {
-      if (isBillingMode && filteredOrders.length > 0) {
-        setCheckedIds(new Set(filteredOrders.map((o) => o.id)));
-      }
-      if (!isBillingMode) {
-        setCheckedIds(new Set());
-      }
-    },
-    [isBillingMode, filteredOrders]
-  );
-
-  const handleDeselectAll = useCallback(() => {
-    setCheckedIds(new Set());
-  }, []);
+  const {
+    scheduleAutoSelect,
+    deselectAll,
+    selectAll,
+    selectByIds,
+    checkedIds,
+    toggle,
+  } = useCheckedOrders(filteredOrders);
 
   const searchFilter = useMemo(
     () => ({
-      active:
-        billing === "next-month"
-          ? { key: "billing:next-month", label: "下個月繳費名單" }
-          : null,
+      ...filters.searchFilter,
       onSelect: (option: { key: string }) => {
-        if (option.key === "billing:next-month") {
-          void setBilling("next-month");
-          void setSelectedId(null);
-          void setKeyword("");
-          void setPage(1);
-        }
+        scheduleAutoSelect();
+        filters.searchFilter.onSelect(option);
       },
       onClear: () => {
-        void setBilling(null);
-        void setPage(1);
-        setCheckedIds(new Set());
+        filters.searchFilter.onClear();
+        deselectAll();
       },
     }),
-    [billing, setBilling, setSelectedId, setKeyword, setPage]
+    [filters.searchFilter, scheduleAutoSelect, deselectAll]
   );
 
-  const handlePrint = useCallback((id: string) => {
-    printingIdRef.current = id;
-    setPrintingId(id);
-    requestAnimationFrame(() => {
-      window.print();
-    });
-  }, []);
+  const { data: orderDetail, isLoading: isLoadingOrderDetail } =
+    orderApi.getOrder.useQuery(filters.selectedId ?? null);
 
-  useEffect(
-    function listenAfterPrint() {
-      function handleAfterPrint() {
-        const id = printingIdRef.current;
-        if (!id) return;
-        markInvoicedMutation.mutate(
-          { ids: [id], paymentStatus: "invoiced" },
-          {
-            onSuccess: () => {
-              toast.success("已標記為「已出帳」");
-              setTimeout(() => {
-                setPrintedIds((prev) => {
-                  const next = new Set(prev);
-                  next.delete(id);
-                  return next;
-                });
-              }, 1000);
-            },
-            onError: (err) => toast.error(err.message),
-          }
-        );
-        setPrintedIds((prev) => new Set(prev).add(id));
-        printingIdRef.current = null;
-        setPrintingId(null);
-      }
+  const safeError = ordersError instanceof Error ? ordersError : null;
 
-      window.addEventListener("afterprint", handleAfterPrint);
-      return () => window.removeEventListener("afterprint", handleAfterPrint);
-    },
-    [markInvoicedMutation]
-  );
+  const markAsNotified = orderApi.batchUpdateStatus.useMutation();
 
-  const handleMarkPaid = useCallback(
-    (id: string) => {
-      markPaidMutation.mutate(
-        { ids: [id], paymentStatus: "up_to_date", updateBillingDate: true },
-        {
-          onSuccess: () => toast.success("已標記為「正常繳費」並續期"),
-          onError: (err) => toast.error(err.message),
+  const handleDownloadNotice = useCallback(
+    async (order: Order) => {
+      try {
+        await downloadBillingPdf([order]);
+        if (order.paymentStatus === "up_to_date") {
+          markAsNotified.mutate(
+            { ids: [order.id], paymentStatus: "waiting_for_payment" },
+            {
+              onSuccess: () =>
+                toast.success("已下載繳費通知，並標記為「已通知」"),
+              onError: (err) => toast.error(err.message),
+            }
+          );
         }
-      );
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "下載失敗");
+      }
     },
-    [markPaidMutation]
-  );
-
-  const handleOrderClick = useCallback(
-    (orderId: string) => {
-      void setSelectedId((prev) => (prev === orderId ? null : orderId));
-    },
-    [setSelectedId]
+    [markAsNotified]
   );
 
   return (
@@ -196,25 +102,26 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
       <OrderHeader orders={filteredOrders} />
 
       <SearchInput
-        value={keyword}
-        onChange={(v) => handleFiltersChange({ keyword: v })}
+        value={filters.keyword}
+        onChange={(v) => filters.handleFiltersChange({ keyword: v })}
         filter={searchFilter}
         placeholder="以 編號 / 客戶姓名 / 手機 / 社區 搜尋"
       />
 
-      {isBillingMode && (
+      {filters.isBillingMode && (
         <BillingActionBar
           orders={filteredOrders}
           checkedIds={checkedIds}
-          onSelectAll={handleSelectAll}
-          onDeselectAll={handleDeselectAll}
+          onSelectAll={selectAll}
+          onDeselectAll={deselectAll}
+          onSelectByIds={selectByIds}
         />
       )}
 
       <div
         className={cn(
           "grid gap-4",
-          selectedId
+          filters.selectedId
             ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)] col-span-2"
             : "col-span-2"
         )}
@@ -225,35 +132,41 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
           <div className="flex flex-col gap-3">
             <OrderTable
               orders={filteredOrders}
-              selectedOrderId={selectedId}
-              onOrderClick={handleOrderClick}
               isLoading={false}
-              billingMode={isBillingMode}
-              checkedIds={checkedIds}
-              onToggleCheck={handleToggleCheck}
-              onPrint={handlePrint}
-              onMarkPaid={handleMarkPaid}
-              printedIds={printedIds}
-              hideUpload={!!selectedId}
+              checkbox={
+                filters.isBillingMode
+                  ? {
+                      checkedIds,
+                      onToggle: toggle,
+                      onSelectAll: selectAll,
+                      onDeselectAll: deselectAll,
+                    }
+                  : undefined
+              }
+              hideUpload={!!filters.selectedId}
             />
 
             {totalPages > 1 && (
               <div className="flex items-center justify-end gap-3 px-1 text-sm text-gray-500">
                 <button
-                  onClick={() => void setPage((p) => Math.max(1, (p ?? 1) - 1))}
-                  disabled={page <= 1}
+                  onClick={() =>
+                    void filters.setPage((p) => Math.max(1, (p ?? 1) - 1))
+                  }
+                  disabled={filters.page <= 1}
                   className="rounded-lg px-3 py-1.5 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   上一頁
                 </button>
                 <span className="text-xs">
-                  第 {page} 頁，共 {totalPages} 頁（{totalOrders} 筆）
+                  第 {filters.page} 頁，共 {totalPages} 頁（{totalOrders} 筆）
                 </span>
                 <button
                   onClick={() =>
-                    void setPage((p) => Math.min(totalPages, (p ?? 1) + 1))
+                    void filters.setPage((p) =>
+                      Math.min(totalPages, (p ?? 1) + 1)
+                    )
                   }
-                  disabled={page >= totalPages}
+                  disabled={filters.page >= totalPages}
                   className="rounded-lg px-3 py-1.5 ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   下一頁
@@ -263,25 +176,18 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
           </div>
         )}
 
-        {selectedId && (!OrderData || isLoadingOrderDetail) && (
+        {filters.selectedId && (!orderDetail || isLoadingOrderDetail) && (
           <PanelDetailSkeleton contentSections={3} />
         )}
 
-        {selectedId && OrderData && (
+        {filters.selectedId && orderDetail && (
           <OrderDetailPanel
-            order={OrderData}
+            order={orderDetail}
             error={safeError}
-            onPrint={() => handlePrint(OrderData.id)}
-            onMarkPaid={() => handleMarkPaid(OrderData.id)}
+            onDownload={() => handleDownloadNotice(orderDetail)}
           />
         )}
       </div>
-
-      {printingId && (
-        <PrintableNotice
-          orders={filteredOrders.filter((o) => o.id === printingId)}
-        />
-      )}
     </div>
   );
 };

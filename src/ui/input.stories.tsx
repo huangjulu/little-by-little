@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { AlertTriangle, Plus } from "lucide-react";
+import {
+  AlertTriangle as IconAlertTriangle,
+  Plus as IconPlus,
+} from "lucide-react";
 import React from "react";
 import { useState } from "react";
 
@@ -64,7 +67,7 @@ const InputShell: React.FC<InputStoryProps> = ({
       >
         {hasLeftIcon && (
           <span className="mr-2 inline-flex text-muted-foreground">
-            <Plus className="h-4 w-4" />
+            <IconPlus className="h-4 w-4" />
           </span>
         )}
 
@@ -85,15 +88,15 @@ const InputShell: React.FC<InputStoryProps> = ({
 
         {hasRightIcon && (
           <span className="ml-2 inline-flex text-muted-foreground">
-            {status === "default" && <Plus className="h-4 w-4" />}
+            {status === "default" && <IconPlus className="h-4 w-4" />}
             {status === "success" && (
               <span className="h-2 w-2 rounded-full bg-green-500" />
             )}
             {status === "warning" && (
-              <AlertTriangle className="h-[1.125rem] w-[1.125rem] text-yellow-500" />
+              <IconAlertTriangle className="h-[1.125rem] w-[1.125rem] text-yellow-500" />
             )}
             {status === "error" && (
-              <AlertTriangle className="h-[1.125rem] w-[1.125rem] text-destructive" />
+              <IconAlertTriangle className="h-[1.125rem] w-[1.125rem] text-destructive" />
             )}
           </span>
         )}

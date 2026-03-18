@@ -48,8 +48,8 @@ describe("isPaymentStatus", () => {
     expect(isPaymentStatus("up_to_date")).toBe(true);
   });
 
-  it('"invoiced" 應回傳 true', () => {
-    expect(isPaymentStatus("invoiced")).toBe(true);
+  it('"waiting_for_payment" 應回傳 true', () => {
+    expect(isPaymentStatus("waiting_for_payment")).toBe(true);
   });
 
   it('"overdue" 應回傳 true', () => {
@@ -102,10 +102,10 @@ describe("mapToOrder", () => {
     expect(order.paymentStatus).toBe("up_to_date");
   });
 
-  it('payment_status="invoiced" 應正確映射', () => {
-    const row = { ...baseRow, payment_status: "invoiced" };
+  it('payment_status="waiting_for_payment" 應正確映射', () => {
+    const row = { ...baseRow, payment_status: "waiting_for_payment" };
     const order = mapToOrder(row as never);
-    expect(order.paymentStatus).toBe("invoiced");
+    expect(order.paymentStatus).toBe("waiting_for_payment");
   });
 
   it('payment_status="overdue" 應正確映射', () => {
@@ -179,9 +179,9 @@ describe("statusBadgeVariant", () => {
 
 describe("paymentStatusLabel", () => {
   it("應包含 3 個繳費狀態標籤", () => {
-    expect(paymentStatusLabel.up_to_date).toBe("正常繳費");
-    expect(paymentStatusLabel.invoiced).toBe("已出帳");
-    expect(paymentStatusLabel.overdue).toBe("逾期未繳");
+    expect(paymentStatusLabel.up_to_date).toBe("正常");
+    expect(paymentStatusLabel.waiting_for_payment).toBe("已通知");
+    expect(paymentStatusLabel.overdue).toBe("逾期");
   });
 });
 
@@ -190,8 +190,8 @@ describe("paymentBadgeVariant", () => {
     expect(paymentBadgeVariant.up_to_date).toBe("info");
   });
 
-  it("invoiced 應映射為 warning variant", () => {
-    expect(paymentBadgeVariant.invoiced).toBe("warning");
+  it("waiting_for_payment 應映射為 warning variant", () => {
+    expect(paymentBadgeVariant.waiting_for_payment).toBe("warning");
   });
 
   it("overdue 應映射為 alert variant", () => {

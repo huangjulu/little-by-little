@@ -1,4 +1,4 @@
-import { Check, Printer } from "lucide-react";
+import { Download as IconDownload } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -18,8 +18,7 @@ import type { Order } from "../types";
 interface OrderDetailPanelProps {
   order: Order;
   error?: Error | null;
-  onPrint?: () => void;
-  onMarkPaid?: () => void;
+  onDownload?: () => void;
   className?: string;
 }
 
@@ -119,27 +118,16 @@ const OrderDetailPanel: React.FC<OrderDetailPanelProps> = (props) => {
           </div>
         </div>
 
-        {props.onPrint && (
+        {props.onDownload && (
           <div className="flex justify-start">
-            {order.paymentStatus === "invoiced" ? (
-              <button
-                type="button"
-                onClick={props.onMarkPaid}
-                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-              >
-                <Check className="size-3.5" />
-                已付款
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={props.onPrint}
-                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-              >
-                <Printer className="size-3.5" />
-                列印
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={props.onDownload}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+            >
+              <IconDownload className="size-3.5" />
+              下載繳費通知
+            </button>
           </div>
         )}
       </CardContent>

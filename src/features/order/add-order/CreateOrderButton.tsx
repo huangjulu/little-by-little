@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus as IconPlus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ const CreateOrderForm: React.FC<CreateOrderButtonProps> = (props) => {
         )}
         aria-label="建立新訂單"
       >
-        <Plus className="h-5 w-5" />
+        <IconPlus className="h-5 w-5" />
       </button>
 
       {props.open && (

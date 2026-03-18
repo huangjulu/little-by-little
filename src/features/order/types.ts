@@ -1,7 +1,7 @@
 // ─── Domain Types ─────────────────────────────────────────────────────────────
 
 export type OrderStatus = "active" | "inactive";
-export type PaymentStatus = "up_to_date" | "invoiced" | "overdue";
+export type PaymentStatus = "up_to_date" | "waiting_for_payment" | "overdue";
 export type StatusFilterValue = "all" | OrderStatus;
 
 export type CustomerInfoData = {
@@ -39,6 +39,7 @@ export type Order = {
   yearlyBonusMonths: number | null;
   twoYearFee: number | null;
   twoYearBonusMonths: number | null;
+  lastNoticeDownloadedAt: string | null;
 };
 
 export type StatusFilterOption = {
@@ -59,7 +60,7 @@ export interface ApiResponse<T> {
 
 export interface GetOrdersParams {
   status?: StatusFilterValue;
-  billing?: "next-month";
+  billing?: "next-month" | "overdue";
   keyword?: string;
   page?: number;
   pageSize?: number;

@@ -1,112 +1,75 @@
 "use client";
 
-import { Download } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
+import {
+  CheckCircle as IconCheckCircle,
+  Download as IconDownload,
+  Info as IconInfo,
+} from "lucide-react";
 
 import Dialog from "@/ui/dialog";
 
-import { orderApi } from "../order.api";
 import type { Order } from "../types";
-import PrintableNotice from "./PrintableNotice";
+import useBillingActions from "./useBillingActions";
+
+interface BillingActionBarProps {
+  orders: Order[];
+  checkedIds: Set<string>;
+  onSelectAll: () => void;
+  onDeselectAll: () => void;
+  onSelectByIds: (ids: string[]) => void;
+}
 
 const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
-  const { orders, checkedIds } = props;
-  const isAllSelected = orders.length > 0 && checkedIds.size === orders.length;
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const isAllSelected =
+    props.orders.length > 0 && props.checkedIds.size === props.orders.length;
 
-  const batchMutation = orderApi.batchUpdateStatus.useMutation();
-  const mutateRef = useRef(batchMutation.mutate);
-  mutateRef.current = batchMutation.mutate;
-
-  const checkedOrders = useMemo(
-    () => orders.filter((o) => checkedIds.has(o.id)),
-    [orders, checkedIds]
-  );
-
-  const printableOrders = useMemo(
-    () => checkedOrders.filter((o) => o.paymentStatus === "up_to_date"),
-    [checkedOrders]
-  );
-
-  const invoicedIds = checkedOrders
-    .filter((o) => o.paymentStatus === "invoiced")
-    .map((o) => o.id);
-
-  const handleOpenPreview = useCallback(() => {
-    if (printableOrders.length === 0) return;
-    setPreviewOpen(true);
-  }, [printableOrders.length]);
-
-  const handleConfirmDownload = useCallback(async () => {
-    const ids = printableOrders.map((o) => o.id);
-    setDownloading(true);
-
-    try {
-      // 1. 產生 PDF
-      const pdfRes = await fetch("/api/orders/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orders: printableOrders }),
-      });
-
-      if (!pdfRes.ok) {
-        const err = await pdfRes.json().catch(() => null);
-        throw new Error(err?.message ?? "PDF 產生失敗");
-      }
-
-      // 2. 觸發瀏覽器下載
-      const blob = await pdfRes.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "billing-notice.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-
-      // 3. 下載成功後，改狀態為「已出帳」
-      mutateRef.current(
-        { ids, paymentStatus: "invoiced" },
-        {
-          onSuccess: () =>
-            toast.success(`已下載 ${ids.length} 筆繳費通知並標記為「已出帳」`),
-          onError: (err) => toast.error(err.message),
-        }
-      );
-
-      setPreviewOpen(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "下載失敗");
-    } finally {
-      setDownloading(false);
-    }
-  }, [printableOrders]);
-
-  const handleConfirmPaid = useCallback(() => {
-    if (invoicedIds.length === 0) return;
-    mutateRef.current(
-      {
-        ids: invoicedIds,
-        paymentStatus: "up_to_date",
-        updateBillingDate: true,
-      },
-      {
-        onSuccess: () =>
-          toast.success(
-            `已將 ${invoicedIds.length} 筆訂單標記為「正常繳費」並續期`
-          ),
-        onError: (err) => toast.error(err.message),
-      }
-    );
-  }, [invoicedIds]);
+  const billing = useBillingActions(props.orders, props.checkedIds);
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-        <span className="mr-auto text-sm font-medium text-amber-800">
-          已選取 {checkedIds.size} 筆
-        </span>
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+        <IconInfo className="size-4 shrink-0 text-blue-600" />
+
+        <div className="mr-auto text-sm text-blue-800">
+          <p>
+            {billing.totalPrintable > 0 && (
+              <>
+                有{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ids = props.orders
+                      .filter((o) => o.paymentStatus === "up_to_date")
+                      .map((o) => o.id);
+                    props.onSelectByIds(ids);
+                  }}
+                  className="font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-800"
+                >
+                  {billing.totalPrintable} 筆
+                </button>{" "}
+                繳費通知尚未下載。
+              </>
+            )}
+            {billing.totalWaitingForPayment > 0 && (
+              <>
+                已下載的{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ids = props.orders
+                      .filter((o) => o.paymentStatus === "waiting_for_payment")
+                      .map((o) => o.id);
+                    props.onSelectByIds(ids);
+                  }}
+                  className="font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-800 cursor-pointer"
+                >
+                  {billing.totalWaitingForPayment} 筆
+                </button>{" "}
+                繳費通知請確認寄出，收到匯款後點擊確認繳費
+              </>
+            )}
+          </p>
+        </div>
 
         <button
           type="button"
@@ -116,45 +79,53 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
           {isAllSelected ? "取消全選" : "全選"}
         </button>
 
-        {printableOrders.length > 0 && (
+        {billing.downloadableOrders.length > 0 && (
           <button
             type="button"
-            onClick={handleOpenPreview}
+            onClick={billing.openDownloadConfirm}
             className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50"
           >
-            <Download className="size-3.5" />
-            下載繳費通知 ({printableOrders.length})
+            <IconDownload className="size-3.5" />
+            下載繳費通知 ({billing.downloadableOrders.length})
           </button>
         )}
 
-        {invoicedIds.length > 0 && (
+        {billing.waitingForPaymentIds.length > 0 && (
           <button
             type="button"
-            onClick={handleConfirmPaid}
-            disabled={batchMutation.isPending}
-            className="rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50"
+            onClick={billing.openPaidConfirm}
+            disabled={billing.isPending}
+            className="rounded-md bg-gray-800 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-gray-700 disabled:opacity-50"
           >
-            {batchMutation.isPending
+            {billing.isPending
               ? "處理中..."
-              : `確認繳費 (${invoicedIds.length})`}
+              : `確認繳費 (${billing.waitingForPaymentIds.length})`}
           </button>
         )}
       </div>
 
-      {/* 繳費通知預覽 Dialog */}
-      <Dialog.Root open={previewOpen} onOpenChange={setPreviewOpen}>
-        <Dialog.Content size="lg" className="sm:max-w-4xl max-h-[95vh]">
+      {/* 下載繳費通知二次確認 Dialog */}
+      <Dialog.Root
+        open={billing.doubleConfirmType === "download"}
+        onOpenChange={(open) => {
+          if (!open) billing.closeDoubleConfirm();
+        }}
+      >
+        <Dialog.Content size="sm">
           <Dialog.Header isClosable>
             <Dialog.Title>
-              繳費通知預覽（{printableOrders.length} 筆）
+              確定下載{" "}
+              <span className="text-blue-600">
+                {billing.downloadableOrders.length}
+              </span>{" "}
+              筆繳費通知嗎？
             </Dialog.Title>
-            <Dialog.Description>
-              請確認以下內容無誤後，點選「確認下載」
-            </Dialog.Description>
           </Dialog.Header>
 
           <Dialog.Body>
-            <PrintableNotice orders={printableOrders} />
+            <p className="text-sm text-gray-500">
+              下載完後即可寄送信件，等到後續有收到客戶匯款，即可切換訂單狀態，改成「已付款」。
+            </p>
           </Dialog.Body>
 
           <Dialog.Footer>
@@ -168,12 +139,58 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
             </Dialog.Close>
             <button
               type="button"
-              onClick={handleConfirmDownload}
-              disabled={downloading}
+              onClick={billing.confirmDownload}
+              disabled={billing.downloading}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
             >
-              <Download className="size-3.5" />
-              {downloading ? "產生中..." : "確認下載"}
+              <IconDownload className="size-3.5" />
+              {billing.downloading ? "產生中..." : "確認下載"}
+            </button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog.Root>
+
+      {/* 確認繳費二次確認 Dialog */}
+      <Dialog.Root
+        open={billing.doubleConfirmType === "paid"}
+        onOpenChange={(open) => {
+          if (!open) billing.closeDoubleConfirm();
+        }}
+      >
+        <Dialog.Content size="sm">
+          <Dialog.Header isClosable>
+            <Dialog.Title>
+              確定這{" "}
+              <span className="text-blue-600">
+                {billing.waitingForPaymentIds.length}
+              </span>{" "}
+              筆客戶繳費了嗎？
+            </Dialog.Title>
+          </Dialog.Header>
+
+          <Dialog.Body>
+            <p className="text-sm text-gray-500">
+              確認後會將把這些客戶的繳費狀態改為「正常繳費」，並自動續期下次計費日。
+            </p>
+          </Dialog.Body>
+
+          <Dialog.Footer>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="inline-flex flex-1 justify-center rounded-md border px-4 py-2 text-sm"
+              >
+                取消
+              </button>
+            </Dialog.Close>
+            <button
+              type="button"
+              onClick={billing.confirmPaid}
+              disabled={billing.isPending}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              <IconCheckCircle className="size-3.5" />
+              {billing.isPending ? "處理中..." : "確認繳費"}
             </button>
           </Dialog.Footer>
         </Dialog.Content>
@@ -181,14 +198,6 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
     </>
   );
 };
-
-// Types
-interface BillingActionBarProps {
-  orders: Order[];
-  checkedIds: Set<string>;
-  onSelectAll: () => void;
-  onDeselectAll: () => void;
-}
 
 BillingActionBar.displayName = "BillingActionBar";
 

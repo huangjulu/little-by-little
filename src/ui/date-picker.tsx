@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon as IconCalendar } from "lucide-react";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -52,7 +52,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
               ? format(props.value, "yyyy/MM/dd", { locale: zhTW })
               : placeholder}
           </span>
-          <CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <IconCalendar className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

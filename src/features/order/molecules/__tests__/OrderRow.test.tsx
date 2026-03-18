@@ -37,6 +37,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     yearlyBonusMonths: null,
     twoYearFee: null,
     twoYearBonusMonths: null,
+    lastNoticeDownloadedAt: null,
     ...overrides,
   };
 }
@@ -59,27 +60,29 @@ function renderRow(
 describe("OrderRow handler 正確傳遞 orderId", () => {
   it("點擊 row 時 onOrderClick 收到 order.id", () => {
     const onOrderClick = vi.fn();
-    renderRow({ order: makeOrder({ id: "ORD-042" }), onOrderClick });
+    renderRow({
+      order: makeOrder({ id: "ORD-042", communityName: "測試社區" }),
+      onOrderClick,
+    });
 
-    fireEvent.click(screen.getByText("ORD-042").closest("tr")!);
+    fireEvent.click(screen.getByText("測試社區").closest("tr")!);
 
     expect(onOrderClick).toHaveBeenCalledTimes(1);
     expect(onOrderClick).toHaveBeenCalledWith("ORD-042");
   });
 
-  it("勾選 checkbox 時 onToggleCheck 收到 order.id", () => {
-    const onToggleCheck = vi.fn();
+  it("勾選 checkbox 時 onToggle 收到 order.id", () => {
+    const onToggle = vi.fn();
     renderRow({
       order: makeOrder({ id: "ORD-077" }),
-      billingMode: true,
-      onToggleCheck,
+      checkbox: { checked: false, onToggle },
     });
 
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
 
-    expect(onToggleCheck).toHaveBeenCalledTimes(1);
-    expect(onToggleCheck).toHaveBeenCalledWith("ORD-077");
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(onToggle).toHaveBeenCalledWith("ORD-077");
   });
 });
 

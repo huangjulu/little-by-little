@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 
 const VALID_PAYMENT_STATUSES: PaymentStatus[] = [
   "up_to_date",
-  "invoiced",
+  "waiting_for_payment",
   "overdue",
 ];
 
@@ -21,6 +21,7 @@ interface BatchStatusBody {
  * 批量更新 payment_status（含可選的 billing date 續期）
  */
 export async function PATCH(request: NextRequest) {
+  // Guard 1: request body 必須是合法 JSON
   let body: BatchStatusBody;
   try {
     body = await request.json();
@@ -31,6 +32,7 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  // Guard 2: ids 必須存在且為陣列
   if (!body.ids || !Array.isArray(body.ids)) {
     return NextResponse.json(
       { error: true, message: "ids 必須為陣列" },
@@ -38,6 +40,7 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  // Guard 3: paymentStatus 必須是允許的枚舉值
   if (
     !body.paymentStatus ||
     !VALID_PAYMENT_STATUSES.includes(body.paymentStatus)

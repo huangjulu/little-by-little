@@ -15,14 +15,14 @@ export const statusBadgeVariant: Record<OrderStatus, BadgeVariant> = {
 };
 
 export const paymentStatusLabel: Record<PaymentStatus, string> = {
-  up_to_date: "正常繳費",
-  invoiced: "已出帳",
-  overdue: "逾期未繳",
+  up_to_date: "正常",
+  waiting_for_payment: "已通知",
+  overdue: "逾期",
 };
 
 export const paymentBadgeVariant: Record<PaymentStatus, BadgeVariant> = {
   up_to_date: "info",
-  invoiced: "warning",
+  waiting_for_payment: "warning",
   overdue: "alert",
 };
 

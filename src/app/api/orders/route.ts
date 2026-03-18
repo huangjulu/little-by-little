@@ -43,6 +43,9 @@ export async function GET(request: NextRequest) {
       query = query
         .gte("orders.next_billing_date", start)
         .lte("orders.next_billing_date", end);
+    } else if (billing === "overdue") {
+      const today = new Date().toISOString().split("T")[0];
+      query = query.lt("orders.payment_deadline", today);
     }
 
     if (keyword) {

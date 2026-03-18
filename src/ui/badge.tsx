@@ -1,8 +1,16 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { X } from "lucide-react";
+import { X as CloseIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
+interface BadgeProps extends VariantProps<typeof badgeVariants> {
+  asChild?: boolean;
+  icon?: React.ReactNode;
+  onClose?: () => void;
+  className?: string;
+  children?: React.ReactNode;
+}
 
 const Badge: React.FC<BadgeProps> = (props) => {
   const Comp = props.asChild ? Slot : "span";
@@ -15,8 +23,8 @@ const Badge: React.FC<BadgeProps> = (props) => {
         badgeVariants({ variant: props.variant, size }),
         props.className
       )}
-      {...restProps(props)}
     >
+      {props.icon}
       {props.children}
       {props.onClose && (
         <button
@@ -28,31 +36,16 @@ const Badge: React.FC<BadgeProps> = (props) => {
           )}
           aria-label="移除"
         >
-          <X className={CLOSE_ICON_SIZE[size]} />
+          <CloseIcon />
         </button>
       )}
     </Comp>
   );
 };
 
-// Types
-interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof badgeVariants> {
-  asChild?: boolean;
-  onClose?: () => void;
-}
-
 Badge.displayName = "Badge";
 
 export default Badge;
-
-// Helpers
-function restProps(props: BadgeProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { className, variant, size, asChild, onClose, ...rest } = props;
-  return rest;
-}
 
 // Variants
 const badgeVariants = cva(
@@ -86,13 +79,7 @@ const badgeVariants = cva(
 
 // Close button size mappings
 const CLOSE_BUTTON_SIZE: Record<NonNullable<BadgeProps["size"]>, string> = {
-  sm: "ml-0.5 -mr-0.5 p-0.5",
-  md: "ml-1 -mr-1 p-0.5",
-  lg: "ml-1.5 -mr-1.5 p-1",
-};
-
-const CLOSE_ICON_SIZE: Record<NonNullable<BadgeProps["size"]>, string> = {
-  sm: "size-3",
-  md: "size-3.5",
-  lg: "size-4",
+  sm: "ml-0.5 -mr-0.5 p-0.5 [&>svg]:size-3",
+  md: "ml-1 -mr-1 p-0.5 [&>svg]:size-3.5",
+  lg: "ml-1.5 -mr-1.5 p-1 [&>svg]:size-4",
 };

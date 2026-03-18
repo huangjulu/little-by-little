@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudUpload } from "lucide-react";
+import { CloudUpload as IconCloudUpload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -73,7 +73,7 @@ const FileUploadDrop: React.FC<FileUploadDropProps> = (props) => {
           disabled && "pointer-events-none opacity-50"
         )}
       >
-        <CloudUpload
+        <IconCloudUpload
           className={cn(
             "mb-3 h-10 w-10",
             error ? "text-red-400" : "text-gray-400"

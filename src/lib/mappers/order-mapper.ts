@@ -24,7 +24,11 @@ export function isOrderStatus(value: unknown): value is OrderStatus {
 }
 
 export function isPaymentStatus(value: unknown): value is PaymentStatus {
-  return value === "up_to_date" || value === "invoiced" || value === "overdue";
+  return (
+    value === "up_to_date" ||
+    value === "waiting_for_payment" ||
+    value === "overdue"
+  );
 }
 
 export function mapToOrder(row: CustomerRow): Order {
@@ -59,5 +63,9 @@ export function mapToOrder(row: CustomerRow): Order {
     yearlyBonusMonths: order?.yearly_bonus_months ?? null,
     twoYearFee: order?.two_year_fee ?? null,
     twoYearBonusMonths: order?.two_year_bonus_months ?? null,
+    lastNoticeDownloadedAt:
+      ((row as Record<string, unknown>).last_notice_downloaded_at as
+        | string
+        | null) ?? null,
   };
 }

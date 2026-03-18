@@ -1,5 +1,8 @@
 "use client";
 
+import { parseAsString, useQueryState } from "nuqs";
+import { useCallback } from "react";
+
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -14,26 +17,22 @@ import OrderRow from "../molecules/OrderRow";
 import type { Order } from "../types";
 import UploadOrderButton from "../upload-order/UploadOrderButton";
 
-interface OrderTableProps {
-  orders: Order[];
-  selectedOrderId?: string | null;
-  onOrderClick?: (orderId: string) => void;
-  isLoading?: boolean;
-  className?: string;
-  billingMode?: boolean;
-  checkedIds?: Set<string>;
-  onToggleCheck?: (id: string) => void;
-  onPrint?: (id: string) => void;
-  onMarkPaid?: (id: string) => void;
-  printedIds?: Set<string>;
-  hideUpload?: boolean;
-}
-
-/**
- * OrderTable - 訂單表格有機體組件（純 UI 呈現）
- * 選中狀態由父組件管理
- */
 const OrderTable: React.FC<OrderTableProps> = (props) => {
+  const [selectedId, setSelectedId] = useQueryState("orderId", parseAsString);
+
+  const handleOrderClick = useCallback(
+    (id: string) => {
+      void setSelectedId((prev) => {
+        const next = prev === id ? null : id;
+        props.onSelectionChange?.(
+          next ? props.orders.find((o) => o.id === next) ?? null : null
+        );
+        return next;
+      });
+    },
+    [setSelectedId, props.onSelectionChange, props.orders]
+  );
+
   return (
     <div
       className={cn(
@@ -59,17 +58,39 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
               <TableHead
                 className={cn(
                   "overflow-hidden transition-all duration-300 ease-in-out",
-                  props.billingMode
+                  props.checkbox
                     ? "w-10 max-w-10 opacity-100 p-3"
                     : "w-0 max-w-0 opacity-0 p-0 border-0"
                 )}
-              />
-              <TableHead>訂單編號</TableHead>
+              >
+                {props.checkbox && (
+                  <input
+                    type="checkbox"
+                    checked={
+                      props.orders.length > 0 &&
+                      props.checkbox.checkedIds.size === props.orders.length
+                    }
+                    onChange={() => {
+                      if (
+                        props.checkbox!.checkedIds.size === props.orders.length
+                      ) {
+                        props.checkbox!.onDeselectAll();
+                      } else {
+                        props.checkbox!.onSelectAll();
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 accent-blue-500"
+                  />
+                )}
+              </TableHead>
+              <TableHead>社區 / 戶別</TableHead>
+              <TableHead>ATM</TableHead>
               <TableHead>客戶</TableHead>
               <TableHead>合約期間</TableHead>
               <TableHead>繳費期限</TableHead>
               <TableHead>金額</TableHead>
               <TableHead>狀態</TableHead>
+              <TableHead>繳費狀態</TableHead>
               <TableHead
                 className={cn(
                   "overflow-hidden transition-all duration-300 ease-in-out",
@@ -79,22 +100,24 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {props.isLoading && <TableLoading colSpan={8} />}
+            {props.isLoading && <TableLoading colSpan={9} />}
             {!props.isLoading && props.orders.length === 0 ? (
-              <TableEmpty colSpan={8} />
+              <TableEmpty colSpan={9} />
             ) : (
               props.orders.map((order) => (
                 <OrderRow
                   key={order.id}
                   order={order}
-                  isSelected={props.selectedOrderId === order.id}
-                  onOrderClick={props.onOrderClick}
-                  billingMode={props.billingMode}
-                  checked={props.checkedIds?.has(order.id)}
-                  onToggleCheck={props.onToggleCheck}
-                  onPrint={props.onPrint}
-                  onMarkPaid={props.onMarkPaid}
-                  isPrinted={props.printedIds?.has(order.id)}
+                  isSelected={selectedId === order.id}
+                  onOrderClick={handleOrderClick}
+                  checkbox={
+                    props.checkbox
+                      ? {
+                          checked: props.checkbox.checkedIds.has(order.id),
+                          onToggle: props.checkbox.onToggle,
+                        }
+                      : undefined
+                  }
                 />
               ))
             )}
@@ -104,6 +127,21 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
     </div>
   );
 };
+
+// Types
+interface OrderTableProps {
+  orders: Order[];
+  onSelectionChange?: (order: Order | null) => void;
+  isLoading?: boolean;
+  className?: string;
+  checkbox?: {
+    checkedIds: Set<string>;
+    onToggle: (id: string) => void;
+    onSelectAll: () => void;
+    onDeselectAll: () => void;
+  };
+  hideUpload?: boolean;
+}
 
 OrderTable.displayName = "OrderTable";
 
