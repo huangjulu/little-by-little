@@ -36,17 +36,17 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-gray-200 bg-white",
+        "flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white min-h-0 flex-1",
         props.className
       )}
     >
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
+      <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-2">
         <span className="text-xs text-gray-500">
           共 {props.orders.length} 筆訂單
         </span>
         {!props.hideUpload && <UploadOrderButton />}
       </div>
-      <div className="max-h-120 overflow-auto text-sm">
+      <div className="flex-1 overflow-auto text-sm">
         <Table>
           <TableHeader>
             <TableRow

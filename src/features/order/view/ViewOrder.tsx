@@ -120,7 +120,7 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
 
       <div
         className={cn(
-          "grid gap-4",
+          "grid gap-4 min-h-0 flex-1",
           filters.selectedId
             ? "md:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)] col-span-2"
             : "col-span-2"
@@ -129,7 +129,7 @@ const ViewOrder: React.FC<{ className?: string }> = (props) => {
         {isLoadingOrders ? (
           <DataTableSkeleton rows={5} columns={5} showSummary />
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 min-h-0">
             <OrderTable
               orders={filteredOrders}
               isLoading={false}

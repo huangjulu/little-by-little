@@ -39,7 +39,7 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
     >
       <div
         className={cn(
-          "flex flex-1 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-xs",
+          "flex shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-xs",
           props.className
         )}
       >
