@@ -46,6 +46,16 @@ export async function GET(request: NextRequest) {
     } else if (billing === "overdue") {
       const today = new Date().toISOString().split("T")[0];
       query = query.lt("orders.payment_deadline", today);
+    } else if (billing === "waiting") {
+      const today = new Date().toISOString().split("T")[0];
+      query = query
+        .eq("payment_status", "waiting_for_payment")
+        .gte("orders.payment_deadline", today);
+    } else if (billing === "overdue-unpaid") {
+      const today = new Date().toISOString().split("T")[0];
+      query = query
+        .in("payment_status", ["waiting_for_payment", "overdue"])
+        .lt("orders.payment_deadline", today);
     }
 
     if (keyword) {

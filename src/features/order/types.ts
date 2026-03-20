@@ -60,7 +60,7 @@ export interface ApiResponse<T> {
 
 export interface GetOrdersParams {
   status?: StatusFilterValue;
-  billing?: "next-month" | "overdue";
+  billing?: "next-month" | "overdue" | "waiting" | "overdue-unpaid";
   keyword?: string;
   page?: number;
   pageSize?: number;
