@@ -7,7 +7,7 @@ import { orderApi } from "../order.api";
 import type { Order } from "../types";
 import { downloadBillingPdf } from "./billing-notice.utils";
 
-type DoubleConfirmType = "download" | "paid" | null;
+type DoubleConfirmType = "download" | null;
 
 const useBillingActions = (orders: Order[], checkedIds: Set<string>) => {
   const [doubleConfirmType, setDoubleConfirmType] =
@@ -22,9 +22,6 @@ const useBillingActions = (orders: Order[], checkedIds: Set<string>) => {
   const totalPrintable = orders.filter(
     (o) => o.paymentStatus === "up_to_date"
   ).length;
-  const totalWaitingForPayment = orders.filter(
-    (o) => o.paymentStatus === "waiting_for_payment"
-  ).length;
 
   // Derived state — 勾選項目（按鈕操作用）
   const checkedOrders = orders.filter((o) => checkedIds.has(o.id));
@@ -36,19 +33,11 @@ const useBillingActions = (orders: Order[], checkedIds: Set<string>) => {
   const newDownloadIds = checkedOrders
     .filter((o) => o.paymentStatus === "up_to_date")
     .map((o) => o.id);
-  const waitingForPaymentIds = checkedOrders
-    .filter((o) => o.paymentStatus === "waiting_for_payment")
-    .map((o) => o.id);
 
   // Actions
   const openDownloadConfirm = () => {
     if (downloadableOrders.length === 0) return;
     setDoubleConfirmType("download");
-  };
-
-  const openPaidConfirm = () => {
-    if (waitingForPaymentIds.length === 0) return;
-    setDoubleConfirmType("paid");
   };
 
   const closeDoubleConfirm = () => setDoubleConfirmType(null);
@@ -83,39 +72,15 @@ const useBillingActions = (orders: Order[], checkedIds: Set<string>) => {
     }
   };
 
-  const confirmPaid = () => {
-    if (waitingForPaymentIds.length === 0) return;
-    mutateRef.current(
-      {
-        ids: waitingForPaymentIds,
-        paymentStatus: "up_to_date",
-        updateBillingDate: true,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            `已將 ${waitingForPaymentIds.length} 筆客戶狀態改為「正常繳費」並續期`
-          );
-          setDoubleConfirmType(null);
-        },
-        onError: (err) => toast.error(err.message),
-      }
-    );
-  };
-
   return {
     totalPrintable,
-    totalWaitingForPayment,
     downloadableOrders,
-    waitingForPaymentIds,
     doubleConfirmType,
     closeDoubleConfirm,
     downloading,
     isPending: batchMutation.isPending,
     openDownloadConfirm,
-    openPaidConfirm,
     confirmDownload,
-    confirmPaid,
   };
 };
 
