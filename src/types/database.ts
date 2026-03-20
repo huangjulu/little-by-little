@@ -70,24 +70,30 @@ export type Database = {
           created_at: string | null;
           customer_info: Json;
           id: number;
+          last_notice_downloaded_at: string | null;
           order_id: number | null;
           order_status: string;
+          paid_confirmed_at: string | null;
           payment_status: string;
         };
         Insert: {
           created_at?: string | null;
           customer_info?: Json;
           id?: number;
+          last_notice_downloaded_at?: string | null;
           order_id?: number | null;
           order_status?: string;
+          paid_confirmed_at?: string | null;
           payment_status?: string;
         };
         Update: {
           created_at?: string | null;
           customer_info?: Json;
           id?: number;
+          last_notice_downloaded_at?: string | null;
           order_id?: number | null;
           order_status?: string;
+          paid_confirmed_at?: string | null;
           payment_status?: string;
         };
         Relationships: [
