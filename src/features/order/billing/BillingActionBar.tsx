@@ -1,25 +1,67 @@
 "use client";
 
+import { useState } from "react";
 import { Download as IconDownload, Info as IconInfo } from "lucide-react";
+import { toast } from "sonner";
 
 import Dialog from "@/ui/dialog";
 
+import { orderApi } from "../order.api";
 import type { Order } from "../types";
-import useBillingActions from "./useBillingActions";
-
-interface BillingActionBarProps {
-  orders: Order[];
-  checkedIds: Set<string>;
-  onSelectAll: () => void;
-  onDeselectAll: () => void;
-  onSelectByIds: (ids: string[]) => void;
-}
+import { downloadBillingPdf } from "./billing-notice.utils";
 
 const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const batchMutation = orderApi.batchUpdateStatus.useMutation();
+
   const isAllSelected =
     props.orders.length > 0 && props.checkedIds.size === props.orders.length;
 
-  const billing = useBillingActions(props.orders, props.checkedIds);
+  const totalPrintable = props.orders.filter(
+    (o) => o.paymentStatus === "up_to_date"
+  ).length;
+
+  const checkedOrders = props.orders.filter((o) => props.checkedIds.has(o.id));
+  const downloadableOrders = checkedOrders.filter(
+    (o) =>
+      o.paymentStatus === "up_to_date" ||
+      o.paymentStatus === "waiting_for_payment"
+  );
+
+  const handleConfirmDownload = async () => {
+    setDownloading(true);
+
+    try {
+      await downloadBillingPdf(downloadableOrders);
+
+      const newDownloadIds = checkedOrders
+        .filter((o) => o.paymentStatus === "up_to_date")
+        .map((o) => o.id);
+
+      if (newDownloadIds.length > 0) {
+        batchMutation.mutate(
+          { ids: newDownloadIds, paymentStatus: "waiting_for_payment" },
+          {
+            onSuccess: () =>
+              toast.success(
+                `已下載 ${downloadableOrders.length} 筆繳費通知，${newDownloadIds.length} 筆標記為「已通知」`
+              ),
+            onError: (err) => toast.error(err.message),
+          }
+        );
+      } else {
+        toast.success(`已重新下載 ${downloadableOrders.length} 筆繳費通知`);
+      }
+
+      setIsConfirmOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "下載失敗");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <>
@@ -28,7 +70,7 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
 
         <div className="mr-auto text-sm text-blue-800">
           <p>
-            {billing.totalPrintable > 0 && (
+            {totalPrintable > 0 && (
               <>
                 有{" "}
                 <button
@@ -41,7 +83,7 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
                   }}
                   className="font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-800"
                 >
-                  {billing.totalPrintable} 筆
+                  {totalPrintable} 筆
                 </button>{" "}
                 繳費通知尚未下載。
               </>
@@ -75,32 +117,29 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
           {isAllSelected ? "取消全選" : "全選"}
         </button>
 
-        {billing.downloadableOrders.length > 0 && (
+        {downloadableOrders.length > 0 && (
           <button
             type="button"
-            onClick={billing.openDownloadConfirm}
+            onClick={() => setIsConfirmOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50"
           >
             <IconDownload className="size-3.5" />
-            下載繳費通知 ({billing.downloadableOrders.length})
+            下載繳費通知 ({downloadableOrders.length})
           </button>
         )}
       </div>
 
-      {/* 下載繳費通知二次確認 Dialog */}
       <Dialog.Root
-        open={billing.doubleConfirmType === "download"}
+        open={isConfirmOpen}
         onOpenChange={(open) => {
-          if (!open) billing.closeDoubleConfirm();
+          if (!open) setIsConfirmOpen(false);
         }}
       >
         <Dialog.Content size="sm">
           <Dialog.Header isClosable>
             <Dialog.Title>
               確定下載{" "}
-              <span className="text-blue-600">
-                {billing.downloadableOrders.length}
-              </span>{" "}
+              <span className="text-blue-600">{downloadableOrders.length}</span>{" "}
               筆繳費通知嗎？
             </Dialog.Title>
           </Dialog.Header>
@@ -122,12 +161,12 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
             </Dialog.Close>
             <button
               type="button"
-              onClick={billing.confirmDownload}
-              disabled={billing.downloading}
+              onClick={handleConfirmDownload}
+              disabled={downloading}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
             >
               <IconDownload className="size-3.5" />
-              {billing.downloading ? "產生中..." : "確認下載"}
+              {downloading ? "產生中..." : "確認下載"}
             </button>
           </Dialog.Footer>
         </Dialog.Content>
@@ -135,6 +174,15 @@ const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
     </>
   );
 };
+
+// Types
+interface BillingActionBarProps {
+  orders: Order[];
+  checkedIds: Set<string>;
+  onSelectAll: () => void;
+  onDeselectAll: () => void;
+  onSelectByIds: (ids: string[]) => void;
+}
 
 BillingActionBar.displayName = "BillingActionBar";
 

@@ -62,3 +62,11 @@ CLAUDE.md
 
 # example files 為範本檔，不需要進 commit
 example/
+
+# bundle analyzer 輸出
+analyze/
+
+# AI tooling 本地設定
+.superpowers/
+docs/superpowers/
+.cursor/rules/
