@@ -1,5 +1,7 @@
-import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { MOCK_NEXT_HEADERS } from "@/__test-utils__/api-mocks";
+import { jsonRequest, rawRequest } from "@/__test-utils__/request-builder";
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -8,12 +10,7 @@ const mockCustomerSingle = vi.fn();
 const mockDelete = vi.fn();
 const mockEq = vi.fn();
 
-vi.mock("next/headers", () => ({
-  cookies: vi.fn().mockResolvedValue({
-    getAll: () => [],
-    set: vi.fn(),
-  }),
-}));
+vi.mock("next/headers", () => MOCK_NEXT_HEADERS);
 
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
@@ -46,21 +43,9 @@ vi.mock("@/utils/supabase/server", () => ({
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-function makeRequest(body: unknown): NextRequest {
-  return new NextRequest("http://localhost:3000/api/orders/import", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-}
-
-function makeInvalidRequest(body: string): NextRequest {
-  return new NextRequest("http://localhost:3000/api/orders/import", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-}
+const PATH = "/api/orders/import";
+const makeRequest = (body: unknown) => jsonRequest(PATH, "POST", body);
+const makeInvalidRequest = (body: string) => rawRequest(PATH, "POST", body);
 
 // 模擬一筆成功的 Supabase 插入流程
 function mockSuccessfulInsert(orderId: number, customerId: number) {

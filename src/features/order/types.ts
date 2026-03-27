@@ -51,13 +51,6 @@ export type StatusCounts = Record<StatusFilterValue, number>;
 
 // ─── API 介面型別（前後端共用） ──────────────────────────────────────────────
 
-export interface ApiResponse<T> {
-  error: boolean;
-  data: T;
-  message?: string;
-  total?: number;
-}
-
 export interface GetOrdersParams {
   status?: StatusFilterValue;
   billing?: "next-month" | "overdue";

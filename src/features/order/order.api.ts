@@ -7,14 +7,32 @@ import {
 
 import { OfflineError } from "@/lib/network-error";
 
+import type { ApiResponse } from "@/types/api";
+
 import type {
-  ApiResponse,
   CreateOrderParams,
   GetOrdersParams,
   Order,
   PaymentStatus,
   UpdateOrderStatusParams,
 } from "./types";
+
+// ─── Raw API Functions ───────────────────────────────────────────────────────
+
+async function fetchBillingPdf(orders: Order[]): Promise<Blob> {
+  const res = await fetch("/api/orders/pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orders }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message ?? "PDF 產生失敗");
+  }
+
+  return res.blob();
+}
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
@@ -128,6 +146,8 @@ export const orderApi = {
       });
     },
   },
+
+  fetchBillingPdf,
 } as const;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
