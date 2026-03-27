@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import type { OrderStatus } from "@/features/order/types";
 import type { UpdateOrderStatusParams } from "@/features/order/types";
+import { apiError, apiOk } from "@/lib/api-response";
 import { mapToOrder } from "@/lib/mappers/order-mapper";
 import { createClient } from "@/utils/supabase/server";
 
@@ -17,10 +18,7 @@ export async function GET(
     const { id } = await params;
     const customerId = parseInt(id, 10);
     if (Number.isNaN(customerId)) {
-      return NextResponse.json(
-        { error: true, message: "訂單不存在" },
-        { status: 404 }
-      );
+      return apiError("訂單不存在", 404);
     }
 
     const cookieStore = await cookies();
@@ -33,23 +31,14 @@ export async function GET(
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: true, message: "訂單不存在" },
-        { status: 404 }
-      );
+      return apiError("訂單不存在", 404);
     }
 
-    return NextResponse.json(
-      { error: false, data: mapToOrder(data) },
-      { status: 200 }
-    );
+    return apiOk(mapToOrder(data));
   } catch (error) {
     const msg = error instanceof Error ? error.message : "未知錯誤";
     console.error("取得訂單失敗:", msg);
-    return NextResponse.json(
-      { error: true, message: "取得訂單失敗" },
-      { status: 500 }
-    );
+    return apiError("取得訂單失敗");
   }
 }
 
@@ -64,10 +53,7 @@ export async function PATCH(
     const { id } = await params;
     const customerId = parseInt(id, 10);
     if (Number.isNaN(customerId)) {
-      return NextResponse.json(
-        { error: true, message: "訂單不存在" },
-        { status: 404 }
-      );
+      return apiError("訂單不存在", 404);
     }
 
     const cookieStore = await cookies();
@@ -77,10 +63,7 @@ export async function PATCH(
     if (body.status) {
       const validStatuses: OrderStatus[] = ["active", "inactive"];
       if (!validStatuses.includes(body.status)) {
-        return NextResponse.json(
-          { error: true, message: `無效的狀態: ${body.status}` },
-          { status: 400 }
-        );
+        return apiError(`無效的狀態: ${body.status}`, 400);
       }
 
       const { error } = await supabase
@@ -89,10 +72,7 @@ export async function PATCH(
         .eq("id", customerId);
 
       if (error) {
-        return NextResponse.json(
-          { error: true, message: error.message },
-          { status: 500 }
-        );
+        return apiError(error.message);
       }
     }
 
@@ -103,26 +83,13 @@ export async function PATCH(
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: true, message: "訂單不存在" },
-        { status: 404 }
-      );
+      return apiError("訂單不存在", 404);
     }
 
-    return NextResponse.json(
-      {
-        error: false,
-        data: mapToOrder(data),
-        message: "訂單更新成功",
-      },
-      { status: 200 }
-    );
+    return apiOk(mapToOrder(data), { message: "訂單更新成功" });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "未知錯誤";
     console.error("更新訂單失敗:", msg);
-    return NextResponse.json(
-      { error: true, message: "更新訂單失敗" },
-      { status: 500 }
-    );
+    return apiError("更新訂單失敗");
   }
 }

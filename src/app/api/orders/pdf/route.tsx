@@ -3,16 +3,14 @@ import { NextResponse } from "next/server";
 
 import BillingNoticePDF from "@/features/order/billing/BillingNoticePDF";
 import type { Order } from "@/features/order/types";
+import { apiError } from "@/lib/api-response";
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { orders: Order[] };
 
     if (!body.orders || body.orders.length === 0) {
-      return NextResponse.json(
-        { error: true, message: "orders 不可為空" },
-        { status: 400 }
-      );
+      return apiError("orders 不可為空", 400);
     }
 
     const buffer = await renderToBuffer(
@@ -27,6 +25,6 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "PDF 產生失敗";
-    return NextResponse.json({ error: true, message }, { status: 500 });
+    return apiError(message);
   }
 }

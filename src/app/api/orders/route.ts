@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 import type { CreateOrderParams } from "@/features/order/types";
-import { getNextMonthRange } from "@/lib/billing-filter";
+import { apiError, apiOk } from "@/lib/api-response";
+import { getNextMonthRange } from "@/features/order/billing/utils/billing-filter";
 import { type CustomerRow, mapToOrder } from "@/lib/mappers/order-mapper";
 import { createClient } from "@/utils/supabase/server";
 
@@ -62,26 +63,17 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      return NextResponse.json(
-        { error: true, message: error.message },
-        { status: 500 }
-      );
+      return apiError(error.message);
     }
 
     const rows: CustomerRow[] = data ?? [];
     const orders = rows.map(mapToOrder);
 
-    return NextResponse.json(
-      { error: false, data: orders, total: count ?? orders.length },
-      { status: 200 }
-    );
+    return apiOk(orders, { total: count ?? orders.length });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "未知錯誤";
     console.error("取得訂單列表失敗:", msg);
-    return NextResponse.json(
-      { error: true, message: "取得訂單列表失敗" },
-      { status: 500 }
-    );
+    return apiError("取得訂單列表失敗");
   }
 }
 
@@ -97,10 +89,7 @@ export async function POST(request: NextRequest) {
     const requiredFields = ["customerName", "mobilePhone"];
     const missingFields = requiredFields.filter((f) => !(f in body));
     if (missingFields.length > 0) {
-      return NextResponse.json(
-        { error: true, message: `缺少必要欄位: ${missingFields.join(", ")}` },
-        { status: 400 }
-      );
+      return apiError(`缺少必要欄位: ${missingFields.join(", ")}`, 400);
     }
 
     const { data: orderData, error: orderError } = await supabase
@@ -117,10 +106,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError || !orderData) {
-      return NextResponse.json(
-        { error: true, message: orderError?.message ?? "建立訂單失敗" },
-        { status: 500 }
-      );
+      return apiError(orderError?.message ?? "建立訂單失敗");
     }
 
     const { data: customerData, error: customerError } = await supabase
@@ -140,26 +126,16 @@ export async function POST(request: NextRequest) {
 
     if (customerError || !customerData) {
       await supabase.from("orders").delete().eq("id", orderData.id);
-      return NextResponse.json(
-        { error: true, message: customerError?.message ?? "建立客戶記錄失敗" },
-        { status: 500 }
-      );
+      return apiError(customerError?.message ?? "建立客戶記錄失敗");
     }
 
-    return NextResponse.json(
-      {
-        error: false,
-        data: mapToOrder(customerData),
-        message: "訂單建立成功",
-      },
-      { status: 201 }
-    );
+    return apiOk(mapToOrder(customerData), {
+      message: "訂單建立成功",
+      status: 201,
+    });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "未知錯誤";
     console.error("建立訂單失敗:", msg);
-    return NextResponse.json(
-      { error: true, message: "建立訂單失敗" },
-      { status: 500 }
-    );
+    return apiError("建立訂單失敗");
   }
 }

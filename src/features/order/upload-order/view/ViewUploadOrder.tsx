@@ -22,12 +22,6 @@ interface ViewUploadOrderProps extends DialogProps {
   className?: string;
 }
 
-interface ImportResult {
-  success: number;
-  failed: number;
-  errors: { index: number; message: string }[];
-}
-
 const ACCEPT =
   ".csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv";
 
@@ -35,7 +29,6 @@ const ViewUploadOrder: React.FC<ViewUploadOrderProps> = (props) => {
   const [step, setStep] = useState<Step>("upload");
   const [rawRows, setRawRows] = useState<RawRow[]>([]);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
 
   const importMutation = orderApi.import.useMutation();
@@ -44,9 +37,9 @@ const ViewUploadOrder: React.FC<ViewUploadOrderProps> = (props) => {
     setStep("upload");
     setRawRows([]);
     setValidation(null);
-    setImportResult(null);
+    importMutation.reset();
     setFileError(null);
-  }, []);
+  }, [importMutation]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -90,14 +83,13 @@ const ViewUploadOrder: React.FC<ViewUploadOrderProps> = (props) => {
     setStep("importing");
 
     importMutation.mutate(validation.valid, {
-      onSuccess: (res) => {
-        setImportResult(res.data);
+      onSuccess: (data) => {
         setStep("result");
-        if (res.data.success > 0) {
-          toast.success(`成功匯入 ${res.data.success} 筆訂單`);
+        if (data.success > 0) {
+          toast.success(`成功匯入 ${data.success} 筆訂單`);
         }
-        if (res.data.failed > 0) {
-          toast.error(`${res.data.failed} 筆匯入失敗`);
+        if (data.failed > 0) {
+          toast.error(`${data.failed} 筆匯入失敗`);
         }
       },
       onError: (err) => {
@@ -162,8 +154,8 @@ const ViewUploadOrder: React.FC<ViewUploadOrderProps> = (props) => {
               </div>
             )}
 
-            {step === "result" && importResult && (
-              <ResultStep result={importResult} />
+            {step === "result" && importMutation.data && (
+              <ResultStep result={importMutation.data} />
             )}
 
             {validation?.truncated && step === "preview" && (

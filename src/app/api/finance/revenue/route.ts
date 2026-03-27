@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
+import { apiError, apiOk } from "@/lib/api-response";
 import { createClient } from "@/utils/supabase/server";
 
 /**
@@ -11,10 +12,7 @@ export async function GET(request: NextRequest) {
   const month = request.nextUrl.searchParams.get("month");
 
   if (!month || !isValidMonth(month)) {
-    return NextResponse.json(
-      { error: true, message: "month 參數格式必須為 YYYY-MM" },
-      { status: 400 }
-    );
+    return apiError("month 參數格式必須為 YYYY-MM", 400);
   }
 
   const startDate = `${month}-01T00:00:00.000Z`;
@@ -36,10 +34,7 @@ export async function GET(request: NextRequest) {
       .lt("paid_confirmed_at", endDate);
 
     if (error) {
-      return NextResponse.json(
-        { error: true, message: error.message },
-        { status: 500 }
-      );
+      return apiError(error.message);
     }
 
     const rows = data ?? [];
@@ -48,17 +43,11 @@ export async function GET(request: NextRequest) {
       0
     );
 
-    return NextResponse.json(
-      { error: false, data: { totalAmount, count: rows.length } },
-      { status: 200 }
-    );
+    return apiOk({ totalAmount, count: rows.length });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "未知錯誤";
     console.error("取得收益加總失敗:", msg);
-    return NextResponse.json(
-      { error: true, message: "取得收益加總失敗" },
-      { status: 500 }
-    );
+    return apiError("取得收益加總失敗");
   }
 }
 

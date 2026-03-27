@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
+import { apiError, apiOk } from "@/lib/api-response";
 import { createClient } from "@/utils/supabase/server";
 
 const GATE_PASSCODE = "1234";
@@ -13,10 +14,7 @@ export async function POST(request: NextRequest) {
     const { passcode } = body;
 
     if (passcode !== GATE_PASSCODE) {
-      return NextResponse.json(
-        { error: true, message: "驗證碼錯誤" },
-        { status: 401 }
-      );
+      return apiError("驗證碼錯誤", 401);
     }
 
     const cookieStore = await cookies();
@@ -29,22 +27,13 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Supabase auth error:", error.message);
-      return NextResponse.json(
-        { error: true, message: "登入失敗，請稍後再試" },
-        { status: 500 }
-      );
+      return apiError("登入失敗，請稍後再試");
     }
 
-    return NextResponse.json(
-      { error: false, message: "驗證成功" },
-      { status: 200 }
-    );
+    return apiOk(null, { message: "驗證成功" });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "未知錯誤";
     console.error("Auth login error:", msg);
-    return NextResponse.json(
-      { error: true, message: "伺服器錯誤" },
-      { status: 500 }
-    );
+    return apiError("伺服器錯誤");
   }
 }

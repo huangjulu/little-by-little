@@ -70,7 +70,6 @@ export const orderApi = {
         queryKey: orderKeys.list(params),
         queryFn: () => getOrders(params),
         staleTime: 5 * 60 * 1000,
-        select: (r) => ({ orders: r.data, total: r.total ?? 0 }),
       }),
   },
 
@@ -81,7 +80,6 @@ export const orderApi = {
         queryFn: () => getOrder(id ?? ""),
         staleTime: 5 * 60 * 1000,
         enabled: !!id,
-        select: (r) => r.data,
       }),
   },
 
@@ -125,7 +123,7 @@ export const orderApi = {
             orderKeys.detail(variables.id),
             (old: Order | undefined) => {
               if (!old) return undefined;
-              return { ...old, ...response.data };
+              return { ...old, ...response };
             }
           );
           queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
@@ -162,7 +160,7 @@ interface BatchUpdateStatusParams {
 
 async function getOrders(
   params?: GetOrdersParams
-): Promise<ApiResponse<Order[]>> {
+): Promise<{ orders: Order[]; total: number }> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     throw new OfflineError();
   }
@@ -177,21 +175,21 @@ async function getOrders(
   const qs = searchParams.toString();
   const res = await fetch(qs ? `/api/orders?${qs}` : "/api/orders");
   if (!res.ok) throw new Error("取得訂單列表失敗");
-  return res.json();
+  const json: ApiResponse<Order[]> = await res.json();
+  return { orders: json.data ?? [], total: json.total ?? 0 };
 }
 
-async function getOrder(id: string): Promise<ApiResponse<Order>> {
+async function getOrder(id: string): Promise<Order> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     throw new OfflineError();
   }
   const res = await fetch(`/api/orders/${id}`);
   if (!res.ok) throw new Error("取得訂單失敗");
-  return res.json();
+  const json: ApiResponse<Order> = await res.json();
+  return json.data as Order;
 }
 
-async function createOrder(
-  params: CreateOrderParams
-): Promise<ApiResponse<Order>> {
+async function createOrder(params: CreateOrderParams): Promise<Order> {
   const res = await fetch("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -201,7 +199,8 @@ async function createOrder(
     const err: ApiResponse<never> = await res.json();
     throw new Error(err.message ?? "建立訂單失敗");
   }
-  return res.json();
+  const json: ApiResponse<Order> = await res.json();
+  return json.data as Order;
 }
 
 interface ImportResult {
@@ -212,7 +211,7 @@ interface ImportResult {
 
 async function importOrders(
   orders: CreateOrderParams[]
-): Promise<ApiResponse<ImportResult>> {
+): Promise<ImportResult> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     throw new OfflineError();
   }
@@ -225,13 +224,14 @@ async function importOrders(
     const err: ApiResponse<never> = await res.json();
     throw new Error(err.message ?? "匯入訂單失敗");
   }
-  return res.json();
+  const json: ApiResponse<ImportResult> = await res.json();
+  return json.data as ImportResult;
 }
 
 async function updateOrderStatus(
   id: string,
   params: UpdateOrderStatusParams
-): Promise<ApiResponse<Order>> {
+): Promise<Order> {
   const res = await fetch(`/api/orders/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -241,12 +241,13 @@ async function updateOrderStatus(
     const err: ApiResponse<never> = await res.json();
     throw new Error(err.message ?? "更新訂單失敗");
   }
-  return res.json();
+  const json: ApiResponse<Order> = await res.json();
+  return json.data as Order;
 }
 
 async function batchUpdateStatus(
   params: BatchUpdateStatusParams
-): Promise<ApiResponse<{ updated: number; status: string }>> {
+): Promise<{ updated: number; status: string }> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     throw new OfflineError();
   }
@@ -259,5 +260,7 @@ async function batchUpdateStatus(
     const err: ApiResponse<never> = await res.json();
     throw new Error(err.message ?? "批量更新狀態失敗");
   }
-  return res.json();
+  const json: ApiResponse<{ updated: number; status: string }> =
+    await res.json();
+  return json.data as { updated: number; status: string };
 }

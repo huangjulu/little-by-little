@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import type { CreateOrderParams } from "@/features/order/types";
+import { apiError, apiOk } from "@/lib/api-response";
 import { createClient } from "@/utils/supabase/server";
 
 interface ImportError {
@@ -24,10 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: true, message: "無效的 JSON 格式" },
-      { status: 400 }
-    );
+    return apiError("無效的 JSON 格式", 400);
   }
 
   if (
@@ -36,23 +34,19 @@ export async function POST(request: NextRequest) {
     !("orders" in body) ||
     !Array.isArray((body as Record<string, unknown>).orders)
   ) {
-    return NextResponse.json(
-      { error: true, message: "缺少 orders 陣列欄位" },
-      { status: 400 }
-    );
+    return apiError("缺少 orders 陣列欄位", 400);
   }
 
   const orders = (body as { orders: CreateOrderParams[] }).orders;
   const result: ImportResult = { success: 0, failed: 0, errors: [] };
 
   if (orders.length === 0) {
-    return NextResponse.json({ error: false, data: result }, { status: 200 });
+    return apiOk(result);
   }
 
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // 先同步驗證，收集待插入的項目
   const toInsert: { order: CreateOrderParams; index: number }[] = [];
   for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
@@ -65,7 +59,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 批次平行插入（每批 10 筆並發）
   for (let start = 0; start < toInsert.length; start += BATCH_SIZE) {
     const batch = toInsert.slice(start, start + BATCH_SIZE);
     const outcomes = await Promise.allSettled(
@@ -93,7 +86,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ error: false, data: result }, { status: 200 });
+  return apiOk(result);
 }
 
 // ─── 內部輔助函式 ────────────────────────────────────────────────────────────
@@ -118,7 +111,6 @@ async function insertOrder(
   order: CreateOrderParams,
   index: number
 ): Promise<ImportError | null> {
-  // 1. 建立 orders 記錄
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .insert({
@@ -136,7 +128,6 @@ async function insertOrder(
     return { index, message: orderError?.message ?? "建立訂單失敗" };
   }
 
-  // 2. 建立 customers 記錄
   const { error: customerError } = await supabase
     .from("customers")
     .insert({
@@ -153,7 +144,6 @@ async function insertOrder(
     .single();
 
   if (customerError) {
-    // rollback：刪除已建立的 order
     await supabase.from("orders").delete().eq("id", orderData.id);
     return { index, message: customerError.message ?? "建立客戶記錄失敗" };
   }
