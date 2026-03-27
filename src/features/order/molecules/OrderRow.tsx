@@ -22,16 +22,15 @@ interface OrderRowProps {
  * OrderRow - 訂單列表行分子組件
  */
 const OrderRow: React.FC<OrderRowProps> = memo((props) => {
-  const { order, isSelected = false, className } = props;
-  const { onOrderClick } = props;
+  const { isSelected = false } = props;
 
   const handleClick = useCallback(() => {
-    onOrderClick?.(order.id);
-  }, [onOrderClick, order.id]);
+    props.onOrderClick?.(props.order.id);
+  }, [props.onOrderClick, props.order.id]);
 
   const handleToggleCheck = useCallback(() => {
-    props.checkbox?.onToggle(order.id);
-  }, [props.checkbox, order.id]);
+    props.checkbox?.onToggle(props.order.id);
+  }, [props.checkbox, props.order.id]);
 
   return (
     <tr
@@ -40,7 +39,7 @@ const OrderRow: React.FC<OrderRowProps> = memo((props) => {
         "cursor-pointer border-b border-gray-100 align-middle text-xs transition-colors hover:bg-gray-50",
         "*:p-3",
         isSelected ? "bg-gray-100/80" : "bg-white",
-        className
+        props.className
       )}
     >
       <td
@@ -66,31 +65,31 @@ const OrderRow: React.FC<OrderRowProps> = memo((props) => {
       <td>
         <div className="flex flex-col">
           <span className="text-xs font-medium text-gray-700">
-            {order.communityName || "-"}
+            {props.order.communityName || "-"}
           </span>
           <span className="text-[0.6875rem] text-gray-400">
-            {order.houseUnit || "-"}
+            {props.order.houseUnit || "-"}
           </span>
         </div>
       </td>
       <td>
         <span className="font-mono text-[0.6875rem] text-gray-700">
-          {order.atmAccountNumber || "-"}
+          {props.order.atmAccountNumber || "-"}
         </span>
       </td>
       <td>
         <CustomerInfo
-          name={order.customerName}
-          mobilePhone={order.mobilePhone}
+          name={props.order.customerName}
+          mobilePhone={props.order.mobilePhone}
         />
       </td>
       <td>
         <div className="flex flex-col">
           <span className="text-xs text-gray-700">
-            {formatDate(order.contractStartDate)}
+            {formatDate(props.order.contractStartDate)}
           </span>
           <span className="text-[0.6875rem] text-gray-400">
-            – {formatDate(order.contractEndDate)}
+            – {formatDate(props.order.contractEndDate)}
           </span>
         </div>
       </td>
@@ -98,25 +97,27 @@ const OrderRow: React.FC<OrderRowProps> = memo((props) => {
         <span
           className={cn(
             "text-xs",
-            isPastDeadline(order.paymentDeadline)
+            isPastDeadline(props.order.paymentDeadline)
               ? "font-medium text-red-600"
               : "text-gray-500"
           )}
         >
-          {formatDate(order.paymentDeadline)}
+          {formatDate(props.order.paymentDeadline)}
         </span>
       </td>
       <td>
-        <span className="text-xs">{formatCurrency(order.currentPrice)}</span>
+        <span className="text-xs">
+          {formatCurrency(props.order.currentPrice)}
+        </span>
       </td>
       <td>
-        <StatusBadge status={order.status} />
+        <StatusBadge status={props.order.status} />
       </td>
       <td>
         <PaymentStatusBadge
-          status={order.paymentStatus}
-          nextBillingDate={order.nextBillingDate}
-          paymentDeadline={order.paymentDeadline}
+          status={props.order.paymentStatus}
+          nextBillingDate={props.order.nextBillingDate}
+          paymentDeadline={props.order.paymentDeadline}
         />
       </td>
       <td

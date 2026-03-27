@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
-import { downloadBillingPdf } from "../billing/billing-notice.utils";
+import { downloadBillingPdf } from "../billing/utils/billing-notice";
 import BillingActionBar from "../billing/BillingActionBar";
 import SearchInput from "../molecules/SearchInput";
 import { orderApi } from "../order.api";

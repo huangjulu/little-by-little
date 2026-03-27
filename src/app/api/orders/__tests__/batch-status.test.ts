@@ -34,15 +34,15 @@ beforeEach(async () => {
 // ─── Tests ──────────────────────────────────────────────────────────────────
 
 describe("PATCH /api/orders/batch-status", () => {
-  it("批量更新 2 筆訂單 payment_status 為 invoiced", async () => {
+  it("批量更新 2 筆訂單 payment_status 為 waiting_for_payment", async () => {
     mockRpc.mockResolvedValueOnce({
-      data: { updated: 2, status: "invoiced" },
+      data: { updated: 2, status: "waiting_for_payment" },
       error: null,
     });
 
     const req = makeRequest({
       ids: ["1", "2"],
-      paymentStatus: "invoiced",
+      paymentStatus: "waiting_for_payment",
     });
     const res = await PATCH(req);
     const json = await res.json();
@@ -52,20 +52,20 @@ describe("PATCH /api/orders/batch-status", () => {
     expect(json.data.updated).toBe(2);
     expect(mockRpc).toHaveBeenCalledWith("batch_update_payment_status", {
       p_customer_ids: [1, 2],
-      p_new_status: "invoiced",
+      p_new_status: "waiting_for_payment",
       p_update_billing: false,
     });
   });
 
   it("空 ids 陣列回傳成功（updated: 0）", async () => {
     mockRpc.mockResolvedValueOnce({
-      data: { updated: 0, status: "invoiced" },
+      data: { updated: 0, status: "waiting_for_payment" },
       error: null,
     });
 
     const req = makeRequest({
       ids: [],
-      paymentStatus: "invoiced",
+      paymentStatus: "waiting_for_payment",
     });
     const res = await PATCH(req);
     const json = await res.json();
@@ -143,7 +143,7 @@ describe("PATCH /api/orders/batch-status", () => {
 
     const req = makeRequest({
       ids: ["1"],
-      paymentStatus: "invoiced",
+      paymentStatus: "waiting_for_payment",
     });
     const res = await PATCH(req);
     const json = await res.json();

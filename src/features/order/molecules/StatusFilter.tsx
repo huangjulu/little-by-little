@@ -16,24 +16,22 @@ interface StatusFilterProps {
  * StatusFilter - 狀態篩選器分子組件（四個方塊，選中為 primary，顯示各狀態數量）
  */
 const StatusFilter: React.FC<StatusFilterProps> = (props) => {
-  const { value, onChange, statusCounts, className } = props;
-
   const handleOptionClick = useCallback(
     (optionValue: StatusFilterValue) => {
-      onChange(optionValue);
+      props.onChange(optionValue);
     },
-    [onChange]
+    [props.onChange]
   );
 
   return (
     <div
-      className={cn("grid grid-cols-3 gap-3", className)}
+      className={cn("grid grid-cols-3 gap-3", props.className)}
       role="group"
       aria-label="訂單狀態篩選"
     >
       {statusFilterOptions.map((option) => {
-        const isSelected = value === option.value;
-        const count = statusCounts?.[option.value] ?? 0;
+        const isSelected = props.value === option.value;
+        const count = props.statusCounts?.[option.value] ?? 0;
         return (
           <button
             key={option.value}
