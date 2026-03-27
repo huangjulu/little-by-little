@@ -8,7 +8,7 @@ import Dialog from "@/ui/dialog";
 
 import { orderApi } from "../order.api";
 import type { Order } from "../types";
-import { downloadBillingPdf } from "./billing-notice.utils";
+import { downloadBillingPdf } from "./utils/billing-notice";
 
 const BillingActionBar: React.FC<BillingActionBarProps> = (props) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);

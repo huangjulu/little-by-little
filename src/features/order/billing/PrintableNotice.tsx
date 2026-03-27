@@ -2,15 +2,16 @@
 
 import { forwardRef } from "react";
 
-import type { Order } from "../types";
 import {
-  ATM_BANK_CODE,
-  ATM_BANK_NAME,
   formatBillingPeriod,
   formatMinguoDate,
   formatNoticeAmount,
   formatNoticeTitleDate,
-} from "./billing-notice.utils";
+} from "@/lib/formatters";
+
+import type { Order } from "../types";
+import { ATM_BANK_CODE, ATM_BANK_NAME } from "./constants";
+import { computeAtmAmount, hasPromotion } from "./utils/billing-notice";
 
 const PrintableNotice = forwardRef<HTMLDivElement, PrintableNoticeProps>(
   (props, ref) => {
@@ -208,16 +209,3 @@ interface PrintableNoticeProps {
 PrintableNotice.displayName = "PrintableNotice";
 
 export default PrintableNotice;
-
-// Helpers
-function computeAtmAmount(order: Order): number | null {
-  if (!order.currentPrice) return null;
-  let amount = order.currentPrice;
-  if (order.deposit > 0) amount -= order.deposit;
-  if (order.priceDifference !== 0) amount += order.priceDifference;
-  return amount;
-}
-
-function hasPromotion(order: Order): boolean {
-  return order.yearlyFee != null || order.twoYearFee != null;
-}

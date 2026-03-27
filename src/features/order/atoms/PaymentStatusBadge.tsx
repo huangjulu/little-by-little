@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import Badge from "@/ui/badge";
 
+import { isNextMonthBilling } from "../billing/utils/billing-filter";
 import { paymentBadgeVariant, paymentStatusLabel } from "../constants";
 import type { PaymentStatus } from "../types";
 
@@ -17,7 +18,7 @@ const PaymentStatusBadge: React.FC<PaymentStatusBadgeProps> = (props) => {
   const isDueSoon =
     !isOverdue &&
     props.status === "up_to_date" &&
-    isNextMonth(props.nextBillingDate);
+    isNextMonthBilling(props.nextBillingDate);
 
   const label = isOverdue
     ? "逾期"
@@ -52,14 +53,4 @@ function isPastDeadline(dateString?: string): boolean {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return deadline < today;
-}
-
-function isNextMonth(dateString?: string): boolean {
-  if (!dateString) return false;
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false;
-  const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const monthAfter = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-  return date >= nextMonth && date < monthAfter;
 }

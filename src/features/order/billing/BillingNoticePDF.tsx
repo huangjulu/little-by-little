@@ -1,6 +1,5 @@
 import {
   Document,
-  Font,
   Image,
   Page,
   StyleSheet,
@@ -10,29 +9,18 @@ import {
 import { readFileSync } from "fs";
 import path from "path";
 
-import type { Order } from "../types";
+import "./utils/pdf-font";
+
 import {
-  ATM_BANK_CODE,
-  ATM_BANK_NAME,
   formatBillingPeriod,
   formatMinguoDate,
   formatNoticeAmount,
   formatNoticeTitleDate,
-} from "./billing-notice.utils";
+} from "@/lib/formatters";
 
-Font.register({
-  family: "NotoSansTC",
-  fonts: [
-    {
-      src: "https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-tc@latest/chinese-traditional-400-normal.ttf",
-      fontWeight: 400,
-    },
-    {
-      src: "https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-tc@latest/chinese-traditional-700-normal.ttf",
-      fontWeight: 700,
-    },
-  ],
-});
+import type { Order } from "../types";
+import { ATM_BANK_CODE, ATM_BANK_NAME, PDF_FONT_FAMILY } from "./constants";
+import { computeAtmAmount, hasPromotion } from "./utils/billing-notice";
 
 // ─── 圖片（base64 data URI，確保 @react-pdf/renderer 能正確嵌入）─────────────────
 const imgDir = path.join(process.cwd(), "public", "billing");
@@ -46,7 +34,7 @@ const IMG_BOTTOM_RIGHT = loadImage(path.join(imgDir, "bottom_right.png"));
 // ─── Styles ─────────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   page: {
-    fontFamily: "NotoSansTC",
+    fontFamily: PDF_FONT_FAMILY,
     fontSize: 9,
     padding: "8mm 12mm",
     color: "#1e1e1e",
@@ -491,16 +479,4 @@ function loadImage(filePath: string): string {
     filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? "jpeg" : "png";
   const buf = readFileSync(filePath);
   return `data:image/${ext};base64,${buf.toString("base64")}`;
-}
-
-function computeAtmAmount(order: Order): number | null {
-  if (!order.currentPrice) return null;
-  let amount = order.currentPrice;
-  if (order.deposit > 0) amount -= order.deposit;
-  if (order.priceDifference !== 0) amount += order.priceDifference;
-  return amount;
-}
-
-function hasPromotion(order: Order): boolean {
-  return order.yearlyFee != null || order.twoYearFee != null;
 }
