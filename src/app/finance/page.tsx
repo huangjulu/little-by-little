@@ -1,7 +1,13 @@
+import { Suspense } from "react";
+
 import ViewFinance from "@/features/finance/view/ViewFinance";
 
 const FinancePage: React.FC = () => {
-  return <ViewFinance />;
+  return (
+    <Suspense>
+      <ViewFinance />
+    </Suspense>
+  );
 };
 
 FinancePage.displayName = "FinancePage";

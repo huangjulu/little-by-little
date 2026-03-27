@@ -58,6 +58,7 @@ supabase/migrations/
 
 # Claude Code 本地設定
 CLAUDE.md
+AGENTS.md
 .claude/
 
 # example files 為範本檔，不需要進 commit
@@ -70,3 +71,4 @@ analyze/
 .superpowers/
 docs/superpowers/
 .cursor/rules/
+.gitnexus
